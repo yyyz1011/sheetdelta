@@ -9,6 +9,24 @@
 .dark { --vp-c-brand-1: #92b6ff; --vp-c-brand-2: #acc7ff; --vp-c-brand-3: #5285f4; --vp-c-brand-soft: #1a2c4a; --vp-c-bg: #111823; --vp-c-bg-alt: #161f2c; --vp-c-bg-elv: #1e293a; --vp-c-bg-soft: #192333; --vp-c-text-1: #e4ebf7; --vp-c-text-2: #aebdd2; --vp-c-divider: #29364a; }
 .VPNavBarTitle .title { font-weight: 800; letter-spacing: -.6px; }
 .VPNavBarTitle .logo { width: 28px; height: 28px; }
+/* Keep preferences outside VitePress's automatic navigation overflow. */
+.VPNav .VPNavTranslations, .VPNav .VPNavAppearance { display: none !important; }
+.nav-preferences { display: flex; align-items: center; flex-shrink: 0; padding-left: 8px; }
+.nav-preference { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 40px; min-width: 40px; padding: 0 8px; border-radius: 6px; color: var(--vp-c-text-2); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.nav-preference:hover { color: var(--vp-c-brand-1); background: var(--vp-c-brand-soft); }
+.nav-preference:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: -2px; }
+.nav-preference svg { width: 19px; height: 19px; flex-shrink: 0; }
+.theme-preference .theme-moon, .dark .theme-preference .theme-sun { display: none; }
+.dark .theme-preference .theme-moon { display: block; }
+@media (max-width: 767px) {
+  .nav-preferences { order: -1; padding-left: 0; }
+  .VPNavBar .content { min-width: 0; }
+}
+@media (max-width: 379px) {
+  .language-preference svg { display: none; }
+  .VPNavBarTitle .title { font-size: 16px; }
+  .VPNavBarTitle .logo { width: 24px; height: 24px; margin-right: 6px; }
+}
 .vp-doc h1 { font-size: 36px; line-height: 1.25; letter-spacing: -1.35px; font-weight: 800; }
 .vp-doc h2 { font-size: 23px; letter-spacing: -.55px; margin-top: 38px; }
 .vp-doc p, .vp-doc li { line-height: 1.85; }
