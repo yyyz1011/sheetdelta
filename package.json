@@ -1,0 +1,29 @@
+{
+  "name": "sheetdelta-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run build -w sheetdelta-core && npm run dev -w @sheetdelta/web",
+    "build": "npm run build -w sheetdelta-core && npm run build -w @sheetdelta/web",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check": "npm run test && npm run build",
+    "pack:core": "npm run build -w sheetdelta-core && node -e \"require('node:fs').mkdirSync('artifacts', {recursive:true})\" && npm pack -w sheetdelta-core --pack-destination artifacts",
+    "release": "semantic-release"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@types/node": "^25.0.0",
+    "semantic-release": "25.0.9",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "overrides": {
+    "vite": "7.3.6"
+  }
+}

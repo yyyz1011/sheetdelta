@@ -1,0 +1,50 @@
+{
+  "name": "sheetdelta-core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Deterministic, key-based table comparison with column mappings and explicit data validation.",
+  "license": "MIT",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "csv",
+    "diff",
+    "table",
+    "compare",
+    "typescript",
+    "spreadsheet"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yyyz1011/sheetdelta.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/yyyz1011/sheetdelta/tree/master/packages/core#readme",
+  "bugs": {
+    "url": "https://github.com/yyyz1011/sheetdelta/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
