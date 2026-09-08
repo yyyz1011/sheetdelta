@@ -1,0 +1,38 @@
+# Migration & compatibility
+
+The toolkit release adds subpath imports and file-processing modules. Existing root imports, explicit comparison mappings, default text equality, ordering and CSV report behavior remain supported.
+
+```ts
+// Existing code remains valid.
+import { compareTables, exportDiffCsv } from 'sheetdelta-core';
+import type { CompareOptions } from 'sheetdelta-core';
+const options: CompareOptions = {
+  keys: [{ left: 'id', right: 'id' }],
+  columns: [{ left: 'price', right: 'price' }],
+};
+```
+
+For shorthand keys, inferred columns and ignore lists, use `CompareInputOptions`. `CompareOptions` retains required explicit mappings for existing TypeScript consumers. Result options are always resolved mappings, even when input uses shorthand.
+
+```ts
+import type { CompareInputOptions } from 'sheetdelta-core/types';
+const options: CompareInputOptions = { keys: ['id'], ignoreColumns: ['updatedAt'] };
+```
+
+## Behavior to choose explicitly
+
+- Comparison defaults are unchanged: text normalization equates `10` and `'10'`, and null/undefined/empty string. `valueMode: 'strict'` and `emptyValues: 'distinct'` are opt-in.
+- Omit `columns` to compare the common non-key columns. An explicitly empty columns array remains an error.
+- Schema changes appear in `result.schema`; they do not change individual row statuses by themselves. Schema is inferred from record keys, so an empty array carries no column schema.
+- Merge and deduplication use typed keys and exact field values. They do not inherit comparison normalization.
+- Importing Excel is async and defaults to display text. It does not recalculate formulas.
+
+## Packaging
+
+Installation now includes file-format dependencies. The root and `/compare` remain free of runtime third-party imports; new modules use isolated entry points. No CommonJS build is supplied. Use ESM or dynamic import. Internal paths are not exported.
+
+## Scope
+
+This release focuses on table data, not a spreadsheet editor or formula engine. No macros, formula evaluation, formatting comparison, fuzzy row matching, many-to-many joins or guaranteed constant-memory streaming are provided. The browser tool remains a file-comparison interface; the new validation, cleaning and merge APIs are available to npm consumers and documented here.
+
+When one side is empty, inferred comparison fields come from the populated side so addition/removal reports retain their values.

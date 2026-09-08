@@ -31,3 +31,7 @@
 ## 在哪里看更新记录？
 
 查看 [GitHub Releases](https://github.com/yyyz1011/sheetdelta/releases)。核心修复和功能合并到 master 后，测试通过即可自动发布；文档和网站维护不会单独触发 npm 发版。
+
+## npm 如何读取 Excel？
+
+先调用 `sheetdelta-core/excel` 的 `readExcel`，再将选中表的 rows 交给 `compareTables`。详见 [Excel 指南](./excel) 与 [完整流程](./workflow)。

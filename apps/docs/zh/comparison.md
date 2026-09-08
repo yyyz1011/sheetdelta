@@ -39,3 +39,7 @@ const options = {
 ## 精度
 
 计算使用 JavaScript 的 IEEE 754 数字，而非十进制运算。精确金额比较建议先转换成统一格式的文本，或以分等最小货币单位表示为整数。
+
+## 新增规则
+
+省略 `columns` 自动比较共同的非主键列；`ignoreColumns` 忽略指定字段。`valueMode: "strict"` 区分基本类型，`emptyValues: "distinct"` 区分 null、undefined 和空字符串。比较字段可单独设置 `trim`、`ignoreCase`，不改变主键规则。`result.schema` 根据记录字段给出新增、删除和共同列。

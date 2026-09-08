@@ -1,13 +1,13 @@
 ---
-description: A dependency-free TypeScript library for comparing tables by unique keys. Start here, explore examples, and find the API you need.
+description: A TypeScript toolkit for Excel and CSV data with selective imports. Start here, explore examples, and find the API you need.
 ---
 <div class="doc-eyebrow">SHEETDELTA / DOCUMENTATION</div>
 
-# Find what changed. Keep the context.
+# Excel and CSV data, ready for your application.
 
-<p class="doc-lead">Compare two tables by the records they contain—not where their rows happen to be. Get structured changes you can use in your application.</p>
+<p class="doc-lead">Read, validate, clean, compare and merge table data. Export useful Excel reports with one package and focused imports.</p>
 
-<div class="doc-meta"><span>TypeScript + JavaScript</span><span>Zero runtime dependencies</span><span>MIT licensed</span></div>
+<div class="doc-meta"><span>TypeScript + JavaScript</span><span>Selective imports</span><span>MIT licensed</span></div>
 
 ```sh
 npm install sheetdelta-core
@@ -32,13 +32,21 @@ npm install sheetdelta-core
 
 | | npm package | Browser tool |
 | --- | --- | --- |
-| Input | Arrays of JavaScript records | CSV, TSV, XLSX, XLS files |
+| Input | Records, CSV text, XLSX/XLS bytes | CSV, TSV, XLSX, XLS files |
 | Matching | Single or composite keys | One key column |
-| Output | Typed results and CSV text | Visual comparison and CSV download |
+| Output | Typed results, CSV and XLSX reports | Visual comparison and CSV download |
 | Best for | Application integration | Checking files by hand |
 
-The package compares records. File parsing is handled separately by the browser tool. It does not calculate Excel formulas or compare cell formatting.
+File APIs are available through `/csv` and `/excel`. Comparison, validation, cleaning and merge modules operate on records. The toolkit does not calculate Excel formulas or compare cell formatting.
 
 ## Runtime requirements
 
 Use ESM in Node.js 18+ or a modern browser with `structuredClone`. Type declarations are included. For large datasets in the browser, run the synchronous comparison inside a Web Worker.
+
+## Explore the toolkit
+
+- [Selective imports](./imports): one installation, isolated feature modules.
+- [Excel files & reports](./excel) and [CSV files](./csv): read files and export results.
+- [Validation](./validate), [cleaning](./clean), and [merge](./merge): prepare data for your application.
+- [Complete workflow](./workflow): a runnable import-to-report example.
+- [Migration](./migration): compatibility and deliberate behavior choices.

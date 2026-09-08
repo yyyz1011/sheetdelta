@@ -9,6 +9,16 @@ const sidebar = (zh = false) => {
       { text: zh ? '快速开始' : 'Quick start', link: p + 'quick-start' },
       { text: zh ? '浏览器工具' : 'Browser tool', link: p + 'browser-tool' },
     ] },
+    { text: zh ? '功能模块' : 'Toolkit modules', items: [
+      { text: zh ? '按需导入' : 'Selective imports', link: p + 'imports' },
+      { text: zh ? 'Excel 读取与报告' : 'Excel files & reports', link: p + 'excel' },
+      { text: zh ? 'CSV 读取与导出' : 'CSV files', link: p + 'csv' },
+      { text: zh ? '数据校验' : 'Schema validation', link: p + 'validate' },
+      { text: zh ? '清洗与去重' : 'Cleaning & deduplication', link: p + 'clean' },
+      { text: zh ? '合并与追加' : 'Merge & append', link: p + 'merge' },
+      { text: zh ? '完整处理流程' : 'Complete workflow', link: p + 'workflow' },
+      { text: zh ? '升级与兼容' : 'Migration & compatibility', link: p + 'migration' },
+    ] },
     { text: zh ? '核心概念' : 'Core concepts', items: [
       { text: zh ? '键与字段映射' : 'Keys & column mapping', link: p + 'mapping' },
       { text: zh ? '比较规则' : 'Comparison rules', link: p + 'comparison' },
@@ -22,7 +32,7 @@ const sidebar = (zh = false) => {
   ];
 };
 export default defineConfig({
-  title: 'SheetDelta', description: 'Compare tables by identity, not row position. Documentation for sheetdelta-core.',
+  title: 'SheetDelta', description: 'Read, validate, clean, compare, merge and export Excel and CSV data. One TypeScript package with selective imports.',
   base: '/docs/', lang: 'en-US', cleanUrls: false,
   // VitePress passes this value to VueUse and its pre-paint script. Explicit light ignores OS dark mode on first visit.
   appearance: { initialValue: 'light' },

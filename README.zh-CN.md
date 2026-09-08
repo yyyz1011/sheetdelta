@@ -1,56 +1,55 @@
-# 表里 SheetDelta
+# SheetDelta
 
-按唯一键比较两份表格，找出新增、删除和修改，并导出 CSV 报告。项目包含无运行时依赖的 TypeScript 核心包，以及用于比较 Excel / CSV 文件的浏览器工具。
+面向 TypeScript / JavaScript 的 Excel 与 CSV 数据工具包：读取、校验、清洗、比较、合并并导出报告。**一个 npm 包，按功能导入。**
 
 [English](README.md) · **简体中文**
 
-[英文文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/) · [中文文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/) · [浏览器工具](https://sheetdelta.snowy-hero-3539.chatgpt.site/playground/) · [npm](https://www.npmjs.com/package/sheetdelta-core) · [更新记录](https://github.com/yyyz1011/sheetdelta/releases)
-
-## 安装
+[English docs](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/) · [中文文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/) · [浏览器工具](https://sheetdelta.snowy-hero-3539.chatgpt.site/playground/) · [npm](https://www.npmjs.com/package/sheetdelta-core)
 
 ```sh
 npm install sheetdelta-core
 ```
 
-使用 ESM，支持 Node.js 18+ 或具有 `structuredClone` 的现代浏览器。内置 TypeScript 类型声明，无运行时依赖。
-
-## 快速示例
-
 ```ts
-import { compareTables, exportDiffCsv } from 'sheetdelta-core';
-
-const result = compareTables(
-  [{ sku: '001', price: '129.00' }],
-  [{ id: '001', price: '119.00' }],
-  {
-    keys: [{ left: 'sku', right: 'id' }],
-    columns: [{ left: 'price', right: 'price' }],
-  },
-);
-
-console.log(result.summary.changed); // 1
-const csv = exportDiffCsv(result);
+import { readCsv } from 'sheetdelta-core/csv';
+import { compareTables } from 'sheetdelta-core/compare';
+import { exportDiffExcel } from 'sheetdelta-core/excel';
+const before = readCsv('sku,price\n001,10');
+const after = readCsv('sku,price\n001,12');
+const result = compareTables(before.rows, after.rows, { keys: ['sku'] });
+const report = await exportDiffExcel(result); // XLSX Uint8Array
 ```
 
-继续阅读 [快速开始](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/quick-start.html)、[API 参考](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/api/compare-tables.html) 或 [核心包 README](packages/core/README.md)。
+## 功能与入口
 
-## 功能
+| 入口 | 功能 |
+| --- | --- |
+| `/compare` | 主键/联合主键比较、字段映射、自动列选择、忽略列、列结构变化、严格类型和数值容差 |
+| `/csv` | CSV 读取、通用导出、差异报告、危险文本转义 |
+| `/excel` | XLSX/XLS 读取、工作表/表头选择、显示值/原始值、XLSX 导出和高亮差异报告 |
+| `/validate` | 必填、类型、唯一性、范围、枚举、正则、有效 ISO 日期 |
+| `/clean` | 显式清洗和转换、变更记录、按主键去重、源记录位置 |
+| `/merge` | 左/内/全连接、冲突报告、严格或并集结构的纵向追加 |
+| `/types` | 公共 TypeScript 类型 |
 
-- 按唯一键匹配，不受行顺序影响；支持复合键和两侧不同列名。
-- 返回新增、删除、修改和未变化记录，以及字段级变化前后值。
-- 可选忽略首尾空格、忽略大小写和字段级数值容差。
-- 明确报告缺少列、空编号和重复编号等数据问题。
-- CSV 导出默认开启公式转义。
-- 浏览器工具支持 CSV、TSV、XLSX、XLS，以及工作表选择、差异展示、筛选、导出和保存规则。
-- 文档提供中英文、全文搜索和明暗主题切换。首次打开默认英文浅色，之后记住主题选择。
+旧根入口继续兼容，根入口和 `/compare` 不加载第三方运行时代码。安装时包含完整文件依赖，前端构建按实际引用纳入模块，Excel 依赖使用时再加载。详见 [按需导入](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/imports.html)。
 
-## 浏览器工具与隐私
+## 数据规则
 
-文件通过浏览器 Worker 在本地解析和比较，不上传、不持久化。localStorage 仅保存规则名称、映射和选项。目前没有第三方广告或远程统计。
+- npm 不上传数据，不包含统计或广告。
+- 比较保留旧的文本规则；严格类型需显式开启。缺失、重复主键报错。
+- 合并、去重区分主键类型：数字 `1` 和文本 `'1'` 不同。
+- 清洗返回变更和失败记录，合并冲突默认报错，不静默覆盖。
+- Excel 默认读取显示文本；原始模式保留基本类型，日期为数字序列值。公式只读取缓存结果，不求值。
+- Excel 默认限制 20 MiB、每张表 50,000 物理数据行、1,000 列，可配置，超限报错。
+- 全部操作在内存完成，大文件应放入 Worker；不提供公式引擎、宏、样式差异比较或恒定内存流式保证。
+- 数值采用 JavaScript 浮点数；精确小数请使用规范文本，已损坏的编号无法恢复。
 
-工具界面当前为中文。每个文件最多 10 MB，工作簿总计最多 50,000 数据行，每张表最多 100 列。核心包支持复合键，工具目前选择单列键。
+支持 ESM、Node.js 18+ 和支持 structuredClone 的现代浏览器，内置类型声明。详见 [完整流程](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/workflow.html) 与 [升级说明](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/migration.html)。
 
-Excel 按显示值比较，不重新计算公式，不比较样式、批注或合并单元格语义。解析前请保留编号的文本类型。数值容差使用 IEEE 754 数字，精确金额建议先标准化为文本；导入 CSV 时应将编号列设为文本，避免 Excel 丢失前导零。
+## 浏览器工具
+
+独立网页提供文件比较、可视化差异、规则保存和 CSV 下载，当前为中文界面、单列键。新增校验/清洗/合并模块通过 npm 使用。网页限制保持为每文件 10 MB、每工作簿 50,000 总数据行、每表 100 列，没有远程统计或第三方广告。
 
 ## 本地开发
 

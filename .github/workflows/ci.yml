@@ -25,3 +25,4 @@ jobs:
       - run: npm run test:e2e
       - run: npm run pack:core
       - run: node scripts/smoke-package.mjs
+      - run: node scripts/check-doc-examples.mjs

@@ -2,7 +2,7 @@
   "name": "sheetdelta-core",
   "version": "0.1.0",
   "type": "module",
-  "description": "Deterministic, key-based table comparison with column mappings and explicit data validation.",
+  "description": "Excel and CSV toolkit: import, validate, clean, compare, merge and export reports with independent ESM entry points.",
   "license": "MIT",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -12,6 +12,41 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./compare": {
+      "types": "./dist/compare.d.ts",
+      "import": "./dist/compare.js",
+      "default": "./dist/compare.js"
+    },
+    "./csv": {
+      "types": "./dist/csv.d.ts",
+      "import": "./dist/csv.js",
+      "default": "./dist/csv.js"
+    },
+    "./excel": {
+      "types": "./dist/excel.d.ts",
+      "import": "./dist/excel.js",
+      "default": "./dist/excel.js"
+    },
+    "./validate": {
+      "types": "./dist/validate.d.ts",
+      "import": "./dist/validate.js",
+      "default": "./dist/validate.js"
+    },
+    "./clean": {
+      "types": "./dist/clean.d.ts",
+      "import": "./dist/clean.js",
+      "default": "./dist/clean.js"
+    },
+    "./merge": {
+      "types": "./dist/merge.d.ts",
+      "import": "./dist/merge.js",
+      "default": "./dist/merge.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js",
+      "default": "./dist/types.js"
     }
   },
   "files": [
@@ -29,7 +64,13 @@
     "table",
     "compare",
     "typescript",
-    "spreadsheet"
+    "spreadsheet",
+    "excel",
+    "xlsx",
+    "validation",
+    "deduplicate",
+    "merge",
+    "report"
   ],
   "repository": {
     "type": "git",
@@ -46,5 +87,13 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "papaparse": "5.5.3",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "fflate": "0.8.3"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.5.2"
   }
 }
