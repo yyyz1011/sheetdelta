@@ -16,3 +16,5 @@ playwright-report/
 *.key
 artifacts/
 .impeccable/
+
+apps/docs/.vitepress/cache/
