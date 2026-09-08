@@ -9,6 +9,12 @@ import * as XLSX from 'xlsx';
 import { unzipSync, strFromU8 } from 'fflate';
 
 describe('simplified comparison', () => {
+  it('retains non-key report fields when one input is empty', () => {
+    const added = compareTables([], [{ id: '001', price: 12 }], { keys: ['id'] });
+    const removed = compareTables([{ id: '001', price: 12 }], [], { keys: ['id'] });
+    expect(added.options.columns).toEqual([{ left: 'price', right: 'price' }]);
+    expect(removed.options.columns).toEqual(added.options.columns);
+  });
   it('infers common non-key columns and reports schema additions/removals', () => {
     const result = compareTables([{ id: '001', price: 1, legacy: 'x' }], [{ id: '001', price: 2, fresh: true }], { keys: ['id'] });
     expect(result.summary.changed).toBe(1);

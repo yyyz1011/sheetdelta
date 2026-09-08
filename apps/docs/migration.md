@@ -34,3 +34,5 @@ Installation now includes file-format dependencies. The root and `/compare` rema
 ## Scope
 
 This release focuses on table data, not a spreadsheet editor or formula engine. No macros, formula evaluation, formatting comparison, fuzzy row matching, many-to-many joins or guaranteed constant-memory streaming are provided. The browser tool remains a file-comparison interface; the new validation, cleaning and merge APIs are available to npm consumers and documented here.
+
+When one side is empty, inferred comparison fields come from the populated side so addition/removal reports retain their values.

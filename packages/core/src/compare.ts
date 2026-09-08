@@ -30,7 +30,9 @@ export function compareTables(left: readonly Row[], right: readonly Row[], input
   const asPair = (column: string | ColumnPair): ColumnPair => typeof column === 'string' ? { left: column, right: column } : { ...column };
   const keys = input.keys.map(asPair);
   const keyColumns = new Set(keys.flatMap(pair => [pair.left, pair.right]));
-  const columns = input.columns?.map(asPair) ?? schema.common.filter(c => !keyColumns.has(c)).map(asPair);
+  // An empty side has no schema: retain the populated side's fields in addition/removal reports.
+  const inferredColumns = left.length === 0 ? rightHeaders : right.length === 0 ? leftHeaders : schema.common;
+  const columns = input.columns?.map(asPair) ?? inferredColumns.filter(c => !keyColumns.has(c)).map(asPair);
   const options = { ...input, keys, columns: columns.filter(pair => !ignored.has(pair.left) && !ignored.has(pair.right)) };
   if (!options.keys.length) throw new Error('Select at least one key column.');
   if (input.columns && !input.columns.length) throw new Error('Select at least one comparison column.');
