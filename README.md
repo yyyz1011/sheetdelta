@@ -1,75 +1,97 @@
-# 表里 SheetDelta
+# SheetDelta
 
-在浏览器里比较两份 Excel / CSV：按唯一编号匹配记录，查看新增、删除和修改，导出差异，保存规则供下次使用。
+Compare tables by unique keys, find added, removed, and changed records, and export a useful CSV report. Includes a dependency-free TypeScript library and a browser tool for Excel and CSV files.
 
-这是独立的新项目，不依赖当前目录中的其他应用。npm 包名为 `sheetdelta-core`；[GitHub 仓库](https://github.com/yyyz1011/sheetdelta)。已发布到 [npm](https://www.npmjs.com/package/sheetdelta-core)，并绑定 GitHub 可信发布；网站尚未部署到公网。
+**English** · [简体中文](README.zh-CN.md)
 
-## 安装 npm 核心包
+[Documentation](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/) · [中文文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/) · [Browser tool](https://sheetdelta.snowy-hero-3539.chatgpt.site/playground/) · [npm](https://www.npmjs.com/package/sheetdelta-core) · [Releases](https://github.com/yyyz1011/sheetdelta/releases)
+
+## Install
 
 ```sh
 npm install sheetdelta-core
 ```
 
-核心 API 和示例见 [接入文档](packages/core/README.md)。仓库使用 PR + squash 合并到 `master`，测试通过后自动按 `fix` / `feat` / `BREAKING CHANGE` 发布，详见 [发布维护指南](docs/RELEASING.md)。
+ESM, Node.js 18+ or a modern browser with `structuredClone`. TypeScript declarations are included; the library has no runtime dependencies.
 
-## 启动
+## Quick example
 
-开发和自动发布使用 Node.js 24.10+、npm 11.5.1+；npm 核心包的使用者只需 Node.js 18+。
+```ts
+import { compareTables, exportDiffCsv } from 'sheetdelta-core';
+
+const result = compareTables(
+  [{ sku: '001', price: '129.00' }],
+  [{ id: '001', price: '119.00' }],
+  {
+    keys: [{ left: 'sku', right: 'id' }],
+    columns: [{ left: 'price', right: 'price' }],
+  },
+);
+
+console.log(result.summary.changed); // 1
+const csv = exportDiffCsv(result);
+```
+
+Read the [quick start](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/quick-start.html), [API reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/compare-tables.html), or [package README](packages/core/README.md).
+
+## Features
+
+- Key-based matching independent of row order, with composite keys and different column names.
+- Structured added/removed/changed/unchanged records and field-level before/after values.
+- Optional whitespace normalization, case-insensitive comparison, and per-field numeric tolerance.
+- Explicit errors for missing columns, blank keys, and duplicate keys.
+- CSV export with formula escaping enabled by default.
+- A browser tool for CSV, TSV, XLSX, and XLS: worksheet selection, visual comparison, filters, export, and saved rules.
+- Searchable English and Chinese documentation, with a light/dark theme switch. New visits default to English and light mode; theme preferences are remembered.
+
+## Browser tool and privacy
+
+Files are parsed and compared in a browser worker. They are not uploaded or persisted. Local storage contains only saved rule names, mappings, and options. There are currently no third-party ads or remote analytics.
+
+The tool currently has a Chinese interface. Limits: 10 MB per file, 50,000 total workbook data rows, and 100 columns per sheet. The core supports composite keys; the tool currently selects one key column.
+
+Excel comparison uses displayed values. It does not recalculate formulas or compare styles, comments, or merged-cell semantics. Preserve identifiers as text before parsing. Numeric tolerance uses IEEE 754 numbers; use normalized text for exact decimal comparisons. Import CSV identifier columns as text to prevent Excel from dropping leading zeros.
+
+## Local development
+
+Use Node.js 24.10+ and npm 11.5.1+.
 
 ```sh
-npm install
-npm run dev
+npm ci
+npm run dev          # Browser tool: http://127.0.0.1:5178
+npm run docs:dev     # Documentation: http://127.0.0.1:5179/docs/
 ```
-
-打开 http://127.0.0.1:5178 。可以直接点「试用商品示例」，也可以选择真实文件。
 
 ```sh
-npm run check        # 单元测试、类型检查与生产构建
-npm run test:e2e     # 浏览器工作流测试
-npm run pack:core    # 生成 artifacts/sheetdelta-core-0.1.0.tgz
+npm run check        # Unit tests, TypeScript checks, tool build
+npm run test:e2e     # Existing browser-tool regression suite
+npm run site:build   # Build bilingual docs and browser tool into dist/
+npm run site:check   # Validate static routes, locales, and theme defaults
+npm run pack:core    # Build the distributable npm tarball in artifacts/
 ```
 
-浏览器测试默认使用 macOS 的 Google Chrome；Linux/CI 使用 `npx playwright install --with-deps chromium` 安装测试浏览器；也可设置 `CHROME_PATH`。生产构建位于 `apps/web/dist`，可由静态服务器托管。`/guide/` 与 `/docs/` 为真正的静态 HTML 页面，托管时应支持目录 index.html。
+Browser tests use Chrome on macOS. On Linux, install Chromium with `npx playwright install --with-deps chromium`, or set `CHROME_PATH`.
 
-## 已实现
+## Repository structure
 
-- CSV（UTF-8 / GB18030 回退）、TSV、XLSX / XLS；Excel 多工作表选择。
-- 按编号匹配，忽略行顺序；保留文本 SKU 前导零。
-- 字段选择和两侧不同列名映射。
-- 可选忽略首尾空格、大小写、字段级数值容差。
-- 阻止重复编号、缺少编号、重复/空表头等不确定比较。
-- 新增/删除/修改/未变化统计，单元格前后值高亮，搜索和分页。
-- 导出含前后字段与记录位置的差异 CSV，默认转义公式前缀。
-- 最多 20 条本地规则，持久化、应用、删除。
-- 桌面和手机界面；文件读取与比较通过 Web Worker 执行。
-- 静态使用指南、npm 接入文档，以及无文件内容的本地事件挂钩。
-- 独立的无运行时依赖 npm 核心包，包含 TypeScript 声明。
+| Path | Purpose |
+| --- | --- |
+| `packages/core/` | Published TypeScript comparison library |
+| `apps/docs/` | VitePress documentation: English and Chinese Markdown |
+| `apps/web/` | React browser tool and local file parsing |
+| `scripts/` | Package and static-site validation |
+| `tests/` | Core, parser, and browser regressions |
+| `docs/RELEASING.md` | npm release maintenance |
+| `docs/HOSTING.md` | Documentation hosting and update instructions |
 
-## 目录
+## Contributing and releases
 
-```text
-apps/web/             网站界面、文件解析、Web Worker
-apps/web/guide/       静态使用指南
-apps/web/docs/        静态开发者文档
-packages/core/        可打包的 TypeScript 比较引擎
-tests/               核心、文件解析和浏览器回归测试
-artifacts/           本地 npm 打包产物
-docs/qa/             验证记录与已知边界
-.impeccable/review/   桌面与手机截图
-PRODUCT.md           产品范围和未决事项
-DESIGN.md            界面设计记录
-```
+Create a branch, open a PR, and squash-merge after required checks pass. Use `fix(core): ...` for patches, `feat(core): ...` for features, and a `BREAKING CHANGE:` body for incompatible changes. Documentation and `web`-scoped changes do not publish a new npm version.
 
-## 数据语义与边界
+GitHub Actions publishes npm releases from `master` using trusted publishing. Versions and release notes are recorded in Git tags, GitHub Releases, and npm. The development workspace retains its baseline package version. See [release maintenance](docs/RELEASING.md).
 
-每个文件最多 10 MB；整个工作簿最多 50,000 数据行，每张表最多 100 列。首个非空记录是表头，空记录忽略。CSV 中包含换行的引号字段仍是一条记录，提示/导出中的行号是 CSV 记录位置。
+For documentation changes, update both the English page and its counterpart under `apps/docs/zh/`. Translation switches keep the current page. Report bugs with a small reproduction that contains no sensitive data.
 
-Excel 比较显示值，不计算公式、不比较样式、批注或合并单元格语义。公式需先在 Excel 内重新计算并保存；不能恢复源文件已丢失的前导零。当前网站只选择单列键，核心支持复合键。数值容差使用 IEEE 754 Number，精确金额建议按标准化文本比较。导出按字符串保留原内容，但 Excel 自行打开 CSV 可能再次推断数字格式；通过导入向导指定编号列为文本可保留零前缀。
+## License
 
-文件不上传、不持久化；localStorage 只保存规则名称、列名和选项。当前没有第三方广告、远程统计或账户系统。尚未验证真实流量、回访率、广告收益、跨浏览器完整兼容性和恶意工作簿解压资源边界。
-
-## 后续上线事项
-
-选定网站域名和静态托管、按实际隐私与广告方案接入统计。npm 发布流程见 [发布维护指南](docs/RELEASING.md)。站内先看真实文件的成功比较、导出和回访，示例点击单独记录。当前事件只派发在浏览器内部，不构成线上 UV 统计。
-
-SheetJS 采用官方 0.20.3 分发源，而非 npm registry 中陈旧版本；锁文件固定依赖。参考：https://docs.sheetjs.com/docs/getting-started/installation/frameworks/
+[MIT](LICENSE). File parsing uses Papa Parse and the official SheetJS 0.20.3 distribution; documentation uses VitePress.

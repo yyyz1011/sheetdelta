@@ -14,7 +14,11 @@
     "test:e2e": "playwright test",
     "check": "npm run test && npm run build",
     "pack:core": "npm run build -w sheetdelta-core && node -e \"require('node:fs').mkdirSync('artifacts', {recursive:true})\" && npm pack -w sheetdelta-core --pack-destination artifacts",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "docs:dev": "npm run dev -w @sheetdelta/docs",
+    "docs:build": "npm run build -w @sheetdelta/docs",
+    "site:build": "npm run build -w sheetdelta-core && WEB_BASE=/playground/ npm run build -w @sheetdelta/web && npm run docs:build && node scripts/assemble-site.mjs",
+    "site:check": "node scripts/check-docs.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

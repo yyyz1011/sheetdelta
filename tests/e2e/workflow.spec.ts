@@ -109,6 +109,5 @@ test('guides and developer documentation are real reachable pages', async ({ pag
   await page.goto('/');
   await page.getByRole('link', { name: '如何使用', exact: true }).click();
   await expect(page.getByRole('heading', { name: '两份表格，找出真正的变化。' })).toBeVisible();
-  await page.goto('/docs/');
-  await expect(page.getByRole('heading', { name: '把比较能力，接入你的项目。' })).toBeVisible();
+  await expect(page.getByRole('link', { name: '表格对比', exact: true })).toBeVisible();
 });

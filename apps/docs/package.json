@@ -1,0 +1,1 @@
+{"name":"@sheetdelta/docs","version":"0.1.0","private":true,"type":"module","scripts":{"dev":"vitepress dev --host 127.0.0.1 --port 5179","build":"vitepress build","preview":"vitepress preview --host 127.0.0.1 --port 5179"},"devDependencies":{"vitepress":"2.0.0-alpha.20"}}

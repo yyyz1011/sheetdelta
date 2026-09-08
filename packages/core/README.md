@@ -2,6 +2,8 @@
 
 Dependency-free, key-based table comparison for TypeScript and JavaScript. Supports column mappings, composite keys, explicit numeric tolerance, actionable validation errors, and CSV export. Source: [yyyz1011/sheetdelta](https://github.com/yyyz1011/sheetdelta).
 
+[Documentation](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/) · [中文文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/)
+
 ## Installation
 
 ```sh
