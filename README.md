@@ -2,7 +2,15 @@
 
 在浏览器里比较两份 Excel / CSV：按唯一编号匹配记录，查看新增、删除和修改，导出差异，保存规则供下次使用。
 
-这是独立的新项目，不依赖当前目录中的其他应用。npm 包名为 `sheetdelta-core`；[GitHub 仓库](https://github.com/yyyz1011/sheetdelta)。首次 npm 发布和可信发布绑定仍需完成，网站尚未部署到公网。
+这是独立的新项目，不依赖当前目录中的其他应用。npm 包名为 `sheetdelta-core`；[GitHub 仓库](https://github.com/yyyz1011/sheetdelta)。已发布到 [npm](https://www.npmjs.com/package/sheetdelta-core)，并绑定 GitHub 可信发布；网站尚未部署到公网。
+
+## 安装 npm 核心包
+
+```sh
+npm install sheetdelta-core
+```
+
+核心 API 和示例见 [接入文档](packages/core/README.md)。仓库使用 PR + squash 合并到 `master`，测试通过后自动按 `fix` / `feat` / `BREAKING CHANGE` 发布，详见 [发布维护指南](docs/RELEASING.md)。
 
 ## 启动
 
