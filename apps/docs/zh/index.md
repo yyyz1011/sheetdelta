@@ -1,13 +1,13 @@
 ---
-description: 无运行时依赖的 TypeScript 表格对比工具。快速上手、查看示例，或直接查阅 API。
+description: 支持按需导入的 TypeScript Excel 与 CSV 数据工具包。读取、校验、清洗、比较、合并并导出报告。
 ---
 <div class="doc-eyebrow">SHEETDELTA / 中文文档</div>
 
-# 找出变化，保留完整上下文。
+# 让 Excel 与 CSV 数据接入你的应用。
 
-<p class="doc-lead">按记录的唯一标识比较两份表格。即使行顺序改变，也能找到对应的数据，并获得可直接用于业务逻辑的差异结果。</p>
+<p class="doc-lead">用一个包完成读取、校验、清洗、比较和合并，生成可交付的 Excel 报告。按功能导入，保留清晰的数据处理规则。</p>
 
-<div class="doc-meta"><span>TypeScript + JavaScript</span><span>零运行时依赖</span><span>MIT 开源协议</span></div>
+<div class="doc-meta"><span>TypeScript + JavaScript</span><span>按需导入</span><span>MIT 开源协议</span></div>
 
 ```sh
 npm install sheetdelta-core
@@ -32,13 +32,21 @@ npm install sheetdelta-core
 
 | | npm 核心包 | 浏览器工具 |
 | --- | --- | --- |
-| 输入 | JavaScript 对象数组 | CSV、TSV、XLSX、XLS 文件 |
+| 输入 | 对象数组、CSV 文本、XLSX/XLS 字节 | CSV、TSV、XLSX、XLS 文件 |
 | 匹配 | 单列键或复合键 | 单列键 |
-| 输出 | 带类型的结果和 CSV 文本 | 可视化差异和 CSV 下载 |
+| 输出 | 类型化结果、CSV、XLSX 报告 | 可视化差异和 CSV 下载 |
 | 适合 | 集成到业务系统 | 手动核对文件 |
 
-核心包负责比较记录，文件解析由浏览器工具单独处理。不计算 Excel 公式，也不比较单元格样式。
+通过 `/csv` 和 `/excel` 读取文件；比较、校验、清洗、合并基于统一记录结构。不计算 Excel 公式，也不比较单元格样式。
 
 ## 运行环境
 
 支持 Node.js 18+ 的 ESM 环境，以及支持 `structuredClone` 的现代浏览器。内置 TypeScript 类型声明。比较是同步执行的，浏览器处理较大数据集时建议放入 Web Worker。
+
+## 完整工具包
+
+- [按需导入](./imports)：一个安装包，多个独立功能入口。
+- [Excel 文件与报告](./excel)、[CSV 文件](./csv)：读取文件并导出结果。
+- [数据校验](./validate)、[清洗与去重](./clean)、[合并与追加](./merge)：准备业务数据。
+- [完整流程](./workflow)：从导入到报告的可运行示例。
+- [升级说明](./migration)：旧 API 兼容与显式规则。

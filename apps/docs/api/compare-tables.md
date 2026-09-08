@@ -8,7 +8,7 @@ Match records by key and return a structured, synchronous comparison.
 compareTables(
   left: readonly Row[],
   right: readonly Row[],
-  options: CompareOptions,
+  options: CompareInputOptions,
 ): DiffResult
 ```
 
@@ -16,9 +16,12 @@ compareTables(
 type Cell = string | number | boolean | null | undefined;
 type Row = Record<string, Cell>;
 
-type CompareOptions = {
-  keys: { left: string; right: string }[];
-  columns: { left: string; right: string; numericTolerance?: number }[];
+type CompareInputOptions = {
+  keys: (string | { left: string; right: string })[];
+  columns?: (string | { left: string; right: string; numericTolerance?: number; trim?: boolean; ignoreCase?: boolean })[];
+  ignoreColumns?: string[];
+  valueMode?: "text" | "strict";
+  emptyValues?: "equal" | "distinct";
   trim?: boolean;
   ignoreCase?: boolean;
 };
@@ -29,14 +32,14 @@ type CompareOptions = {
 | Option | Required | Default | Purpose |
 | --- | --- | --- | --- |
 | `keys` | Yes | — | One or more unique key mappings |
-| `columns` | Yes | — | One or more comparison field mappings |
+| `columns` | No | Common non-key columns | String names or field mappings; explicit empty arrays are rejected |
 | `trim` | No | `false` | Ignore surrounding whitespace |
 | `ignoreCase` | No | `false` | Compare text case-insensitively |
 | `columns[].numericTolerance` | No | Text comparison | Maximum absolute numeric difference |
 
 ## Return value
 
-`DiffResult` contains `rows`, `summary`, and a cloned `options` object.
+`DiffResult` contains `rows`, `summary`, `schema` and a cloned, resolved `options` object. `schema` contains `added`, `removed` and `common` column names inferred from record keys. Schema changes alone do not change row statuses. Empty input arrays carry no column schema.
 
 | Row property | Description |
 | --- | --- |
@@ -57,3 +60,14 @@ Inputs are not mutated. Returned records reference your input objects; clone the
 ## Errors
 
 See [Validation & errors](../validation) for `TableValidationError.issues` and configuration errors.
+
+## Shorthand and new rules
+
+```ts
+import { compareTables } from "sheetdelta-core/compare";
+const result = compareTables([{ id: 1, value: 10 }], [{ id: 1, value: "10" }], {
+  keys: ["id"], ignoreColumns: ["updatedAt"], valueMode: "strict", emptyValues: "distinct",
+});
+```
+
+`ignoreColumns` excludes names on either side, including explicit value mappings, but never removes key validation. Strict value mode distinguishes primitive types; empty-values mode distinguishes null, undefined and empty text. Field-level `trim` and `ignoreCase` override global rules for values, not keys. Existing `CompareOptions` retains explicit required mappings for source compatibility.

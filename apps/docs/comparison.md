@@ -39,3 +39,7 @@ const options = {
 ## Precision
 
 Calculations use JavaScript IEEE 754 numbers, not decimal arithmetic. For exact money comparisons, normalize to a consistent text representation or integer minor units before comparing.
+
+## Additional rules
+
+Omit `columns` to infer common non-key fields; `ignoreColumns` excludes named fields. `valueMode: "strict"` distinguishes primitive types. `emptyValues: "distinct"` distinguishes null, undefined and empty strings. Individual comparison mappings may set `trim` and `ignoreCase` without changing key normalization. `result.schema` lists added, removed and common columns inferred from record keys.

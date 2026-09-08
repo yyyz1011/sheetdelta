@@ -1,56 +1,57 @@
 # SheetDelta
 
-Compare tables by unique keys, find added, removed, and changed records, and export a useful CSV report. Includes a dependency-free TypeScript library and a browser tool for Excel and CSV files.
+An Excel and CSV data toolkit for TypeScript and JavaScript: read, validate, clean, compare, merge and export useful reports. **One npm package, focused imports.**
 
 **English** · [简体中文](README.zh-CN.md)
 
 [Documentation](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/) · [中文文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/) · [Browser tool](https://sheetdelta.snowy-hero-3539.chatgpt.site/playground/) · [npm](https://www.npmjs.com/package/sheetdelta-core) · [Releases](https://github.com/yyyz1011/sheetdelta/releases)
 
-## Install
-
 ```sh
 npm install sheetdelta-core
 ```
 
-ESM, Node.js 18+ or a modern browser with `structuredClone`. TypeScript declarations are included; the library has no runtime dependencies.
-
-## Quick example
-
 ```ts
-import { compareTables, exportDiffCsv } from 'sheetdelta-core';
+import { readCsv } from 'sheetdelta-core/csv';
+import { compareTables } from 'sheetdelta-core/compare';
+import { exportDiffExcel } from 'sheetdelta-core/excel';
 
-const result = compareTables(
-  [{ sku: '001', price: '129.00' }],
-  [{ id: '001', price: '119.00' }],
-  {
-    keys: [{ left: 'sku', right: 'id' }],
-    columns: [{ left: 'price', right: 'price' }],
-  },
-);
-
+const before = readCsv('sku,price\n001,10');
+const after = readCsv('sku,price\n001,12');
+const result = compareTables(before.rows, after.rows, { keys: ['sku'] });
+const report = await exportDiffExcel(result); // XLSX Uint8Array
 console.log(result.summary.changed); // 1
-const csv = exportDiffCsv(result);
 ```
 
-Read the [quick start](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/quick-start.html), [API reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/compare-tables.html), or [package README](packages/core/README.md).
+## Features and imports
 
-## Features
+| Import | Features |
+| --- | --- |
+| `sheetdelta-core/compare` | Key-based comparison, composite keys, field mapping, inferred columns, ignored columns, schema changes, opt-in strict types and numeric tolerance |
+| `sheetdelta-core/csv` | CSV reading, general CSV writing, difference reports, formula-like text escaping |
+| `sheetdelta-core/excel` | XLSX/XLS reading, worksheet/header selection, displayed or raw values, XLSX writing and highlighted difference reports |
+| `sheetdelta-core/validate` | Required fields, types, unique values, ranges, enums, patterns and real ISO calendar dates |
+| `sheetdelta-core/clean` | Explicit text/type normalization, auditable changes, deduplication with source row positions |
+| `sheetdelta-core/merge` | Left/inner/full joins with conflict reporting; strict or union-schema vertical append |
+| `sheetdelta-core/types` | Shared TypeScript types |
 
-- Key-based matching independent of row order, with composite keys and different column names.
-- Structured added/removed/changed/unchanged records and field-level before/after values.
-- Optional whitespace normalization, case-insensitive comparison, and per-field numeric tolerance.
-- Explicit errors for missing columns, blank keys, and duplicate keys.
-- CSV export with formula escaping enabled by default.
-- A browser tool for CSV, TSV, XLSX, and XLS: worksheet selection, visual comparison, filters, export, and saved rules.
-- Searchable English and Chinese documentation, with a light/dark theme switch. New visits default to English and light mode; theme preferences are remembered.
+Existing `import { compareTables, exportDiffCsv } from 'sheetdelta-core'` remains supported. The root and `/compare` load no third-party runtime code. The installation includes file-format dependencies; production bundlers only include modules reachable from your imports. Excel dependencies are loaded on demand. See [selective imports](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/imports.html).
 
-## Browser tool and privacy
+## Data guarantees and limits
 
-Files are parsed and compared in a browser worker. They are not uploaded or persisted. Local storage contains only saved rule names, mappings, and options. There are currently no third-party ads or remote analytics.
+- Local processing: no uploads, telemetry or advertising inside the npm library.
+- Comparison preserves previous text-equality defaults; strict value handling is opt-in. Missing and duplicate keys are rejected.
+- Merge and deduplication use type-sensitive keys; numeric `1` differs from string `'1'`.
+- Cleaning reports changes and conversion failures. Merge conflicts throw by default rather than silently overwrite data.
+- Excel reading defaults to displayed text; raw mode keeps primitive values and numeric date serials. Formula results are cached values, never recalculated.
+- Default Excel read limits: 20 MiB, 50,000 physical data rows per sheet, 1,000 columns. Limits are configurable and exceeding them throws.
+- All operations work in memory. Use a browser Worker for large files. This is not a formula engine, formatting comparator, macro editor or constant-memory streaming system.
+- Decimal arithmetic uses JavaScript numbers; use normalized text for exact decimals. IDs already damaged by source spreadsheet conversion cannot be reconstructed.
 
-The tool currently has a Chinese interface. Limits: 10 MB per file, 50,000 total workbook data rows, and 100 columns per sheet. The core supports composite keys; the tool currently selects one key column.
+ESM; Node.js 18+ or modern browsers with `structuredClone`. Type declarations are included. Read the [complete workflow](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/workflow.html), [API reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/compare-tables.html), and [migration notes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/migration.html).
 
-Excel comparison uses displayed values. It does not recalculate formulas or compare styles, comments, or merged-cell semantics. Preserve identifiers as text before parsing. Numeric tolerance uses IEEE 754 numbers; use normalized text for exact decimal comparisons. Import CSV identifier columns as text to prevent Excel from dropping leading zeros.
+## Browser tool
+
+The separate browser tool compares CSV, TSV, XLSX and XLS locally, with visual differences, saved mapping rules and CSV export. Its current interface is Chinese and selects one key column. The npm API supports composite keys and the additional toolkit modules above. The tool limits remain 10 MB per file, 50,000 total workbook rows and 100 columns. There are no remote analytics or third-party ads.
 
 ## Local development
 

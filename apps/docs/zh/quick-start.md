@@ -67,3 +67,7 @@ await writeFile('changes.csv', csv, 'utf8');
 ```
 
 在浏览器中，可把 CSV 文本放进 Blob 并下载，详见 [CSV 导出](./api/export-diff-csv)。
+
+## 下一步：文件处理
+
+通过 [按需导入](./imports) 选择功能，或跟随 [完整流程](./workflow) 完成读取、校验与报告导出。

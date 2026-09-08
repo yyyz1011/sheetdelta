@@ -67,3 +67,7 @@ await writeFile('changes.csv', csv, 'utf8');
 ```
 
 In a browser, put the CSV text in a Blob and download it. See [CSV export](./api/export-diff-csv).
+
+## Next: file workflows
+
+Use [selective imports](./imports) for feature modules, or follow the [complete workflow](./workflow) to read, validate and export a report.

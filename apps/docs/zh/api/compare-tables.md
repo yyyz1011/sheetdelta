@@ -8,7 +8,7 @@
 compareTables(
   left: readonly Row[],
   right: readonly Row[],
-  options: CompareOptions,
+  options: CompareInputOptions,
 ): DiffResult
 ```
 
@@ -16,9 +16,12 @@ compareTables(
 type Cell = string | number | boolean | null | undefined;
 type Row = Record<string, Cell>;
 
-type CompareOptions = {
-  keys: { left: string; right: string }[];
-  columns: { left: string; right: string; numericTolerance?: number }[];
+type CompareInputOptions = {
+  keys: (string | { left: string; right: string })[];
+  columns?: (string | { left: string; right: string; numericTolerance?: number; trim?: boolean; ignoreCase?: boolean })[];
+  ignoreColumns?: string[];
+  valueMode?: "text" | "strict";
+  emptyValues?: "equal" | "distinct";
   trim?: boolean;
   ignoreCase?: boolean;
 };
@@ -29,14 +32,14 @@ type CompareOptions = {
 | 选项 | 必填 | 默认值 | 用途 |
 | --- | --- | --- | --- |
 | `keys` | 是 | — | 一个或多个唯一键映射 |
-| `columns` | 是 | — | 一个或多个比较字段映射 |
+| `columns` | 否 | 共同非主键列 | 列名或映射，显式空数组仍报错 |
 | `trim` | 否 | `false` | 忽略首尾空白 |
 | `ignoreCase` | 否 | `false` | 忽略文本大小写 |
 | `columns[].numericTolerance` | 否 | 文本比较 | 允许的数值绝对差 |
 
 ## 返回值
 
-`DiffResult` 包含 `rows`、`summary` 和克隆后的 `options`。
+`DiffResult` 包含 `rows`、`summary`、`schema` 和克隆后展开的 `options`。`schema` 包含新增、删除和共同列名。
 
 | 行属性 | 含义 |
 | --- | --- |
@@ -57,3 +60,14 @@ type CompareOptions = {
 ## 错误处理
 
 `TableValidationError.issues` 和配置错误详见 [校验与错误处理](../validation)。
+
+## 简写与新增规则
+
+```ts
+import { compareTables } from "sheetdelta-core/compare";
+const result = compareTables([{ id: 1, value: 10 }], [{ id: 1, value: "10" }], {
+  keys: ["id"], ignoreColumns: ["updatedAt"], valueMode: "strict", emptyValues: "distinct",
+});
+```
+
+`columns` 可省略，自动选共同非主键列；显式空数组仍报错。`ignoreColumns` 忽略任一侧同名字段，不取消主键校验。严格模式区分类型，空值模式区分 null、undefined、空字符串。字段级 `trim` 与 `ignoreCase` 只影响值。结果 `schema` 含新增、删除、共同列，不单独改变行状态；结构从记录推断，空数组不携带列定义。旧 `CompareOptions` 继续要求显式映射，简写用 `CompareInputOptions`。

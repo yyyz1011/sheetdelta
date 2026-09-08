@@ -6,7 +6,7 @@ No. The core compares records in your process and has no network functionality. 
 
 ## Can I pass an Excel file to compareTables?
 
-No. Parse the file into records first, then call `compareTables`. Use the [browser tool](./browser-tool) for a ready-made file workflow.
+Call `readExcel` from `sheetdelta-core/excel` first, then pass the selected table’s rows to `compareTables`. See the [Excel guide](./excel) and [complete workflow](./workflow). The [browser tool](./browser-tool) remains available for manual comparisons.
 
 ## Why does a reordered file have no changes?
 
