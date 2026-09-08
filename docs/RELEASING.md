@@ -5,7 +5,7 @@
 ## 日常维护
 
 1. 从 `master` 创建功能分支，修改并提交，然后创建 PR。
-2. PR 运行单元测试、类型检查、网站构建、浏览器回归、npm 打包检查。
+2. PR 运行单元测试、类型检查、网站构建、浏览器回归、npm 打包检查，并在独立项目中安装压缩包验证导入和运行。
 3. 用 squash 合并到 `master`，保持 PR 标题为 Conventional Commits 格式。
 4. Release 工作流再次测试，通过后由 semantic-release 自动计算版本、发布 npm、打 Git 标签、生成 GitHub Release。
 
@@ -23,6 +23,7 @@
 
 ## 首次启用
 
+- 维护者先完成 npm 2FA 配置；仅网页登录不足以授权首次发布。
 - 用维护者 npm 账号手动发布 `0.1.0`，确认 registry 可安装，再推送对应 `v0.1.0` 标签。
 - 在 npm 包 Settings → Trusted Publishers 添加 GitHub Actions：owner `yyyz1011`、repository `sheetdelta`、workflow filename `publish.yml`，environment 留空；允许直接 publish。
 - 验证绑定后设置仓库 Actions variable `NPM_TRUSTED_PUBLISHING=true`。
