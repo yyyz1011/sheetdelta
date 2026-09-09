@@ -33,7 +33,7 @@ Installation now includes file-format dependencies. The root and `/compare` rema
 
 ## Scope
 
-This release focuses on table data, not a spreadsheet editor or formula engine. No macros, formula evaluation, formatting comparison, fuzzy row matching, many-to-many joins or guaranteed constant-memory streaming are provided. The browser tool remains a file-comparison interface; the new validation, cleaning and merge APIs are available to npm consumers and documented here.
+The table APIs focus on data processing. Dedicated formula, workbook editing and streaming modules are described below. Formatting comparison, macro execution, fuzzy row matching and many-to-many joins are not provided. The browser tool remains a file-comparison interface; the new validation, cleaning and merge APIs are available to npm consumers and documented here.
 
 When one side is empty, inferred comparison fields come from the populated side so addition/removal reports retain their values.
 
@@ -46,3 +46,9 @@ Review these behavior changes: Excel error cells now throw `CELL_ERROR` by defau
 With `includeUnchanged: false`, `result.rows.length` can be smaller than `summary.total`; use summary fields for complete counts. Existing `TableValidationError.issues` and `MergeConflictError.conflicts` are preserved. Some English error messages have changed; use error codes.
 
 Read [async & Workers](./async), [structured errors](./errors), and [compatibility & performance](./compatibility).
+
+## 0.4 workbook processing upgrade
+
+New entries: `/formula`, `/workbook`, `/stream`, `/excel-stream`, `/excel-node`. This remains one npm package. Existing root imports and 0.3 APIs are unchanged. `/excel-node` is Node-only; use other entries in browser bundles.
+
+Calculation supports the documented subset and reports unsupported formulas explicitly. `patchWorkbook` clears formula caches and requests recalculation on open by default; call `recalculateExcel` or a spreadsheet application before reading calculated results. Sorted-stream comparison requires presorted keys and explicit columns, emits key order, and may encounter an error after emitting earlier records. See [formulas](./formulas), [workbooks](./workbooks), and [streaming](./streaming).

@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import ts from 'typescript';
 mkdirSync('artifacts', { recursive: true });
-for (const locale of ['', 'zh/']) for (const page of ['workflow', 'async', 'errors']) {
+for (const locale of ['', 'zh/']) for (const page of ['workflow', 'async', 'errors', 'formulas', 'workbooks', 'streaming']) {
   const markdown = readFileSync(`apps/docs/${locale}${page}.md`, 'utf8');
   const code = markdown.match(/```ts\n([\s\S]*?)```/)?.[1];
   assert.ok(code);
@@ -14,6 +14,9 @@ for (const locale of ['', 'zh/']) for (const page of ['workflow', 'async', 'erro
     const output = execFileSync(process.execPath, [file], { encoding: 'utf8' });
     if (page === 'workflow') assert.match(output, /^1 \d+/);
     if (page === 'async') assert.match(output, /complete[\s\S]*1/);
+    if (page === 'formulas') assert.match(output, /^40/);
+    if (page === 'workbooks') assert.match(output, /^12/);
+    if (page === 'streaming') assert.match(output, /^001/);
     if (page === 'errors') assert.match(output, /INVALID_HEADER/);
   } finally { unlinkSync(file); }
 }

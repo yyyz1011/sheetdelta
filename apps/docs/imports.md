@@ -16,6 +16,11 @@ npm install sheetdelta-core
 | `sheetdelta-core/clean` | `cleanTable`, `deduplicateTable` | None |
 | `sheetdelta-core/merge` | `mergeTables`, `appendTables`, `MergeConflictError` | None |
 | `sheetdelta-core/errors` | `SheetDeltaError`, `isSheetDeltaError` | None |
+| `sheetdelta-core/formula` | `calculateWorkbook` | None |
+| `sheetdelta-core/workbook` | `patchWorkbook`, `recalculateExcel` | XML DOM + fflate; SheetJS for recalculation import |
+| `sheetdelta-core/stream` | `readCsvStream`, `writeCsvStream`, `compareSortedStreams`, `compareStreamKeys` | None |
+| `sheetdelta-core/excel-stream` | `writeExcelStream` | fflate |
+| `sheetdelta-core/excel-node` | `readExcelStream` | yauzl + saxes + XML DOM; Node only |
 | `sheetdelta-core/types` | Shared TypeScript types; `TableValidationError` | None |
 
 ```ts

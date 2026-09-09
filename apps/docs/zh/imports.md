@@ -16,6 +16,11 @@ npm install sheetdelta-core
 | `sheetdelta-core/clean` | `cleanTable`、`deduplicateTable` | 无 |
 | `sheetdelta-core/merge` | `mergeTables`、`appendTables`、`MergeConflictError` | 无 |
 | `sheetdelta-core/errors` | `SheetDeltaError`, `isSheetDeltaError` | 无 |
+| `sheetdelta-core/formula` | `calculateWorkbook` | 无 |
+| `sheetdelta-core/workbook` | `patchWorkbook`, `recalculateExcel` | XML DOM + fflate; SheetJS 用于重算读取 |
+| `sheetdelta-core/stream` | `readCsvStream`, `writeCsvStream`, `compareSortedStreams`, `compareStreamKeys` | 无 |
+| `sheetdelta-core/excel-stream` | `writeExcelStream` | fflate |
+| `sheetdelta-core/excel-node` | `readExcelStream` | yauzl + saxes + XML DOM; 仅 Node |
 | `sheetdelta-core/types` | 公共 TypeScript 类型、`TableValidationError` | 无 |
 
 ```ts

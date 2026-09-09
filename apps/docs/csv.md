@@ -47,3 +47,7 @@ const table = readCsvBytes(bytes, { encoding: 'utf-8' });
 ```
 
 For legacy Chinese exports, explicitly select `{ encoding: 'gb18030' }`. Supported labels depend on the runtime's `TextDecoder`. There is no encoding guessing: malformed bytes throw `INVALID_CSV`, unsupported encodings throw `INVALID_OPTIONS`, and oversized input throws `LIMIT_EXCEEDED`. Both reading APIs parse in memory; neither streams.
+
+## Larger CSV files
+
+Use [stream APIs](./streaming) to parse and write records without assembling a complete CSV first.

@@ -20,6 +20,22 @@ try {
     import { cleanTable, deduplicateTable } from 'sheetdelta-core/clean';
     import { validateTable } from 'sheetdelta-core/validate';
     import { mergeTables, appendTables } from 'sheetdelta-core/merge';
+    import { calculateWorkbook } from 'sheetdelta-core/formula';
+    import { patchWorkbook, recalculateExcel } from 'sheetdelta-core/workbook';
+    import { readCsvStream, writeCsvStream, compareSortedStreams } from 'sheetdelta-core/stream';
+    import { writeExcelStream } from 'sheetdelta-core/excel-stream';
+    import { readExcelStream } from 'sheetdelta-core/excel-node';
+    import { writeFileSync } from 'node:fs';
+    async function collect(source) { const out=[]; for await (const x of source) out.push(x); return out; }
+    assert.equal(calculateWorkbook({S:{A1:2,B1:{formula:'=A1*3'}}}).sheets.S.B1,6);
+    const streamed = await collect(readCsvStream(writeCsvStream([{id:'001',v:2}],{columns:['id','v']})));
+    assert.equal(streamed[0].row.id,'001');
+    const file = Buffer.concat(await collect(writeExcelStream([{id:'001',v:2}],{columns:['id','v']})));
+    writeFileSync('streamed.xlsx', file);
+    assert.equal((await collect(readExcelStream('streamed.xlsx')))[0].row.v,2);
+    const patched = await patchWorkbook(file,[{sheet:'Data',cell:'B2',formula:'=3*4'}]);
+    assert.equal((await readExcel(await recalculateExcel(patched),{values:'raw'}))[0].rows[0].v,12);
+    assert.equal((await collect(compareSortedStreams([{id:'1',v:1}],[{id:'1',v:2}],{keys:['id'],columns:['v']})))[0].status,'changed');
     const result = rootCompare([{id:'001',price:10}], [{id:'001',price:12}], {
       keys:[{left:'id',right:'id'}], columns:[{left:'price',right:'price'}]
     });
@@ -64,7 +80,7 @@ try {
   writeFileSync(join(cwd, 'consumer.ts'), types);
   execFileSync(process.execPath, [resolve('node_modules/typescript/bin/tsc'), '--strict', '--noEmit', '--target', 'ES2022', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd, stdio: 'pipe' });
   console.log('Packed TypeScript consumer and legacy CompareOptions: PASS');
-  for (const entry of ['sheetdelta-core', 'sheetdelta-core/compare', 'sheetdelta-core/validate', 'sheetdelta-core/clean', 'sheetdelta-core/merge', 'sheetdelta-core/errors']) {
+  for (const entry of ['sheetdelta-core', 'sheetdelta-core/compare', 'sheetdelta-core/validate', 'sheetdelta-core/clean', 'sheetdelta-core/merge', 'sheetdelta-core/errors', 'sheetdelta-core/formula']) {
     const bundled = await build({ stdin: { contents: `export * from '${entry}';`, resolveDir: cwd }, bundle: true, minify: true, format: 'esm', platform: 'browser', write: false, metafile: true });
     assert.ok(!Object.keys(bundled.metafile.inputs).some(path => /node_modules\/(xlsx|papaparse|fflate)\//.test(path)), `${entry} must not load file dependencies`);
     assert.ok(bundled.outputFiles[0].contents.length < 20_000, `${entry} bundle budget`);
@@ -74,6 +90,11 @@ try {
   assert.ok(excelBundle.outputFiles.length > 1, 'Excel dynamic dependency chunks');
   for (const output of Object.values(excelBundle.metafile.outputs)) assert.ok(!output.imports.some(i => i.external), 'No unresolvable browser externals');
   console.log('Browser Excel bundle with lazy chunks: PASS');
+  for (const entry of ['workbook', 'stream', 'excel-stream']) {
+    const output=await build({ stdin:{contents:`export * from 'sheetdelta-core/${entry}';`,resolveDir:cwd},bundle:true,splitting:true,minify:true,format:'esm',platform:'browser',outdir:join(cwd,'browser-'+entry),write:false,metafile:true });
+    for(const file of Object.values(output.metafile.outputs)) assert.ok(!file.imports.some(i=>i.external), `${entry} has no unresolved browser imports`);
+    console.log(`${entry} browser bundle: PASS`);
+  }
 } finally {
   rmSync(cwd, { recursive: true, force: true });
 }

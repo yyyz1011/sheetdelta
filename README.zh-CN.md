@@ -20,6 +20,16 @@ const result = compareTables(before.rows, after.rows, { keys: ['sku'] });
 const report = await exportDiffExcel(result); // XLSX Uint8Array
 ```
 
+## 工作簿与流式处理
+
+- **公式计算**：跨表引用、依赖重算、条件和聚合函数，以及精确 VLOOKUP/XLOOKUP/INDEX/MATCH；不支持的公式返回明确错误。
+- **保留模板修改**：定点修改 XLSX/XLSM，保留未改动的样式、图表、批注、校验和 VBA 内容；宏不会执行。
+- **逐行读写**：CSV 流式解析和写出、XLSX 流式写出、Node 本地 XLSX 逐行读取，以及有序数据流比较。
+- **跨应用证据**：LibreOffice 真实重算、Excel 元数据的 Apache POI 文件样本，以及百万行逐行写出/读回基准。
+
+[公式文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/formulas.html) · [保留工作簿修改](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/workbooks.html) · [流式处理](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/streaming.html)
+
+
 ## 可靠性与大任务
 
 - **异步比较**：`compareTablesAsync` 支持进度和 `AbortSignal` 取消；`includeUnchanged: false` 减少结果占用，完整统计保留。
@@ -53,7 +63,7 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 - 清洗返回变更和失败记录，合并冲突默认报错，不静默覆盖。
 - Excel 默认读取显示文本；原始模式保留基本类型，日期为数字序列值。公式只读取缓存结果，不求值。
 - Excel 默认限制 20 MiB、每张表 50,000 物理数据行、1,000 列，可配置，超限报错。
-- 全部操作在内存完成，大文件应放入 Worker；不提供公式引擎、宏、样式差异比较或恒定内存流式保证。
+- 数组 API 和工作簿修改在内存中处理；专用流式 API 增量处理，Node XLSX 读取在可配置限制内缓存共享字符串。公式支持范围以文档列表为准，不执行宏、不比较样式差异。
 - 数值采用 JavaScript 浮点数；精确小数请使用规范文本，已损坏的编号无法恢复。
 
 支持 ESM、Node.js 18+ 和支持 structuredClone 的现代浏览器，内置类型声明。详见 [完整流程](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/workflow.html) 与 [升级说明](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/migration.html)。
