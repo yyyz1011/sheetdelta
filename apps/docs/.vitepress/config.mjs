@@ -17,6 +17,9 @@ const sidebar = (zh = false) => {
       { text: zh ? '清洗与去重' : 'Cleaning & deduplication', link: p + 'clean' },
       { text: zh ? '合并与追加' : 'Merge & append', link: p + 'merge' },
       { text: zh ? '完整处理流程' : 'Complete workflow', link: p + 'workflow' },
+      { text: zh ? '异步与 Worker' : 'Async & Workers', link: p + 'async' },
+      { text: zh ? '结构化错误' : 'Structured errors', link: p + 'errors' },
+      { text: zh ? '兼容性与性能' : 'Compatibility & performance', link: p + 'compatibility' },
       { text: zh ? '升级与兼容' : 'Migration & compatibility', link: p + 'migration' },
     ] },
     { text: zh ? '核心概念' : 'Core concepts', items: [

@@ -22,6 +22,17 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 console.log(result.summary.changed); // 1
 ```
 
+## Reliability and larger jobs
+
+- **Async comparison**: `compareTablesAsync` supports progress and `AbortSignal` cancellation. `includeUnchanged: false` reduces retained results while preserving complete counts.
+- **Explicit import policies**: hidden sheets, cached-formula warnings, merged cells and error cells; original row positions and 1904 date-system metadata.
+- **CSV bytes**: `readCsvBytes` accepts explicit UTF-8, GB18030 and other runtime-supported encodings, rejecting malformed bytes.
+- **Structured errors**: `sheetdelta-core/errors` exports `SheetDeltaError` and `isSheetDeltaError`, with codes and source context.
+- **Workbook budgets**: 100,000 physical data rows and 1,000,000 rectangular cells by default, configurable in addition to per-sheet and byte limits.
+
+See [async & Worker examples](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/async.html), [error codes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/errors.html), and [compatibility & performance evidence](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/compatibility.html). **Upgrade note:** Excel error cells are now rejected by default; choose `cellErrors: 'text'` to keep literal error text. See [migration notes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/migration.html).
+
+
 ## Features and imports
 
 | Import | Features |
@@ -32,6 +43,7 @@ console.log(result.summary.changed); // 1
 | `sheetdelta-core/validate` | Required fields, types, unique values, ranges, enums, patterns and real ISO calendar dates |
 | `sheetdelta-core/clean` | Explicit text/type normalization, auditable changes, deduplication with source row positions |
 | `sheetdelta-core/merge` | Left/inner/full joins with conflict reporting; strict or union-schema vertical append |
+| `sheetdelta-core/errors` | Structured error codes, context and serialization |
 | `sheetdelta-core/types` | Shared TypeScript types |
 
 Existing `import { compareTables, exportDiffCsv } from 'sheetdelta-core'` remains supported. The root and `/compare` load no third-party runtime code. The installation includes file-format dependencies; production bundlers only include modules reachable from your imports. Excel dependencies are loaded on demand. See [selective imports](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/imports.html).

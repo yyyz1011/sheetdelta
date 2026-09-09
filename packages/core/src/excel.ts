@@ -1,50 +1,99 @@
-import type { Cell, Row, TableData, TableReadOptions, DiffResult } from './types.js';
-import { matrixToTable, readLimits, columnNames } from './table.js';
-export type { TableData } from './types.js';
+import { SheetDeltaError, fail, assertRecord, wrapError } from './errors.js';
+import type { Cell, Row, TableData, TableReadOptions, DiffResult, ImportWarning } from './types.js';
+import { matrixToTable, readLimits, columnNames, assertRows } from './table.js';
+export type { TableData, ImportWarning } from './types.js';
 export type ExcelInput = ArrayBuffer | Uint8Array;
-export interface ExcelReadOptions extends TableReadOptions { sheets?: string[]; values?: 'display' | 'raw'; maxBytes?: number }
-/** Local, in-memory workbook reading. No filesystem or network access. */
+export interface ExcelReadOptions extends TableReadOptions {
+  sheets?: string[]; values?: 'display' | 'raw'; maxBytes?: number;
+  maxTotalRows?: number; maxCells?: number;
+  hiddenSheets?: 'include' | 'exclude'; formulas?: 'cached' | 'reject';
+  mergedCells?: 'anchor' | 'reject'; cellErrors?: 'reject' | 'text';
+}
+/** Read actual XLSX/XLS workbooks with explicit data-loss policies. */
 export async function readExcel(input: ExcelInput, options: ExcelReadOptions = {}): Promise<TableData[]> {
+  assertRecord(options, 'options');
   const { headerRow, maxRows, maxColumns } = readLimits(options);
-  const maxBytes = options.maxBytes ?? 20 * 1024 * 1024;
-  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1) throw new Error('maxBytes must be a positive integer.');
-  if (input.byteLength > maxBytes) throw new Error(`File size limit exceeded (${maxBytes} bytes).`);
-  if (options.values && !['display', 'raw'].includes(options.values)) throw new Error('values must be display or raw.');
-  if (options.sheets && (!options.sheets.length || new Set(options.sheets).size !== options.sheets.length)) throw new Error('Select distinct worksheet names.');
-  const XLSX = await import('xlsx');
-  const workbook = XLSX.read(input instanceof Uint8Array ? input : new Uint8Array(input), { type: 'array', cellDates: false, sheetRows: headerRow + maxRows + 1, ...(options.sheets ? { sheets: options.sheets } : {}) });
-  const names = options.sheets ?? workbook.SheetNames;
-  const output: TableData[] = [];
-  for (const name of names) {
-    if (!workbook.SheetNames.includes(name)) throw new Error(`Worksheet not found: ${name}`);
-    const sheet = workbook.Sheets[name];
-    if (!sheet || !sheet['!ref']) { if (options.sheets) throw new Error(`Worksheet is empty: ${name}`); continue; }
-    const range = XLSX.utils.decode_range(sheet['!fullref'] ?? sheet['!ref']);
-    if (range.e.r + 1 - headerRow > maxRows) throw new Error(`Worksheet ${name} exceeds ${maxRows} physical data rows.`);
-    if (range.e.c + 1 > maxColumns) throw new Error(`Worksheet ${name} exceeds ${maxColumns} columns.`);
-    const matrix = XLSX.utils.sheet_to_json<Cell[]>(sheet, { header: 1, raw: options.values === 'raw', defval: null, blankrows: true, range: 0 });
-    output.push(matrixToTable(matrix, name, options));
+  const maxBytes = options.maxBytes ?? 20 * 1024 * 1024, maxTotalRows = options.maxTotalRows ?? 100_000, maxCells = options.maxCells ?? 1_000_000;
+  for (const [option, value] of Object.entries({ maxBytes, maxTotalRows, maxCells })) if (!Number.isSafeInteger(value) || value < 1) fail('INVALID_OPTIONS', `${option} must be a positive integer.`, { option });
+  if (!(input instanceof ArrayBuffer) && !(input instanceof Uint8Array)) fail('INVALID_DATA', 'Workbook input must be an ArrayBuffer or Uint8Array.');
+  if (input.byteLength > maxBytes) fail('LIMIT_EXCEEDED', `File size limit exceeded (${maxBytes} bytes).`, { limit: maxBytes, actual: input.byteLength });
+  for (const [key, allowed] of Object.entries({ values: ['display', 'raw'], hiddenSheets: ['include', 'exclude'], formulas: ['cached', 'reject'], mergedCells: ['anchor', 'reject'], cellErrors: ['reject', 'text'] })) {
+    const value = options[key as keyof ExcelReadOptions];
+    if (value != null && !allowed.includes(value as string)) fail('INVALID_OPTIONS', `Invalid ${key}.`, { option: key });
   }
-  if (!output.length) throw new Error('Workbook has no readable worksheets.');
+  if (options.sheets && (!Array.isArray(options.sheets) || !options.sheets.length || options.sheets.some(s => typeof s !== 'string' || !s) || new Set(options.sheets).size !== options.sheets.length)) fail('INVALID_OPTIONS', 'Select distinct worksheet names.');
+  const bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
+  const zip = bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 3 && bytes[3] === 4;
+  const cfb = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1].every((v, i) => bytes[i] === v);
+  if (!zip && !cfb) fail('INVALID_WORKBOOK', 'Expected an XLSX or XLS workbook, not CSV or arbitrary text.', { operation: 'readExcel' });
+  const XLSX = await import('xlsx');
+  let workbook: ReturnType<typeof XLSX.read>;
+  try { workbook = XLSX.read(bytes, { type: 'array', cellDates: false, sheetStubs: true, sheetRows: headerRow + maxRows + 1, ...(options.sheets ? { sheets: options.sheets } : {}) }); }
+  catch (error) { wrapError(error, 'INVALID_WORKBOOK', 'Unable to parse workbook. It may be damaged or encrypted.', { operation: 'readExcel' }); }
+  const names = options.sheets ?? workbook.SheetNames;
+  const output: TableData[] = []; let totalRows = 0, totalCells = 0;
+  for (const name of names) {
+    if (!workbook.SheetNames.includes(name)) fail('SHEET_NOT_FOUND', `Worksheet not found: ${name}`, { sheet: name });
+    const hidden = Boolean(workbook.Workbook?.Sheets?.find(sheet => sheet.name === name)?.Hidden);
+    if (hidden && options.hiddenSheets === 'exclude') continue;
+    const sheet = workbook.Sheets[name];
+    if (!sheet || !sheet['!ref']) { if (options.sheets) fail('EMPTY_WORKBOOK', `Worksheet is empty: ${name}`, { sheet: name }); continue; }
+    const range = XLSX.utils.decode_range(sheet['!fullref'] ?? sheet['!ref']);
+    const physicalRows = Math.max(0, range.e.r + 1 - headerRow);
+    if (physicalRows > maxRows) fail('LIMIT_EXCEEDED', `Worksheet ${name} exceeds ${maxRows} physical data rows.`, { sheet: name, limit: maxRows, actual: physicalRows });
+    if (range.e.c + 1 > maxColumns) fail('LIMIT_EXCEEDED', `Worksheet ${name} exceeds ${maxColumns} columns.`, { sheet: name, limit: maxColumns, actual: range.e.c + 1 });
+    totalRows += physicalRows; totalCells += (physicalRows + 1) * (range.e.c + 1);
+    if (totalRows > maxTotalRows) fail('LIMIT_EXCEEDED', 'Workbook total row limit exceeded.', { sheet: name, limit: maxTotalRows, actual: totalRows });
+    if (totalCells > maxCells) fail('LIMIT_EXCEEDED', 'Workbook rectangular cell limit exceeded.', { sheet: name, limit: maxCells, actual: totalCells });
+    const warnings: ImportWarning[] = [];
+    if (hidden) warnings.push({ code: 'HIDDEN_SHEET', sheet: name, message: 'This worksheet is hidden.' });
+    for (const merge of sheet['!merges'] ?? []) if (merge.e.r >= headerRow - 1) {
+      const cell = XLSX.utils.encode_range(merge), context = { sheet: name, row: merge.s.r + 1, column: XLSX.utils.encode_col(merge.s.c), cell };
+      if (options.mergedCells === 'reject') fail('MERGED_CELLS', 'Merged cells require an explicit anchor-value workflow.', context);
+      warnings.push({ code: 'MERGED_CELLS', ...context, message: 'Only the top-left value of merged cells is read.' });
+    }
+    for (const address of Object.keys(sheet)) {
+      if (address.startsWith('!')) continue;
+      const cell = sheet[address];
+      const position = XLSX.utils.decode_cell(address);
+      if (position.r < headerRow - 1) continue;
+      const context = { sheet: name, row: position.r + 1, column: XLSX.utils.encode_col(position.c), cell: address };
+      if (cell.f) {
+        if (options.formulas === 'reject') fail('FORMULA_REJECTED', 'Formula cells are disabled by the selected policy.', context);
+        if (cell.v == null || cell.t === 'z') warnings.push({ code: 'FORMULA_NO_CACHE', ...context, message: 'Formula has no cached value; recalculate in a spreadsheet application before importing.' });
+      }
+      if (cell.t === 'e') {
+        if (options.cellErrors !== 'text') fail('CELL_ERROR', `Workbook contains ${XLSX.utils.format_cell(cell)}.`, context);
+        sheet[address] = { t: 's', v: XLSX.utils.format_cell(cell) || '#ERROR!' };
+      }
+    }
+    const matrix = XLSX.utils.sheet_to_json<Cell[]>(sheet, { header: 1, raw: options.values === 'raw', defval: null, blankrows: true, range: headerRow - 1 });
+    const table = matrixToTable(matrix, name, { ...options, headerRow: 1 }, headerRow - 1);
+    table.warnings = warnings;
+    table.metadata = { date1904: Boolean(workbook.Workbook?.WBProps?.date1904), hidden };
+    output.push(table);
+  }
+  if (!output.length) fail('EMPTY_WORKBOOK', 'Workbook has no readable worksheets.');
   return output;
 }
 export interface ExcelSheet { name: string; rows: readonly Row[]; columns?: string[] }
 function validateSheets(sheets: readonly ExcelSheet[]) {
-  if (!sheets.length) throw new Error('Provide at least one worksheet.');
+  if (!Array.isArray(sheets) || !sheets.length) throw new SheetDeltaError('INVALID_OPTIONS', 'Provide at least one worksheet.');
   const seen = new Set<string>();
-  for (const sheet of sheets) {
-    if (!sheet.name || sheet.name.length > 31 || /[\\/*?:\[\]\x00-\x1f]/.test(sheet.name) || /^'|'$/.test(sheet.name)) throw new Error(`Invalid worksheet name: ${sheet.name}`);
+  for (const sheet of sheets as readonly ExcelSheet[]) {
+    assertRecord(sheet, 'sheet'); assertRows(sheet.rows);
+    if (typeof sheet.name !== 'string' || !sheet.name || sheet.name.length > 31 || /[\\/*?:\[\]\x00-\x1f]/.test(sheet.name) || /^'|'$/.test(sheet.name)) throw new SheetDeltaError('INVALID_OPTIONS', `Invalid worksheet name: ${sheet.name}`);
     const folded = sheet.name.toLowerCase();
-    if (seen.has(folded)) throw new Error('Worksheet names must be unique (case-insensitive).');
+    if (seen.has(folded)) throw new SheetDeltaError('INVALID_OPTIONS', 'Worksheet names must be unique (case-insensitive).');
     seen.add(folded);
     const columns = sheet.columns ?? columnNames(sheet.rows);
-    if (!columns.length || columns.some(c => !c) || new Set(columns).size !== columns.length) throw new Error('Provide nonempty, unique columns, including for empty sheets.');
-    if (columns.length > 16_384 || sheet.rows.length > 1_048_575) throw new Error('Excel worksheet dimensions exceeded.');
+    if (!Array.isArray(columns) || !columns.length || columns.some(c => typeof c !== 'string' || !c) || new Set(columns).size !== columns.length) throw new SheetDeltaError('INVALID_OPTIONS', 'Provide nonempty, unique columns, including for empty sheets.');
+    if (columns.length > 16_384 || sheet.rows.length > 1_048_575) throw new SheetDeltaError('LIMIT_EXCEEDED', 'Excel worksheet dimensions exceeded.', { sheet: sheet.name });
     for (const row of sheet.rows) for (const column of columns) {
       const value = Object.hasOwn(row, column) ? row[column] : null;
-      if (typeof value === 'number' && !Number.isFinite(value)) throw new Error(`Nonfinite number in ${sheet.name}.${column}.`);
-      if (value != null && !['string', 'number', 'boolean'].includes(typeof value)) throw new Error('Excel cells must contain primitive values.');
-      if (typeof value === 'string' && value.length > 32_767) throw new Error('Excel cell text exceeds 32,767 characters.');
+      if (typeof value === 'number' && !Number.isFinite(value)) throw new SheetDeltaError('INVALID_DATA', `Nonfinite number in ${sheet.name}.${column}.`, { sheet: sheet.name, column });
+      if (value != null && !['string', 'number', 'boolean'].includes(typeof value)) throw new SheetDeltaError('INVALID_DATA', 'Excel cells must contain primitive values.', { sheet: sheet.name, column });
+      if (typeof value === 'string' && value.length > 32_767) throw new SheetDeltaError('LIMIT_EXCEEDED', 'Excel cell text exceeds 32,767 characters.', { sheet: sheet.name, column, limit: 32767 });
     }
   }
 }
@@ -53,7 +102,7 @@ export async function writeExcel(sheets: readonly ExcelSheet[]): Promise<Uint8Ar
   validateSheets(sheets);
   const XLSX = await import('xlsx');
   const workbook = XLSX.utils.book_new();
-  for (const sheet of sheets) {
+  for (const sheet of sheets as readonly ExcelSheet[]) {
     const columns = sheet.columns ?? columnNames(sheet.rows);
     const matrix = [columns, ...sheet.rows.map(row => columns.map(key => Object.hasOwn(row, key) ? row[key] ?? null : null))];
     const worksheet = XLSX.utils.aoa_to_sheet(matrix);
@@ -67,7 +116,7 @@ export async function exportDiffExcel(result: DiffResult): Promise<Uint8Array> {
   // Stable internal column IDs prevent collisions with user-supplied column labels.
   const ids = ['key', 'old_data_row', 'new_data_row', ...mappings.flatMap((_, i) => [`old_${i}`, `new_${i}`])];
   const labels = ['Key', 'Old data row', 'New data row', ...mappings.flatMap(pair => [`Old: ${pair.left}`, `New: ${pair.right}`])];
-  if (ids.length > 16_384) throw new Error('Excel report column limit exceeded.');
+  if (ids.length > 16_384) throw new SheetDeltaError('LIMIT_EXCEEDED', 'Excel report column limit exceeded.');
   const XLSX = await import('xlsx');
   const { unzipSync, zipSync, strFromU8, strToU8 } = await import('fflate');
   const workbook = XLSX.utils.book_new();
@@ -76,7 +125,7 @@ export async function exportDiffExcel(result: DiffResult): Promise<Uint8Array> {
   const highlights: Map<string, number>[] = [new Map(['A1', 'B1'].map(cell => [cell, 0]))];
   for (const [kind, status] of (['added', 'removed', 'changed'] as const).entries()) {
     const selected = result.rows.filter(row => row.status === status);
-    if (selected.length > 1_048_575) throw new Error('Excel report row limit exceeded.');
+    if (selected.length > 1_048_575) throw new SheetDeltaError('LIMIT_EXCEEDED', 'Excel report row limit exceeded.');
     const matrix: Cell[][] = [labels];
     const styles = new Map<string, number>(labels.map((_, column) => [XLSX.utils.encode_cell({ r: 0, c: column }), 0]));
     selected.forEach((row, index) => {
@@ -99,9 +148,9 @@ export async function exportDiffExcel(result: DiffResult): Promise<Uint8Array> {
   function append(section: string, elements: string[]): number {
     const pattern = new RegExp(`<${section}([^>]*)>([\\s\\S]*?)</${section}>`);
     const match = stylesXml.match(pattern);
-    if (!match) throw new Error(`Report style section missing: ${section}`);
+    if (!match) throw new SheetDeltaError('EXPORT_FAILED', `Report style section missing: ${section}`);
     const count = Number(match[1].match(/count="(\d+)"/)?.[1]);
-    if (!Number.isSafeInteger(count)) throw new Error('Invalid generated report styles.');
+    if (!Number.isSafeInteger(count)) throw new SheetDeltaError('EXPORT_FAILED', 'Invalid generated report styles.');
     stylesXml = stylesXml.replace(pattern, () => `<${section}${match[1].replace(/count="\d+"/, `count="${count + elements.length}"`)}>${match[2]}${elements.join('')}</${section}>`);
     return count;
   }

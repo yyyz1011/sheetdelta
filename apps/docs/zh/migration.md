@@ -36,3 +36,13 @@ const options: CompareInputOptions = { keys: ['id'], ignoreColumns: ['updatedAt'
 本版聚焦表格数据处理，不是在线编辑器或公式引擎。不提供宏、公式求值、格式差异比较、模糊行匹配、多对多合并或恒定内存流式处理保证。浏览器工具仍是文件比较界面；新增校验、清洗和合并功能通过 npm API 使用。
 
 当一侧为空时，自动使用另一侧的非主键字段，保证新增或删除报告保留数据。
+
+## 0.3 可靠性升级
+
+根入口与旧 `CompareOptions` 类型保留。新增可取消的 `compareTablesAsync`、`includeUnchanged`、`readCsvBytes` 和 `/errors` 入口。
+
+需检查的行为变化：Excel 错误单元格默认抛出 `CELL_ERROR`，如需保留显示内容，请明确选择 `{ cellErrors: 'text' }`；新增整本 10 万物理行、100 万矩形单元格限制，可按资源预算调整。Excel 入口只接受实际 XLSX/XLS 字节，CSV 请使用 `/csv`。比较会拒绝非有限数字和对象等超出 `Cell` 类型的输入，而不是隐式转成字符串。
+
+`includeUnchanged: false` 时，`result.rows.length` 可以小于 `summary.total`。完整数量使用汇总字段。原 `TableValidationError.issues` 和 `MergeConflictError.conflicts` 保留，统一错误基类改变了部分英文错误文案，请使用错误码。
+
+阅读[异步与 Worker](./async)、[错误处理](./errors)和[兼容性与性能](./compatibility)。

@@ -20,6 +20,17 @@ const result = compareTables(before.rows, after.rows, { keys: ['sku'] });
 const report = await exportDiffExcel(result); // XLSX Uint8Array
 ```
 
+## 可靠性与大任务
+
+- **异步比较**：`compareTablesAsync` 支持进度和 `AbortSignal` 取消；`includeUnchanged: false` 减少结果占用，完整统计保留。
+- **明确的导入规则**：隐藏表策略、公式缓存警告、合并单元格与错误单元格策略，原始行位置和 1904 日期系统元数据。
+- **CSV 字节读取**：`readCsvBytes` 支持明确指定 UTF-8、GB18030 等编码，拒绝损坏字节。
+- **结构化错误**：`sheetdelta-core/errors` 导出 `SheetDeltaError` 与 `isSheetDeltaError`，错误码和位置便于应用处理。
+- **整本工作簿限制**：默认 10 万物理数据行和 100 万矩形单元格，可配置；单表与字节限制继续生效。
+
+查看[异步与 Worker 示例](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/async.html)、[错误码](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/errors.html)、[兼容性与性能证据](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/compatibility.html)。**升级注意**：Excel 错误单元格现在默认拒绝，如需保留为文本，请设置 `cellErrors: 'text'`。详情见[升级说明](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/migration.html)。
+
+
 ## 功能与入口
 
 | 入口 | 功能 |

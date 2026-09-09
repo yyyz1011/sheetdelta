@@ -52,3 +52,30 @@ await writeFile('products.xlsx', await writeExcel([{ name: 'Products', rows: [{ 
 ```
 
 浏览器中使用 XLSX MIME 类型创建 Blob，再通过对象 URL 下载，下载后释放 URL。异步 API 会延迟加载依赖，但解析和压缩仍在内存中执行；大文件应放入 Worker 处理。
+
+## 导入策略、警告与整本限制
+
+| 选项 | 默认值 | 行为 |
+| --- | --- | --- |
+| `maxTotalRows` | `100000` | 所选且未排除工作表的物理数据行数总和，包含空行 |
+| `maxCells` | `1000000` | 所选工作表矩形区域的单元格总数，包含表头和空单元格 |
+| `hiddenSheets` | `'include'` | 隐藏表一并读取并发出警告；`'exclude'` 跳过 |
+| `formulas` | `'cached'` | 读取缓存结果；`'reject'` 拒绝公式 |
+| `mergedCells` | `'anchor'` | 只读取合并区域左上角；`'reject'` 拒绝合并区域 |
+| `cellErrors` | `'reject'` | 拒绝 `#DIV/0!` 等错误；`'text'` 保留为字面文本 |
+
+返回的每张表还有 `warnings` 数组，以及 `metadata: { date1904, hidden }`。警告包括 `HIDDEN_SHEET`、`MERGED_CELLS`、`FORMULA_NO_CACHE`，单元格相关警告带原始位置。公式缺少缓存时得到 `null` 并警告，不能当成计算结果。已有缓存也可能过期，库不会判断是否最新。
+
+合并区域不会自动向下填充。完全位于 `headerRow` 之前的标题合并区域被忽略。原始日期仍为序列数，`date1904` 说明工作簿采用哪一种日期系统；导入不会将其转换为带时区的时间。
+
+```ts
+import { readExcel } from 'sheetdelta-core/excel';
+// bytes 为文件字节
+// const tables = await readExcel(bytes, {
+//   sheets: ['Products'], hiddenSheets: 'exclude',
+//   formulas: 'reject', mergedCells: 'reject', cellErrors: 'reject',
+//   maxTotalRows: 50000, maxCells: 500000,
+// });
+```
+
+字节大小在解析前检查，行列和单元格限制在引擎读取后、生成表数据前检查。这些限制不保证压缩包解压内存上限。XLSX/XLS 入口会拒绝伪装成工作簿的普通 CSV 文本。参见[兼容性验证](./compatibility)和[升级说明](./migration)。

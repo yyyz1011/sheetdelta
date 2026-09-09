@@ -53,3 +53,30 @@ await writeFile('products.xlsx', await writeExcel([{ name: 'Products', rows: [{ 
 ```
 
 Browser: create a Blob with the XLSX MIME type and use an object URL for a download. Revoke the URL afterward. The async APIs load dependencies lazily, but parsing/compression is in-memory work; use a Worker for large browser files.
+
+## Import policies, warnings and workbook budgets
+
+| Option | Default | Behavior |
+| --- | --- | --- |
+| `maxTotalRows` | `100000` | Sum of physical data rows, including blanks, across selected, included sheets |
+| `maxCells` | `1000000` | Sum of rectangular cells, including headers and blanks, across included sheets |
+| `hiddenSheets` | `'include'` | Read hidden sheets with a warning; `'exclude'` skips them |
+| `formulas` | `'cached'` | Read cached results; `'reject'` rejects formula cells |
+| `mergedCells` | `'anchor'` | Keep top-left values only; `'reject'` rejects merged ranges |
+| `cellErrors` | `'reject'` | Reject errors such as `#DIV/0!`; `'text'` retains their literal text |
+
+Every returned sheet also has `warnings` and `metadata: { date1904, hidden }`. Warning codes are `HIDDEN_SHEET`, `MERGED_CELLS` and `FORMULA_NO_CACHE`; cell-related warnings include source positions. A formula without a cached result becomes `null` with a warning, not a calculated answer. Existing caches may also be stale; the library does not verify their freshness.
+
+Merged ranges are not filled down automatically. Title merges entirely before `headerRow` are ignored. Raw dates remain serial numbers; `date1904` identifies the workbook date system. Import does not convert dates into timezone-aware timestamps.
+
+```ts
+import { readExcel } from 'sheetdelta-core/excel';
+// bytes contains file bytes
+// const tables = await readExcel(bytes, {
+//   sheets: ['Products'], hiddenSheets: 'exclude',
+//   formulas: 'reject', mergedCells: 'reject', cellErrors: 'reject',
+//   maxTotalRows: 50000, maxCells: 500000,
+// });
+```
+
+Byte limits apply before parsing; dimension and cell budgets apply after the engine reads the workbook and before table conversion. They do not bound ZIP decompression memory. The XLSX/XLS entry rejects ordinary CSV text masquerading as a workbook. See [compatibility evidence](./compatibility) and [migration notes](./migration).
