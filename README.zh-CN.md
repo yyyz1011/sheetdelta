@@ -122,7 +122,7 @@ macOS 测试默认使用 Chrome。Linux 先运行 `npx playwright install --with
 
 创建功能分支和 PR，通过必需检查后 squash 合并。`fix(core): ...` 发布补丁版本，`feat(core): ...` 发布功能版本，不兼容修改在正文写 `BREAKING CHANGE:`。文档和 `web` 范围的提交不会单独触发 npm 发版。
 
-GitHub Actions 使用可信发布，从 `master` 自动更新 npm。正式版本和变更记录以 Git 标签、GitHub Releases 和 npm 为准；开发工作区保留初始版本号。详见 [发布维护指南](docs/RELEASING.md)。
+每次合并到 `master` 后，GitHub Actions 检查包和文档，通过后自动把文档站及浏览器工具部署到 [GitHub Pages](https://sheetdelta.nimokit.com/docs/)，同时使用可信发布更新符合发版规则的 npm 版本。纯文档修改也会更新网站，不会产生空的 npm 版本。正式版本和变更记录以 Git 标签、GitHub Releases 和 npm 为准；开发工作区保留初始版本号。详见 [发布维护指南](docs/RELEASING.md)。
 
 修改文档时，请同时维护英文页面和 `apps/docs/zh/` 中对应的中文页面。语言切换会保留当前章节。报告问题时请提供不含敏感信息的最小复现。
 

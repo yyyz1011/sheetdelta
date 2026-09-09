@@ -3,6 +3,8 @@ rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist', { recursive: true });
 cpSync('apps/docs/.vitepress/dist', 'dist/docs', { recursive: true });
 cpSync('apps/web/dist', 'dist/playground', { recursive: true });
+cpSync('dist/docs/404.html', 'dist/404.html');
+writeFileSync('dist/.nojekyll', '');
 writeFileSync('dist/index.html', '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=/docs/"><title>SheetDelta Documentation</title><link rel="canonical" href="https://sheetdelta.nimokit.com/docs/"></head><body><a href="/docs/">SheetDelta Documentation</a></body></html>');
 writeFileSync('dist/robots.txt', 'User-agent: *\nAllow: /\nSitemap: https://sheetdelta.nimokit.com/docs/sitemap.xml\n');
 console.log('Site assembled: documentation + browser tool');
