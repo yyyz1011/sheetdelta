@@ -25,7 +25,7 @@ Every merge updates the website, including documentation-only commits. A failed 
 
 - Repository **Settings → Pages → Build and deployment**: source **GitHub Actions**.
 - Custom domain: `sheetdelta.nimokit.com` (configured in Pages settings, not inferred from a CNAME file).
-- Enable **Enforce HTTPS** after the GitHub-managed certificate is ready.
+- The deployment job automatically enables **Enforce HTTPS** when the GitHub-managed certificate is approved. It waits up to 45 minutes during initial provisioning, then reports a failure if GitHub is still pending. Re-run the documentation job after the certificate becomes ready. Subsequent deployments return immediately when HTTPS is already enforced.
 - Deployment environment: `github-pages`, limited to the protected `master` branch.
 - Workflow: `.github/workflows/publish.yml`; validated artifact upload: `.github/workflows/ci.yml`.
 - Pages uses the built-in `GITHUB_TOKEN` with `pages: write` and OIDC `id-token: write`. npm keeps its existing trusted publisher bound to `publish.yml`, with no long-lived npm or hosting tokens.
