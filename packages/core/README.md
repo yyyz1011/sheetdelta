@@ -59,6 +59,8 @@ See [async & Worker examples](https://sheetdelta.snowy-hero-3539.chatgpt.site/do
 | `sheetdelta-core/validate` | Required fields, types, unique values, ranges, enums, patterns and real ISO calendar dates |
 | `sheetdelta-core/clean` | Explicit text/type normalization, auditable changes, deduplication with source row positions |
 | `sheetdelta-core/merge` | Left/inner/full joins with conflict reporting; strict or union-schema vertical append |
+| `sheetdelta-core/import` | Header mapping, cleaning, business validation, partial acceptance and source tracing |
+| `sheetdelta-core/import-report` | Editable XLSX error reports with cell highlights and source details |
 | `sheetdelta-core/errors` | Structured error codes, context and serialization |
 | `sheetdelta-core/formula` | `calculateWorkbook` |
 | `sheetdelta-core/workbook` | `patchWorkbook`, `recalculateExcel` |
