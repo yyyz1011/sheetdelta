@@ -42,12 +42,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Configure GitHub Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Deploy validated site
@@ -57,34 +61,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        shell: bash
-        run: |
-          for attempt in $(seq 1 90); do
-            page=$(gh api "repos/$GH_REPO/pages")
-            domain=$(jq -r '.cname // empty' <<< "$page")
-            if [ "$domain" != "sheetdelta.nimokit.com" ]; then
-              echo "::error::Unexpected Pages domain; check repository Pages settings."
-              exit 1
-            fi
-            if [ "$(jq -r '.https_enforced' <<< "$page")" = "true" ]; then
-              echo "HTTPS is enforced for $domain."
-              exit 0
-            fi
-            state=$(jq -r '.https_certificate.state // "pending"' <<< "$page")
-            if [ "$state" = "approved" ]; then
-              gh api --method PUT "repos/$GH_REPO/pages" -F https_enforced=true
-              test "$(gh api "repos/$GH_REPO/pages" --jq '.https_enforced')" = "true"
-              echo "HTTPS is now enforced for $domain."
-              exit 0
-            fi
-            case "$state" in
-              errored|bad_authz|authorization_revoked|dns_changed)
-                echo "::error::Certificate state: $state. Check Pages domain and DNS settings."
-                exit 1
-                ;;
-            esac
-            echo "Certificate state: $state; waiting for GitHub ($attempt/90)."
-            sleep 30
-          done
-          echo "::error::Certificate is still pending. Re-run this job after GitHub finishes certificate provisioning."
-          exit 1
+        run: node scripts/ensure-pages-https.mjs
