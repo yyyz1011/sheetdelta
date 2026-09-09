@@ -39,6 +39,8 @@ Related types：[`DiffResult`](./types#diffresult).
 string
 ```
 
+The string includes a UTF-8 BOM, comma delimiters, quoted fields and CRLF line endings. Embedded quotes are escaped. Set `changesOnly: false` to include unchanged rows.
+
 ## Runnable example {#example}
 
 Install with `npm install sheetdelta-core`, then save this example as an `.mjs` file and run it with Node.js 18+.

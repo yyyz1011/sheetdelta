@@ -39,6 +39,8 @@ exportDiffCsv(result: DiffResult, { changesOnly, escapeFormulae }?: { changesOnl
 string
 ```
 
+返回文本包含 UTF-8 BOM、逗号分隔符、带引号字段及 CRLF 换行，字段内引号会被转义。设置 `changesOnly: false` 可包含未变化记录。
+
 ## 可运行案例 {#example}
 
 先执行 `npm install sheetdelta-core`，将以下代码保存为 `.mjs` 文件，用 Node.js 18+ 运行。

@@ -71,6 +71,7 @@ for (const zh of [false,true]) {
       detail += `\n${label('Option meanings, defaults and limits','选项含义、默认值与限制')}： [${label('Usage guide','使用指南')}](../${guide}).\n\n`;
       if(relatedTypes.length)detail += `${label('Related types','相关类型')}：${relatedTypes.map(type=>`[\`${type}\`](./types#${type.toLowerCase()})`).join(' · ')}.\n\n`;
       detail += `## ${label('Return value','返回值')} {#returns}\n\n\`\`\`ts\n${info.returns}\n\`\`\`\n\n`;
+      if(name==='exportDiffCsv') detail += label('The string includes a UTF-8 BOM, comma delimiters, quoted fields and CRLF line endings. Embedded quotes are escaped. Set `changesOnly: false` to include unchanged rows.\n\n', '返回文本包含 UTF-8 BOM、逗号分隔符、带引号字段及 CRLF 换行，字段内引号会被转义。设置 `changesOnly: false` 可包含未变化记录。\n\n');
       detail += `## ${label('Runnable example','可运行案例')} {#example}\n\n${label('Install with `npm install sheetdelta-core`, then save this example as an `.mjs` file and run it with Node.js 18+.', '先执行 `npm install sheetdelta-core`，将以下代码保存为 `.mjs` 文件，用 Node.js 18+ 运行。')}\n\n\`\`\`js\nimport { ${name} } from '${pkg.name}/${spec.entry}';\n${spec.example}\n\`\`\`\n\n`;
       if(['compareTables','exportDiffCsv'].includes(name)) {
         const notes = readFileSync(`scripts/api-notes/${zh?'zh':'en'}/${slug}.md`,'utf8');
