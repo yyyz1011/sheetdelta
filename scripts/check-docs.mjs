@@ -5,7 +5,7 @@ import { runInNewContext } from 'node:vm';
 import { pathToFileURL } from 'node:url';
 import MiniSearch from 'minisearch';
 import config from '../apps/docs/.vitepress/config.mjs';
-const pages = ['index', 'quick-start', 'browser-tool', 'mapping', 'comparison', 'validation', 'api/compare-tables', 'api/export-diff-csv', 'faq', 'imports', 'excel', 'csv', 'validate', 'clean', 'merge', 'workflow', 'migration', 'async', 'errors', 'compatibility', 'formulas', 'workbooks', 'streaming'];
+const pages = ['import-workflow', 'api/all', 'api/types', 'index', 'quick-start', 'browser-tool', 'mapping', 'comparison', 'validation', 'api/compare-tables', 'api/export-diff-csv', 'faq', 'imports', 'excel', 'csv', 'validate', 'clean', 'merge', 'workflow', 'migration', 'async', 'errors', 'compatibility', 'formulas', 'workbooks', 'streaming'];
 assert.equal(config.lang, 'en-US');
 assert.equal(config.appearance.initialValue, 'light');
 assert.equal(config.themeConfig.search.provider, 'local');

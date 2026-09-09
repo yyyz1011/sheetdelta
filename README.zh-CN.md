@@ -20,6 +20,12 @@ const result = compareTables(before.rows, after.rows, { keys: ['sku'] });
 const report = await exportDiffExcel(result); // XLSX Uint8Array
 ```
 
+## 导入与纠错
+
+表头别名和显式映射、独立的必需列检查、跨字段/表级规则、严格或有效行模式、源位置追踪，以及高亮错误工作簿。
+
+[导入教程](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/import-workflow.html) · [完整 API 和可运行案例](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/api/all.html) · [类型参考](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/api/types.html)
+
 ## 工作簿与流式处理
 
 - **公式计算**：跨表引用、依赖重算、条件和聚合函数，以及精确 VLOOKUP/XLOOKUP/INDEX/MATCH；不支持的公式返回明确错误。
@@ -51,6 +57,14 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 | `/validate` | 必填、类型、唯一性、范围、枚举、正则、有效 ISO 日期 |
 | `/clean` | 显式清洗和转换、变更记录、按主键去重、源记录位置 |
 | `/merge` | 左/内/全连接、冲突报告、严格或并集结构的纵向追加 |
+| `/import` | 表头映射、清洗、业务校验、部分接收和源位置追踪 |
+| `/import-report` | 可修改的 XLSX 错误报告、单元格高亮和源位置明细 |
+| `/errors` | 结构化错误码、上下文和序列化 |
+| `/formula` | 公式计算及跨表依赖 |
+| `/workbook` | 保留工作簿内容修改、公式重算 |
+| `/stream` | CSV 流式读写、排序数据流比较 |
+| `/excel-stream` | XLSX 流式导出 |
+| `/excel-node` | Node 本地 XLSX 流式读取 |
 | `/types` | 公共 TypeScript 类型 |
 
 旧根入口继续兼容，根入口和 `/compare` 不加载第三方运行时代码。安装时包含完整文件依赖，前端构建按实际引用纳入模块，Excel 依赖使用时再加载。详见 [按需导入](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/imports.html)。

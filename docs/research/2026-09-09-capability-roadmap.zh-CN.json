@@ -1,0 +1,462 @@
+{
+  "research_date": "2026-09-09",
+  "baseline_commit": "a4ccaef3344118890e2fe4ffc41138009c473d4f",
+  "baseline_release": "0.4.0",
+  "scope": "业务数据导入、校验、对账和导出；一个包，按需导入",
+  "status": "research_only_not_release_commitment",
+  "priority_counts": {
+    "P1": 22,
+    "P0": 8,
+    "P2": 4
+  },
+  "first_batch": [
+    "I02",
+    "I03",
+    "V01",
+    "V05",
+    "V06",
+    "C05"
+  ],
+  "parallel_quality_work": [
+    "R03",
+    "R04"
+  ],
+  "sources": {
+    "S01": "https://github.com/UgnisSoftware/react-spreadsheet-import",
+    "S02": "https://github.com/UgnisSoftware/react-spreadsheet-import/issues/257",
+    "S03": "https://github.com/UgnisSoftware/react-spreadsheet-import/issues/188",
+    "S04": "https://github.com/UgnisSoftware/react-spreadsheet-import/issues/279",
+    "S05": "https://github.com/UgnisSoftware/react-spreadsheet-import/issues/275",
+    "S06": "https://github.com/UgnisSoftware/react-spreadsheet-import/issues/274",
+    "S07": "https://github.com/UgnisSoftware/react-spreadsheet-import/issues/260",
+    "S08": "https://github.com/simonw/csv-diff/issues/31",
+    "S09": "https://github.com/simonw/csv-diff/issues/39",
+    "S10": "https://github.com/exceljs/exceljs/issues/2916",
+    "S11": "https://github.com/exceljs/exceljs/discussions/3013",
+    "S12": "https://www.reddit.com/r/webdev/comments/1p67vwm/from_excel_to_db/",
+    "S13": "https://www.reddit.com/r/learnjavascript/comments/1iwvwb5/need_a_javascript_library_to_modify_excel_files/",
+    "S14": "https://github.com/catamphetamine/read-excel-file",
+    "S15": "https://raw.githubusercontent.com/exceljs/exceljs/master/README.md",
+    "S16": "https://github.com/optilude/xlsx-template",
+    "S17": "https://github.com/paulfitz/daff",
+    "S18": "https://www.papaparse.com/docs",
+    "S19": "https://specs.frictionlessdata.io/table-schema/",
+    "S20": "https://github.com/AlaSQL/alasql",
+    "S21": "https://docs.sheetjs.com/docs/csf/features/dates/",
+    "S22": "https://docs.sheetjs.com/docs/getting-started/installation/nodejs/",
+    "S23": "https://github.com/simonw/csv-diff"
+  },
+  "features": [
+    {
+      "id": "I01",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "导入检查与预览",
+      "gap_and_acceptance": "提供表名、候选表头和前 N 行预览；报告检测依据。不得把“只返回前 N 行”宣传为“只解析前 N 行”；原始行号保留",
+      "evidence_note": "[S01] 参照；轻量预检为提案",
+      "source_ids": [
+        "S01"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "I02",
+      "priority": "P0",
+      "relative_complexity": "M",
+      "title": "表头别名与明确映射",
+      "gap_and_acceptance": "支持“商品编号/SKU/sku_code → sku”、必需字段和歧义列表；精确/配置别名优先，模糊建议需调用方确认；不静默吞重复列",
+      "evidence_note": "[S01][S12]",
+      "source_ids": [
+        "S01",
+        "S12"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "I03",
+      "priority": "P0",
+      "relative_complexity": "S",
+      "title": "列结构校验",
+      "gap_and_acceptance": "`requiredColumn` 与 `requiredValue` 分开；零数据行仍能报告缺列；未知列有保留/拒绝策略",
+      "evidence_note": "[S02] 诉求",
+      "source_ids": [
+        "S02"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "I04",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "可复用导入配置",
+      "gap_and_acceptance": "序列化表头、映射、清洗和规则版本；同一供应商再次导入可复用；配置失配报错，不保存用户文件",
+      "evidence_note": "[S03] 诉求",
+      "source_ids": [
+        "S03"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "I05",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "日期规范化",
+      "gap_and_acceptance": "显式支持日期系统、日期/时间/时长区别；不擅自套时区；1900 序列 60 与歧义文本有明确策略；边界往返测试",
+      "evidence_note": "[S21] 格式依据；API 为提案",
+      "source_ids": [
+        "S21"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "I06",
+      "priority": "P1",
+      "relative_complexity": "L",
+      "title": "金额、百分比和精度策略",
+      "gap_and_acceptance": "分开处理原始数值、显示文本、业务小数；允许保留原始数字文本/显式缩放舍入，超范围拒绝；不声称恢复 Excel 已丢失的有效位",
+      "evidence_note": "[S04][S14]",
+      "source_ids": [
+        "S04",
+        "S14"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "I07",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "CSV 解析诊断",
+      "gap_and_acceptance": "基于现有显式编码和分隔符识别，补候选分隔符、列数不一致位置、编码失败解释；允许人工指定，低置信度不自动改数据",
+      "evidence_note": "[S18] 参照；诊断层为提案",
+      "source_ids": [
+        "S18"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "I08",
+      "priority": "P2",
+      "relative_complexity": "L",
+      "title": "多行表头与分区表",
+      "gap_and_acceptance": "显式指定表头范围/数据区域、处理标题行和重复页眉；合并表头映射能追溯。首版不猜任意混排报表",
+      "evidence_note": "现有单表头限制；提案",
+      "source_ids": [],
+      "status": "proposed"
+    },
+    {
+      "id": "V01",
+      "priority": "P0",
+      "relative_complexity": "M",
+      "title": "自定义、跨字段校验",
+      "gap_and_acceptance": "同步行级/表级规则，如开始日期≤结束日期；错误/警告分级、规则 ID、字段位置；异常与校验不通过分开",
+      "evidence_note": "[S01][S12]",
+      "source_ids": [
+        "S01",
+        "S12"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "V02",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "异步批量校验",
+      "gap_and_acceptance": "让宿主批量查询 SKU/订单是否存在；并发限制、批大小、去重、取消与超时明确；避免每单元格一次网络请求",
+      "evidence_note": "V01 的提案扩展；不内置数据库或外部账号",
+      "source_ids": [],
+      "status": "proposed"
+    },
+    {
+      "id": "V03",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "复合唯一与跨表关联校验",
+      "gap_and_acceptance": "订单+行号唯一、明细商品必须存在于商品表；明确空值、类型和重复规则；流式全局检查需要索引预算",
+      "evidence_note": "[S19] 规范参照",
+      "source_ids": [
+        "S19"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "V04",
+      "priority": "P1",
+      "relative_complexity": "S",
+      "title": "枚举别名和业务字典",
+      "gap_and_acceptance": "“启用/是/Yes → true”、部门名→部门 ID；重复标签/未知值返回问题，不随意猜测",
+      "evidence_note": "[S05] 诉求",
+      "source_ids": [
+        "S05"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "V05",
+      "priority": "P0",
+      "relative_complexity": "M",
+      "title": "可修复的错误报告",
+      "gap_and_acceptance": "导出原始数据、文件/表/行/列、错误码和说明；错误单元格高亮；多个错误均保留；保留前导零并防公式注入",
+      "evidence_note": "[S12] 用户讨论；报告设计为提案",
+      "source_ids": [
+        "S12"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "V06",
+      "priority": "P0",
+      "relative_complexity": "L",
+      "title": "导入流程编排",
+      "gap_and_acceptance": "连接读取、映射、转换、校验；支持预检、严格全成全败/显式允许有效行两种输出；有终态和中止；不擅自写数据库",
+      "evidence_note": "[S01][S07][S12]；组合 API 为提案",
+      "source_ids": [
+        "S01",
+        "S07",
+        "S12"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "V07",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "Schema 类型推导与适配",
+      "gap_and_acceptance": "一份规则生成 TS 输出类型；提供 Zod/Standard Schema 等可选适配方向，单独验证其映射语义；不把这些依赖塞进根入口",
+      "evidence_note": "[S14][S19] 参照；具体适配为提案",
+      "source_ids": [
+        "S14",
+        "S19"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "C01",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "对账配置与可解释规范化",
+      "gap_and_acceptance": "复用字段映射、文本转换、比较规则；统一解释比较与 join 的键语义；报告原值与标准值，保留兼容默认值",
+      "evidence_note": "[S03][S23] 参照；提案",
+      "source_ids": [
+        "S03",
+        "S23"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "C02",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "相对容差与字段比较器",
+      "gap_and_acceptance": "在已有绝对容差上增加百分比/日期精度/显式比较器；定义零值、负值、非有限值及组合规则",
+      "evidence_note": "现有比较选项缺口；提案",
+      "source_ids": [],
+      "status": "proposed"
+    },
+    {
+      "id": "C03",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "重复键分组诊断",
+      "gap_and_acceptance": "列出重复组、源行和可选显式聚合；默认仍拒绝不确定匹配；不实现自动随意一对一配对",
+      "evidence_note": "[S08]；已有拒绝策略的扩展",
+      "source_ids": [
+        "S08"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "C04",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "汇总对账",
+      "gap_and_acceptance": "先按商品/日期等维度 count、sum，再比较；输出“总量差多少”并能回查明细；金额依赖明确精度策略",
+      "evidence_note": "[S20] 功能参照；业务封装为提案",
+      "source_ids": [
+        "S20"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "C05",
+      "priority": "P0",
+      "relative_complexity": "M",
+      "title": "全流程来源追踪",
+      "gap_and_acceptance": "统一文件、工作表、源记录/行、列/单元格、规则版本；清洗/过滤/合并后仍能从差异定位来源；CSV 记录号与物理行分开",
+      "evidence_note": "现有 rowNumbers、sources、indices 分散；提案",
+      "source_ids": [],
+      "status": "proposed"
+    },
+    {
+      "id": "C06",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "多表/多文件批量对账",
+      "gap_and_acceptance": "显式工作表配对、每对独立规则、总报告；同名冲突和缺表可解释；限制总资源消耗",
+      "evidence_note": "已有读多表/数组比较的组合提案",
+      "source_ids": [],
+      "status": "proposed"
+    },
+    {
+      "id": "C07",
+      "priority": "P2",
+      "relative_complexity": "L",
+      "title": "差异补丁与三方冲突分析",
+      "gap_and_acceptance": "对数据记录生成可校验补丁，检查基线和冲突；逆向恢复在保存完整旧值时成立；不等于工作簿 XML 补丁",
+      "evidence_note": "[S17] 参照；先验证两个真实版本管理案例",
+      "source_ids": [
+        "S17"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "C08",
+      "priority": "P1",
+      "relative_complexity": "L",
+      "title": "乱序大文件对账",
+      "gap_and_acceptance": "Node 外部排序后复用有序流比较；限制内存/磁盘、处理磁盘满和中止、清理临时文件；不得暗中整体载入内存",
+      "evidence_note": "[S10] 性能诉求；外部排序方案为提案",
+      "source_ids": [
+        "S10"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "E01",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "可配置业务报表",
+      "gap_and_acceptance": "列标题/宽度/格式、冻结行、筛选、总计行和样式预设；限定配置集合，测试 Excel/WPS 打开结果",
+      "evidence_note": "[S15] 参照",
+      "source_ids": [
+        "S15"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "E02",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "从导入规则生成模板",
+      "gap_and_acceptance": "同一 schema 生成列说明、示例、下拉选项、文本 ID 格式；Excel 内提示不能替代服务端再次校验",
+      "evidence_note": "[S15] 功能参照；与导入 schema 联动为提案",
+      "source_ids": [
+        "S15"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "E03",
+      "priority": "P2",
+      "relative_complexity": "L",
+      "title": "模板变量与重复明细行",
+      "gap_and_acceptance": "定点变量替换先做；重复行需显式处理样式、相对公式、合并范围、表区域和对象锚点；不支持项必须拒绝",
+      "evidence_note": "[S13][S16]；当前 patchWorkbook 不足以直接提供",
+      "source_ids": [
+        "S13",
+        "S16"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "E04",
+      "priority": "P1",
+      "relative_complexity": "L",
+      "title": "流式多工作表与自动拆分",
+      "gap_and_acceptance": "现有单表流式写扩展到多表；达到 Excel 行数上限时按显式策略分表/报错；长表名冲突、重复标题、慢输出均测试",
+      "evidence_note": "[S15] 参照；数据量策略为提案",
+      "source_ids": [
+        "S15"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "R01",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "文件任务 Worker API",
+      "gap_and_acceptance": "封装读取→校验→对账→导出；真实阶段进度、取消/终止、Transferable、异常恢复；不伪造无法知道的百分比",
+      "evidence_note": "[S11] 诉求；从现有比较示例升级",
+      "source_ids": [
+        "S11"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "R02",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "无 UI 的接入状态与框架示例",
+      "gap_and_acceptance": "提供文件/表头选择、映射、纠错、完成状态；React/Vue 各一个完整示例；核心不依赖 UI 框架和全局样式",
+      "evidence_note": "[S01][S06]；先示例，再按需要加薄适配",
+      "source_ids": [
+        "S01",
+        "S06"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "R03",
+      "priority": "P0",
+      "relative_complexity": "L",
+      "title": "异常文件与资源约束回归",
+      "gap_and_acceptance": "ZIP/XML 异常、重复路径、解压后超额、异常维度、巨型字符串、取消和错误清理；针对实际解压量核对限制；不是仅检查压缩包大小",
+      "evidence_note": "[S07][S10][S18] 及本地限制说明；加固提案，不是声称已发现漏洞",
+      "source_ids": [
+        "S07",
+        "S10",
+        "S18"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "R04",
+      "priority": "P0",
+      "relative_complexity": "L",
+      "title": "真实应用与浏览器矩阵",
+      "gap_and_acceptance": "扩展 Excel Windows/macOS、WPS、LibreOffice 的固定样本打开/保存检查；Firefox/WebKit/Chromium 的 Worker 与下载验证；记录未测项",
+      "evidence_note": "[S13] 诉求；本地当前覆盖缺口",
+      "source_ids": [
+        "S13"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "R05",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "性能退化监测",
+      "gap_and_acceptance": "宽表/长文本/共享字符串/高差异率/慢目标；固定环境记录耗时、RSS、临时磁盘和取消延迟；跨版本比较且允许合理波动",
+      "evidence_note": "[S10] 诉求；当前单次基准的延伸",
+      "source_ids": [
+        "S10"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "R06",
+      "priority": "P1",
+      "relative_complexity": "M",
+      "title": "安装与 API 稳定性",
+      "gap_and_acceptance": "单包安装体积与前端打包体积分别量测；检查外部 tarball 依赖对代理/离线 CI 的影响；pnpm/yarn/SSR/TS 集成、API 差异和弃用策略",
+      "evidence_note": "[S22] 安装依据；本地 package.json；提案",
+      "source_ids": [
+        "S22"
+      ],
+      "status": "proposed"
+    },
+    {
+      "id": "R07",
+      "priority": "P2",
+      "relative_complexity": "M",
+      "title": "CLI 与机器可读报告",
+      "gap_and_acceptance": "同一包的可选命令提供 compare/validate、配置文件、JSON/CSV/XLSX 输出；区分“有差异”和“运行失败”退出码",
+      "evidence_note": "[S09][S17][S23]；不会启动云任务或上传文件",
+      "source_ids": [
+        "S09",
+        "S17",
+        "S23"
+      ],
+      "status": "proposed"
+    }
+  ]
+}

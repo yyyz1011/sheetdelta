@@ -21,7 +21,9 @@
     "site:check": "node scripts/check-docs.mjs",
     "bench:core": "npm run build -w sheetdelta-core && node --expose-gc scripts/benchmark.mjs",
     "check:worker": "node scripts/check-worker-example.mjs && tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --lib ES2022,WebWorker examples/browser/compare.worker.ts && tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --lib ES2022,DOM examples/browser/client.ts",
-    "bench:stream": "npm run build -w sheetdelta-core && node --max-old-space-size=128 scripts/benchmark-stream.mjs"
+    "bench:stream": "npm run build -w sheetdelta-core && node --max-old-space-size=128 scripts/benchmark-stream.mjs",
+    "docs:api": "npm run build -w sheetdelta-core && node scripts/check-api-docs.mjs --write",
+    "check:api": "node scripts/check-api-docs.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

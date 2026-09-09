@@ -16,6 +16,7 @@ export function cellPosition(address: string): { row: number; column: number } {
   return { row, column };
 }
 export function cellAddress(row: number, column: number): string {
+  if (!Number.isSafeInteger(row) || row < 1 || row > 1048576 || !Number.isSafeInteger(column) || column < 1 || column > 16384) fail('INVALID_OPTIONS', 'Cell coordinates must be within Excel worksheet bounds.');
   let letters = ''; for (let c = column; c > 0; c = Math.floor((c - 1) / 26)) letters = String.fromCharCode(65 + (c - 1) % 26) + letters;
   return letters + row;
 }

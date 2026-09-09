@@ -1,6 +1,7 @@
+import { readZipBudget } from './zip-budget.js';
 import { encodeXlsxText, encodeFormula } from './ooxml.js';
 import { DOMParser, XMLSerializer, type Document, type Element } from '@xmldom/xmldom';
-import { unzipSync, zipSync, strFromU8, strToU8 } from 'fflate';
+import { zipSync, strFromU8, strToU8 } from 'fflate';
 import { fail, wrapError, assertRecord } from './errors.js';
 import type { Cell } from './types.js';
 import { calculateWorkbook, cellPosition, type FormulaWorkbook, type FormulaOptions } from './formula.js';
@@ -25,11 +26,7 @@ function load(input:ArrayBuffer|Uint8Array,options:WorkbookOptions){
   const maxBytes=options.maxBytes??20*1024*1024,maxSize=options.maxUncompressedBytes??200*1024*1024,maxEntries=options.maxEntries??10000;
   for(const n of [maxBytes,maxSize,maxEntries])if(!Number.isSafeInteger(n)||n<1)fail('INVALID_OPTIONS','Package limits must be positive integers.');
   if(input.byteLength>maxBytes)fail('LIMIT_EXCEEDED','Workbook byte limit exceeded.',{limit:maxBytes});
-  const seen=new Set<string>();let total=0;
-  try{const files=unzipSync(input instanceof Uint8Array?input:new Uint8Array(input),{filter:entry=>{
-    if(seen.has(entry.name))fail('INVALID_WORKBOOK','Duplicate package entry.');seen.add(entry.name);total+=entry.originalSize;
-    if(seen.size>maxEntries||total>maxSize)fail('LIMIT_EXCEEDED','Uncompressed workbook package limit exceeded.');return true;
-  }});
+  try{const files=readZipBudget(input instanceof Uint8Array?input:new Uint8Array(input),maxSize,maxEntries,true);
   if(!files['xl/workbook.xml']||!files['xl/_rels/workbook.xml.rels'])fail('INVALID_WORKBOOK','Expected an OOXML workbook.');
   if(Object.keys(files).some(p=>p.startsWith('_xmlsignatures/')))fail('INVALID_WORKBOOK','Editing signed workbooks would invalidate signatures.');return files;
   }catch(e){wrapError(e,'INVALID_WORKBOOK','Unable to open workbook package.');}

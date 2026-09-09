@@ -31,3 +31,7 @@ Use `type` alongside range/string rules to reject incompatible value types. Opti
 Results contain `valid`, `issues`, `validRows`, and `invalidRows`. Each issue has `code`, `row`, `column`, `value`, `message`; row indices are one-based data positions. Unique checks distinguish numeric `1` from string `'1'`. Invalid schemas and regular expressions throw configuration errors. Keep schema patterns trusted.
 
 CSV and display-mode Excel values are strings. Use [cleanTable](./clean) with explicit conversions before numeric validation, or read Excel in raw mode. To find a source file row, use `table.rowNumbers[issue.row - 1]`.
+
+## Issue budgets and business rules
+
+`validateTable` accepts optional `maxIssues` (positive integer). Exceeding it throws `LIMIT_EXCEEDED` without a truncated result. Omitting it preserves the existing unbounded issue count. For required source columns and cross-field rules, use the [import workflow](./import-workflow); cell `required` is not a separate header check.

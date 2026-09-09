@@ -41,7 +41,14 @@ Worker 示例经过浏览器目标打包和类型检查，消息、进度、取�
 - Apache POI 样本 `WithChart.xlsx`、`SimpleMacro.xlsm`、`SampleSS.strict.xlsx` 的应用元数据标记为 Microsoft Excel。测试修改单元格，并逐字节比较解压后的图表、VBA、关系等保留内容。[样本目录](https://github.com/yyyz1011/sheetdelta/tree/master/tests/fixtures/apache-poi)记录了固定来源及 Apache 2.0 声明。
 - 本次没有启动实际 Excel/WPS 应用版本。这些样本检查不等于对所有工作簿、全部公式语义、视觉渲染、图表刷新或宏行为的认证。
 
-## XLSX 流式基准
+## 0.5 导入流程验证
+
+- 回归测试覆盖表头映射、严格与部分接收、同步业务规则、源位置、取消、问题数量限制及纠错报告。
+- CSV 导入、XLSX 错误报告、修改单元格和重新导入流程已在 Chromium、Firefox、WebKit 通过。这不代表所有浏览器版本和所有界面流程均已验证。
+- 生成的错误报告经 LibreOfficeDev 26.8.0.0.alpha0 打开并保存，读回验证了三个工作表、前导零编号和错误明细。本轮未验证视觉格式及 Microsoft Excel/WPS 原生应用行为。
+- 41 个公共运行时 API（48 个导出绑定）都有可执行的中英文示例，共运行 82 次；参考文档还包含 57 个导出类型。这些检查证明示例覆盖情况，不代表所有输入均已验证。
+
+## XLSX 流式测量
 
 运行 `npm run bench:stream -- 1000000`。在相同 Apple M4 / Node 25.9.0 环境、5 列、**V8 堆上限 128 MiB** 下，一次测试写出 1,000,000 行用时 **7,574 ms**，逐条读取并核对编号、行号用时 **7,533 ms**。XLSX 文件大小 **26,442,063 字节**，采样进程峰值 RSS **259 MiB**；RSS 包含 V8 堆以外的内存。输入逐条生成、文件通过 pipeline 写出、读取时不收集完整数组。
 

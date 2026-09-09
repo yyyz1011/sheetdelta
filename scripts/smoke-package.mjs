@@ -20,12 +20,22 @@ try {
     import { cleanTable, deduplicateTable } from 'sheetdelta-core/clean';
     import { validateTable } from 'sheetdelta-core/validate';
     import { mergeTables, appendTables } from 'sheetdelta-core/merge';
+    import { importFile, mapImportHeaders, prepareImport, locateImportCell } from 'sheetdelta-core/import';
+    import { exportImportReport } from 'sheetdelta-core/import-report';
     import { calculateWorkbook } from 'sheetdelta-core/formula';
     import { patchWorkbook, recalculateExcel } from 'sheetdelta-core/workbook';
     import { readCsvStream, writeCsvStream, compareSortedStreams } from 'sheetdelta-core/stream';
     import { writeExcelStream } from 'sheetdelta-core/excel-stream';
     import { readExcelStream } from 'sheetdelta-core/excel-node';
     import { writeFileSync } from 'node:fs';
+    const importSchema = {fields:[{key:'id',requiredColumn:true},{key:'qty',clean:{type:'number'},rule:{min:0}}]};
+    const importResult = await importFile('id,qty\\n001,-2', importSchema, {format:'csv'});
+    assert.equal(importResult.status,'invalid');
+    assert.equal(importResult.rows.length,0);
+    assert.equal(mapImportHeaders(['id','qty'],importSchema.fields).valid,true);
+    assert.equal(locateImportCell(importResult,1,'qty').sourceRow,2);
+    assert.equal((await prepareImport(readCsv('id,qty\\n001,2'),importSchema)).rows[0].qty,2);
+    assert.equal((await readExcel(await exportImportReport(importResult),{sheets:['Data']}))[0].rows[0].id,'001');
     async function collect(source) { const out=[]; for await (const x of source) out.push(x); return out; }
     assert.equal(calculateWorkbook({S:{A1:2,B1:{formula:'=A1*3'}}}).sheets.S.B1,6);
     const streamed = await collect(readCsvStream(writeCsvStream([{id:'001',v:2}],{columns:['id','v']})));
@@ -90,7 +100,7 @@ try {
   assert.ok(excelBundle.outputFiles.length > 1, 'Excel dynamic dependency chunks');
   for (const output of Object.values(excelBundle.metafile.outputs)) assert.ok(!output.imports.some(i => i.external), 'No unresolvable browser externals');
   console.log('Browser Excel bundle with lazy chunks: PASS');
-  for (const entry of ['workbook', 'stream', 'excel-stream']) {
+  for (const entry of ['workbook', 'stream', 'excel-stream', 'import', 'import-report']) {
     const output=await build({ stdin:{contents:`export * from 'sheetdelta-core/${entry}';`,resolveDir:cwd},bundle:true,splitting:true,minify:true,format:'esm',platform:'browser',outdir:join(cwd,'browser-'+entry),write:false,metafile:true });
     for(const file of Object.values(output.metafile.outputs)) assert.ok(!file.imports.some(i=>i.external), `${entry} has no unresolved browser imports`);
     console.log(`${entry} browser bundle: PASS`);

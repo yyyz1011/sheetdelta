@@ -79,8 +79,12 @@ import { readExcel } from 'sheetdelta-core/excel';
 // });
 ```
 
-Byte limits apply before parsing; dimension and cell budgets apply after the engine reads the workbook and before table conversion. They do not bound ZIP decompression memory. The XLSX/XLS entry rejects ordinary CSV text masquerading as a workbook. See [compatibility evidence](./compatibility) and [migration notes](./migration).
+Byte limits apply before parsing; dimension and cell budgets apply after the engine reads the workbook and before table conversion. ZIP-based files additionally use the decompression budgets below; these are not a hard process-memory limit. The XLSX/XLS entry rejects ordinary CSV text masquerading as a workbook. See [compatibility evidence](./compatibility) and [migration notes](./migration).
 
 ## Template editing and formula recalculation
 
 For existing templates use [workbook editing](./workbooks). For incremental large-file I/O use [stream APIs](./streaming).
+
+## ZIP decompression budgets
+
+XLSX reads accept `maxUncompressedBytes` (default 200 MiB) and `maxEntries` (default 10,000). Before the parsing engine runs, preflight checks declared sizes and incrementally verifies actual decompressed bytes, duplicate/unsafe paths and entry completion. Applies to ZIP-based XLSX, not binary XLS. This adds a decompression pass and is not a hard process-memory sandbox. Budget violations throw `LIMIT_EXCEEDED`; inconsistent packages throw `INVALID_WORKBOOK`.

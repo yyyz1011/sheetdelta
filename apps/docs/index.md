@@ -17,7 +17,7 @@ npm install sheetdelta-core
 
 ## Choose your starting point
 
-<div class="doc-paths"><a class="doc-path" href="./quick-start.html"><strong>Build your first comparison →</strong><span>Install the package and get a useful result in a few lines.</span></a><a class="doc-path" href="./browser-tool.html"><strong>Compare files in the browser →</strong><span>Upload CSV or Excel files locally. No code required.</span></a><a class="doc-path" href="./api/compare-tables.html"><strong>Explore the API →</strong><span>Options, return types, ordering, and validation.</span></a><a class="doc-path" href="./mapping.html"><strong>Map your data →</strong><span>Different column names, composite keys, and identifiers.</span></a></div>
+<div class="doc-paths"><a class="doc-path" href="./quick-start.html"><strong>Build your first comparison →</strong><span>Install the package and get a useful result in a few lines.</span></a><a class="doc-path" href="./browser-tool.html"><strong>Compare files in the browser →</strong><span>Upload CSV or Excel files locally. No code required.</span></a><a class="doc-path" href="./api/all.html"><strong>Explore the API →</strong><span>Options, return types, ordering, and validation.</span></a><a class="doc-path" href="./mapping.html"><strong>Map your data →</strong><span>Different column names, composite keys, and identifiers.</span></a></div>
 
 ## What the package does
 
@@ -62,3 +62,7 @@ Use ESM in Node.js 18+ or a modern browser with `structuredClone`. Type declarat
 - [Formula calculation](./formulas): business functions, cross-sheet dependencies and exact lookups.
 - [Workbook editing](./workbooks): patch values while retaining styles, charts and other contents.
 - [Streaming](./streaming): incremental CSV/XLSX I/O and sorted comparisons.
+
+## Import and repair
+
+[From header mapping to an error workbook](./import-workflow): check missing columns separately from empty values, run business rules, retain source positions, then repair and reimport. The [complete API reference](./api/all) includes an executable example for every runtime API; the [type reference](./api/types) lists all option shapes.
