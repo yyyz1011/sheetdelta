@@ -33,7 +33,7 @@ const options: CompareInputOptions = { keys: ['id'], ignoreColumns: ['updatedAt'
 
 ## 能力边界
 
-本版聚焦表格数据处理，不是在线编辑器或公式引擎。不提供宏、公式求值、格式差异比较、模糊行匹配、多对多合并或恒定内存流式处理保证。浏览器工具仍是文件比较界面；新增校验、清洗和合并功能通过 npm API 使用。
+表格 API 聚焦数据处理，公式、工作簿修改和流式处理使用下方独立模块。不提供宏执行、格式差异比较、模糊行匹配或多对多合并。浏览器工具仍是文件比较界面；新增校验、清洗和合并功能通过 npm API 使用。
 
 当一侧为空时，自动使用另一侧的非主键字段，保证新增或删除报告保留数据。
 
@@ -46,3 +46,9 @@ const options: CompareInputOptions = { keys: ['id'], ignoreColumns: ['updatedAt'
 `includeUnchanged: false` 时，`result.rows.length` 可以小于 `summary.total`。完整数量使用汇总字段。原 `TableValidationError.issues` 和 `MergeConflictError.conflicts` 保留，统一错误基类改变了部分英文错误文案，请使用错误码。
 
 阅读[异步与 Worker](./async)、[错误处理](./errors)和[兼容性与性能](./compatibility)。
+
+## 0.4 工作簿处理升级
+
+新增 `/formula`、`/workbook`、`/stream`、`/excel-stream`、`/excel-node`，仍是单个 npm 包。已有根入口和 0.3 API 不变。`/excel-node` 仅供 Node，浏览器请使用其他入口。
+
+公式计算只覆盖文档列出的子集；未支持的公式明确返回错误。`patchWorkbook` 默认清除公式缓存并请求打开时重算，立即读取结果前先调用 `recalculateExcel` 或交由表格应用重算。有序流比较要求预先排序、明确字段，结果按键排序，可能在已经输出部分结果后遇到错误。参见[公式](./formulas)、[工作簿](./workbooks)、[流式处理](./streaming)。

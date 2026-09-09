@@ -37,7 +37,7 @@ npm install sheetdelta-core
 | Output | Typed results, CSV and XLSX reports | Visual comparison and CSV download |
 | Best for | Application integration | Checking files by hand |
 
-File APIs are available through `/csv` and `/excel`. Comparison, validation, cleaning and merge modules operate on records. The toolkit does not calculate Excel formulas or compare cell formatting.
+File APIs are available through `/csv` and `/excel`. Comparison, validation, cleaning and merge modules operate on records. Formula calculation, template-preserving edits and streaming have dedicated modules below. Cell-format comparison is not provided.
 
 ## Runtime requirements
 
@@ -56,3 +56,9 @@ Use ESM in Node.js 18+ or a modern browser with `structuredClone`. Type declarat
 - [Async & Workers](./async): progress, cancellation and compact difference results.
 - [Structured errors](./errors): stable codes and source context.
 - [Compatibility & performance](./compatibility): independently generated workbooks, reproducible benchmarks and explicit limits.
+
+## Advanced workbook workflows
+
+- [Formula calculation](./formulas): business functions, cross-sheet dependencies and exact lookups.
+- [Workbook editing](./workbooks): patch values while retaining styles, charts and other contents.
+- [Streaming](./streaming): incremental CSV/XLSX I/O and sorted comparisons.

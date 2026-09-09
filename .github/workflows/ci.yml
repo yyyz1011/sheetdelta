@@ -27,3 +27,24 @@ jobs:
       - run: node scripts/smoke-package.mjs
       - run: node scripts/check-doc-examples.mjs
       - run: npm run check:worker
+      - run: node scripts/check-inventory-example.mjs
+
+  runtime:
+    name: Node ${{ matrix.node }} consumer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node: ['18', '20', '22', '24']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run pack:core
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node scripts/smoke-package.mjs

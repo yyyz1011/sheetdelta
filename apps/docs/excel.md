@@ -80,3 +80,7 @@ import { readExcel } from 'sheetdelta-core/excel';
 ```
 
 Byte limits apply before parsing; dimension and cell budgets apply after the engine reads the workbook and before table conversion. They do not bound ZIP decompression memory. The XLSX/XLS entry rejects ordinary CSV text masquerading as a workbook. See [compatibility evidence](./compatibility) and [migration notes](./migration).
+
+## Template editing and formula recalculation
+
+For existing templates use [workbook editing](./workbooks). For incremental large-file I/O use [stream APIs](./streaming).

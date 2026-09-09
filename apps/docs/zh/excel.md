@@ -79,3 +79,7 @@ import { readExcel } from 'sheetdelta-core/excel';
 ```
 
 字节大小在解析前检查，行列和单元格限制在引擎读取后、生成表数据前检查。这些限制不保证压缩包解压内存上限。XLSX/XLS 入口会拒绝伪装成工作簿的普通 CSV 文本。参见[兼容性验证](./compatibility)和[升级说明](./migration)。
+
+## 模板修改和公式重算
+
+需要保留原工作簿时，使用[保留工作簿修改](./workbooks)。需要逐行读写大文件时，使用[流式 API](./streaming)。

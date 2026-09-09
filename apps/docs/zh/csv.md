@@ -47,3 +47,7 @@ const table = readCsvBytes(bytes, { encoding: 'utf-8' });
 ```
 
 中文旧系统导出的文件可以明确指定 `{ encoding: 'gb18030' }`，支持范围取决于运行环境的 `TextDecoder`。不会自动猜测编码；不匹配或损坏的字节抛出 `INVALID_CSV`，不支持的编码抛出 `INVALID_OPTIONS`，超出大小抛出 `LIMIT_EXCEEDED`。两种读取 API 都在内存中解析，并非流式读取。
+
+## 大 CSV 文件
+
+使用[流式 API](./streaming)逐条解析和写出，而无需先拼接完整 CSV。

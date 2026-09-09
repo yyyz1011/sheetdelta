@@ -2,7 +2,7 @@
   "name": "sheetdelta-core",
   "version": "0.1.0",
   "type": "module",
-  "description": "Excel and CSV toolkit: import, validate, clean, compare, merge and export reports with independent ESM entry points.",
+  "description": "Excel and CSV toolkit: compare, validate, clean, merge, calculate formulas, preserve templates and stream records with selective ESM imports.",
   "license": "MIT",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -52,6 +52,31 @@
       "types": "./dist/errors.d.ts",
       "import": "./dist/errors.js",
       "default": "./dist/errors.js"
+    },
+    "./formula": {
+      "types": "./dist/formula.d.ts",
+      "import": "./dist/formula.js",
+      "default": "./dist/formula.js"
+    },
+    "./workbook": {
+      "types": "./dist/workbook.d.ts",
+      "import": "./dist/workbook.js",
+      "default": "./dist/workbook.js"
+    },
+    "./stream": {
+      "types": "./dist/stream.d.ts",
+      "import": "./dist/stream.js",
+      "default": "./dist/stream.js"
+    },
+    "./excel-stream": {
+      "types": "./dist/excel-stream.d.ts",
+      "import": "./dist/excel-stream.js",
+      "default": "./dist/excel-stream.js"
+    },
+    "./excel-node": {
+      "types": "./dist/excel-node.d.ts",
+      "import": "./dist/excel-node.js",
+      "default": "./dist/excel-node.js"
     }
   },
   "files": [
@@ -75,7 +100,10 @@
     "validation",
     "deduplicate",
     "merge",
-    "report"
+    "report",
+    "formula",
+    "streaming",
+    "template"
   ],
   "repository": {
     "type": "git",
@@ -94,11 +122,15 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@xmldom/xmldom": "0.9.12",
+    "fflate": "0.8.3",
     "papaparse": "5.5.3",
+    "saxes": "6.0.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
-    "fflate": "0.8.3"
+    "yauzl": "3.4.0"
   },
   "devDependencies": {
-    "@types/papaparse": "^5.5.2"
+    "@types/papaparse": "^5.5.2",
+    "@types/yauzl": "^3.4.0"
   }
 }

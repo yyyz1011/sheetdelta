@@ -22,6 +22,16 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 console.log(result.summary.changed); // 1
 ```
 
+## Workbook and streaming workflows
+
+- **Formula calculation**: cross-sheet dependencies, conditions, aggregates and exact VLOOKUP/XLOOKUP/INDEX/MATCH; unsupported formulas return explicit errors.
+- **Template-preserving edits**: patch XLSX/XLSM cells while retaining untouched styles, charts, comments, validation and VBA contents. Macros are never executed.
+- **Incremental I/O**: CSV reading/writing, XLSX writing, Node local-file XLSX reading, and sorted-stream comparison.
+- **Cross-application evidence**: actual LibreOffice recalculation, Apache POI fixtures with Excel application metadata, and a million-row incremental write/read benchmark.
+
+[Formula reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/formulas.html) · [Workbook editing](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/workbooks.html) · [Streaming](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/streaming.html)
+
+
 ## Reliability and larger jobs
 
 - **Async comparison**: `compareTablesAsync` supports progress and `AbortSignal` cancellation. `includeUnchanged: false` reduces retained results while preserving complete counts.
@@ -44,6 +54,11 @@ See [async & Worker examples](https://sheetdelta.snowy-hero-3539.chatgpt.site/do
 | `sheetdelta-core/clean` | Explicit text/type normalization, auditable changes, deduplication with source row positions |
 | `sheetdelta-core/merge` | Left/inner/full joins with conflict reporting; strict or union-schema vertical append |
 | `sheetdelta-core/errors` | Structured error codes, context and serialization |
+| `sheetdelta-core/formula` | `calculateWorkbook` |
+| `sheetdelta-core/workbook` | `patchWorkbook`, `recalculateExcel` |
+| `sheetdelta-core/stream` | `readCsvStream`, `writeCsvStream`, `compareSortedStreams`, `compareStreamKeys` |
+| `sheetdelta-core/excel-stream` | `writeExcelStream` |
+| `sheetdelta-core/excel-node` | `readExcelStream` (Node only) |
 | `sheetdelta-core/types` | Shared TypeScript types |
 
 Existing `import { compareTables, exportDiffCsv } from 'sheetdelta-core'` remains supported. The root and `/compare` load no third-party runtime code. The installation includes file-format dependencies; production bundlers only include modules reachable from your imports. Excel dependencies are loaded on demand. See [selective imports](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/imports.html).
@@ -56,7 +71,7 @@ Existing `import { compareTables, exportDiffCsv } from 'sheetdelta-core'` remain
 - Cleaning reports changes and conversion failures. Merge conflicts throw by default rather than silently overwrite data.
 - Excel reading defaults to displayed text; raw mode keeps primitive values and numeric date serials. Formula results are cached values, never recalculated.
 - Default Excel read limits: 20 MiB, 50,000 physical data rows per sheet, 1,000 columns. Limits are configurable and exceeding them throws.
-- All operations work in memory. Use a browser Worker for large files. This is not a formula engine, formatting comparator, macro editor or constant-memory streaming system.
+- Array APIs and workbook patching work in memory. Dedicated stream APIs process incrementally; Node XLSX reading caches shared strings within a configurable bound. Formula support is the documented subset; no macro execution or formatting comparison.
 - Decimal arithmetic uses JavaScript numbers; use normalized text for exact decimals. IDs already damaged by source spreadsheet conversion cannot be reconstructed.
 
 ESM; Node.js 18+ or modern browsers with `structuredClone`. Type declarations are included. Read the [complete workflow](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/workflow.html), [API reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/compare-tables.html), and [migration notes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/migration.html).
