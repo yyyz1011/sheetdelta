@@ -124,7 +124,7 @@ Browser tests use Chrome on macOS. On Linux, install Chromium with `npx playwrig
 
 Create a branch, open a PR, and squash-merge after required checks pass. Use `fix(core): ...` for patches, `feat(core): ...` for features, and a `BREAKING CHANGE:` body for incompatible changes. Documentation and `web`-scoped changes do not publish a new npm version.
 
-GitHub Actions publishes npm releases from `master` using trusted publishing. Versions and release notes are recorded in Git tags, GitHub Releases, and npm. The development workspace retains its baseline package version. See [release maintenance](docs/RELEASING.md).
+After each merge to `master`, GitHub Actions validates the package and documentation, then deploys the documentation and browser tool to [GitHub Pages](https://sheetdelta.nimokit.com/docs/). In parallel, it publishes eligible npm releases using trusted publishing. Documentation-only changes update the website without creating an npm version. Versions and release notes are recorded in Git tags, GitHub Releases, and npm. The development workspace retains its baseline package version. See [release maintenance](docs/RELEASING.md).
 
 For documentation changes, update both the English page and its counterpart under `apps/docs/zh/`. Translation switches keep the current page. Report bugs with a small reproduction that contains no sensitive data.
 

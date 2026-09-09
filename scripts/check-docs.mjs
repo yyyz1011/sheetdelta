@@ -38,6 +38,8 @@ for (const prefix of ['', 'zh/']) for (const page of pages) {
   checked++;
 }
 assert.ok(readdirSync('dist/docs/assets/chunks').filter(name => /localSearchIndex/.test(name)).length === 2, 'Built local search indexes');
+assert.equal(readFileSync('dist/404.html', 'utf8'), readFileSync('dist/docs/404.html', 'utf8'), 'GitHub Pages uses the documentation 404 page');
+assert.equal(readFileSync('dist/.nojekyll', 'utf8'), '');
 assert.match(readFileSync('dist/index.html', 'utf8'), /url=\/docs\//);
 assert.match(readFileSync('dist/playground/index.html', 'utf8'), /\/playground\/assets\//);
 for (const name of ['README.md', 'README.zh-CN.md']) assert.ok(readFileSync(name, 'utf8').includes('https://sheetdelta.nimokit.com/docs/'));

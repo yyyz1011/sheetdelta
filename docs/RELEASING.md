@@ -1,4 +1,4 @@
-# GitHub → npm 自动发布
+# GitHub → npm 与文档站自动发布
 
 仓库：<https://github.com/yyyz1011/sheetdelta>，默认分支 `master`。npm 包：`sheetdelta-core`，工作区：`packages/core`。网站不包含在 npm 发布包里。
 
@@ -7,7 +7,8 @@
 1. 从 `master` 创建功能分支，修改并提交，然后创建 PR。
 2. PR 运行单元测试、类型检查、网站构建、浏览器回归、npm 打包检查，并在独立项目中安装压缩包验证导入和运行。
 3. 用 squash 合并到 `master`，保持 PR 标题为 Conventional Commits 格式。
-4. Release 工作流再次测试，通过后由 semantic-release 自动计算版本、发布 npm、打 Git 标签、生成 GitHub Release。
+4. Release 工作流再次测试，通过后并行执行两项发布：semantic-release 自动计算版本、发布 npm、打 Git 标签、生成 GitHub Release；GitHub Pages 部署此次检查通过的 `dist/` 文档与浏览器工具。
+5. 每次合并都会部署网站，即使该提交不触发 npm 发版。两项发布互不依赖，失败可在 Actions 查看并重试；检查失败则两项都不会发布。
 
 | 合并提交 | npm 结果 |
 | --- | --- |
@@ -29,7 +30,7 @@
 - 验证绑定后设置仓库 Actions variable `NPM_TRUSTED_PUBLISHING=true`。
 - 通过一项真实修复的 PR 验证自动发布。未启用变量时测试照常运行，publish job 跳过。
 
-使用 GitHub 托管的 Ubuntu runner、Node.js 24 和支持 OIDC 的 npm。`publish.yml` 只给发布 job `id-token: write` 和 `contents: write`；不用长期 NPM_TOKEN。公开仓库产生 npm provenance。绑定必须与 `repository.url` 和工作流文件名一致。
+使用 GitHub 托管的 Ubuntu runner、Node.js 24 和支持 OIDC 的 npm。`publish.yml` 的 npm job 使用 `id-token: write` 和 `contents: write`，文档 job 使用 `pages: write` 和 `id-token: write`；不用长期 NPM_TOKEN。公开仓库产生 npm provenance。绑定必须与 `repository.url` 和工作流文件名一致。
 
 ## 排障与暂停
 
@@ -50,3 +51,7 @@
 - [Release 工作流](https://github.com/yyyz1011/sheetdelta/actions/runs/34261924964) 测试和发布均成功；自动发布 `0.1.1`，生成 [GitHub Release](https://github.com/yyyz1011/sheetdelta/releases/tag/v0.1.1)。
 - npm registry 返回 `0.1.1` 与 SLSA provenance；独立临时项目从 registry 安装后，导入、比较及 CSV 导出验证通过。
 - 24 项单元测试、6 项浏览器测试、打包后独立消费者检查均通过。版本规则另验证了 patch、minor、major、网站改动跳过、文档改动跳过。
+
+## 文档站
+
+正式地址：<https://sheetdelta.nimokit.com/docs/>。使用 GitHub Pages 和腾讯云 DNS，操作流程、域名和回滚详见 [HOSTING.md](HOSTING.md)。无需本地手动部署，也不再依赖 Sites。
