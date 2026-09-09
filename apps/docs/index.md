@@ -1,9 +1,8 @@
 ---
 description: A TypeScript toolkit for Excel and CSV data with selective imports. Start here, explore examples, and find the API you need.
 ---
-<div class="doc-eyebrow">SHEETDELTA / DOCUMENTATION</div>
 
-# Excel and CSV data, ready for your application.
+# SheetDelta documentation
 
 <p class="doc-lead">Read, validate, clean, compare and merge table data. Export useful Excel reports with one package and focused imports.</p>
 
@@ -21,12 +20,10 @@ npm install sheetdelta-core
 
 ## What the package does
 
-- Matches rows using one or more unique key fields, independent of row order.
-- Reports **added**, **removed**, **changed**, and **unchanged** records.
-- Keeps before/after values and field-level changes together.
-- Supports column mappings, text normalization, and optional numeric tolerance.
-- Validates missing or duplicate keys before returning a result.
-- Exports a CSV report with spreadsheet formula escaping enabled by default.
+- **Import and repair:** map headers, clean values, validate business rules, and export editable error reports.
+- **Read and write:** work with CSV and Excel files, with explicit formats, types and resource limits.
+- **Compare and merge:** match unique keys, inspect field-level changes, join tables and append rows.
+- **Workbooks and larger jobs:** edit templates, calculate supported formulas, or use dedicated streaming APIs.
 
 ## Package or browser tool?
 

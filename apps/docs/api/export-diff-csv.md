@@ -1,17 +1,55 @@
+---
+description: "Export a DiffResult as CSV. changesOnly and escapeFormulae default to true."
+---
+
 # exportDiffCsv
 
-Turn a comparison result into a CSV report with before/after columns.
+[API reference](./all) / [CSV files](./all#csv)
 
-## Signature and defaults
+Export a DiffResult as CSV. changesOnly and escapeFormulae default to true.
 
-```ts
-exportDiffCsv(result, {
-  changesOnly: true,
-  escapeFormulae: true,
-});
+## Import {#import}
+
+```js
+import { exportDiffCsv } from 'sheetdelta-core/csv';
 ```
 
-Returns a string with a UTF-8 BOM, comma delimiters, quoted fields, and CRLF line endings. Embedded quotes are escaped. Pass `changesOnly: false` to include unchanged records.
+Also exported from：`sheetdelta-core`.
+
+## Signature {#signature}
+
+```ts
+exportDiffCsv(result: DiffResult, { changesOnly, escapeFormulae }?: { changesOnly?: boolean | undefined; escapeFormulae?: boolean | undefined; } | undefined): string
+```
+
+## Parameters {#parameters}
+
+| Parameter | Required | Type |
+| --- | --- | --- |
+| `result` | Yes | `DiffResult` |
+| `{ changesOnly, escapeFormulae }` | No | `{ changesOnly?: boolean \| undefined; escapeFormulae?: boolean \| undefined; } \| undefined` |
+
+Option meanings, defaults and limits： [Usage guide](../api/export-diff-csv#report-columns).
+
+Related types：[`DiffResult`](./types#diffresult).
+
+## Return value {#returns}
+
+```ts
+string
+```
+
+## Runnable example {#example}
+
+Install with `npm install sheetdelta-core`, then save this example as an `.mjs` file and run it with Node.js 18+.
+
+```js
+import { exportDiffCsv } from 'sheetdelta-core/csv';
+import { compareTables } from 'sheetdelta-core/compare';
+const result = compareTables([{id:'1',v:1}], [{id:'1',v:2}], {keys:['id']});
+const csv = exportDiffCsv(result);
+console.log(csv.includes('changed')); // true
+```
 
 ## Report columns
 
@@ -44,3 +82,11 @@ setTimeout(() => URL.revokeObjectURL(url), 1000);
 import { writeFile } from 'node:fs/promises';
 await writeFile('changes.csv', exportDiffCsv(result), 'utf8');
 ```
+
+
+## Related APIs and guides {#related}
+
+- [Usage, defaults and limits](../api/export-diff-csv#report-columns)
+- [readCsv](./read-csv)
+- [readCsvBytes](./read-csv-bytes)
+- [writeCsv](./write-csv)

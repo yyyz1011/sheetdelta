@@ -1,30 +1,55 @@
+---
+description: "按唯一键比较，返回差异行、汇总、列结构和解析后的选项；不修改输入。"
+---
+
 # compareTables
 
-按键匹配记录，同步返回结构化比较结果。
+[API 参考](./all) / [比较与合并](./all#compare)
 
-## 函数签名
+按唯一键比较，返回差异行、汇总、列结构和解析后的选项；不修改输入。
 
-```ts
-compareTables(
-  left: readonly Row[],
-  right: readonly Row[],
-  options: CompareInputOptions,
-): DiffResult
+## 导入方式 {#import}
+
+```js
+import { compareTables } from 'sheetdelta-core/compare';
 ```
 
-```ts
-type Cell = string | number | boolean | null | undefined;
-type Row = Record<string, Cell>;
+也可从以下入口导入：`sheetdelta-core`.
 
-type CompareInputOptions = {
-  keys: (string | { left: string; right: string })[];
-  columns?: (string | { left: string; right: string; numericTolerance?: number; trim?: boolean; ignoreCase?: boolean })[];
-  ignoreColumns?: string[];
-  valueMode?: "text" | "strict";
-  emptyValues?: "equal" | "distinct";
-  trim?: boolean;
-  ignoreCase?: boolean;
-};
+## 函数签名 {#signature}
+
+```ts
+compareTables(left: readonly Row[], right: readonly Row[], options: CompareInputOptions): DiffResult
+```
+
+## 参数 {#parameters}
+
+| 参数 | 必填 | 类型 |
+| --- | --- | --- |
+| `left` | 是 | `readonly Row[]` |
+| `right` | 是 | `readonly Row[]` |
+| `options` | 是 | `CompareInputOptions` |
+
+选项含义、默认值与限制： [使用指南](../api/compare-tables#配置选项).
+
+相关类型：[`Row`](./types#row) · [`CompareInputOptions`](./types#compareinputoptions) · [`DiffResult`](./types#diffresult).
+
+## 返回值 {#returns}
+
+```ts
+DiffResult
+```
+
+## 可运行案例 {#example}
+
+先执行 `npm install sheetdelta-core`，将以下代码保存为 `.mjs` 文件，用 Node.js 18+ 运行。
+
+```js
+import { compareTables } from 'sheetdelta-core/compare';
+const before = [{id:'001', qty:1}];
+const after = [{id:'001', qty:2}];
+const result = compareTables(before, after, {keys:['id']});
+console.log(result.summary.changed); // 1
 ```
 
 ## 配置选项
@@ -75,3 +100,11 @@ const result = compareTables([{ id: 1, value: 10 }], [{ id: 1, value: "10" }], {
 ## 大任务与精简结果
 
 `includeUnchanged` 默认 `true`。设为 `false` 时仅保留变化行，但汇总仍包含所有行。使用 `compareTablesAsync` 可获取进度和取消支持，参见[异步比较](../async)。比较仅接受 `Cell` 基础类型，非有限数字和对象值会被拒绝。
+
+
+## 相关 API 与指南 {#related}
+
+- [用法、默认值与限制](../api/compare-tables#配置选项)
+- [compareTablesAsync](./compare-tables-async)
+- [mergeTables](./merge-tables)
+- [appendTables](./append-tables)

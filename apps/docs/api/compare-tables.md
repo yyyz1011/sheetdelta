@@ -1,30 +1,55 @@
+---
+description: "Compare by unique keys; returns rows, summary, schema and resolved options. Inputs are not mutated."
+---
+
 # compareTables
 
-Match records by key and return a structured, synchronous comparison.
+[API reference](./all) / [Compare & merge](./all#compare)
 
-## Signature
+Compare by unique keys; returns rows, summary, schema and resolved options. Inputs are not mutated.
 
-```ts
-compareTables(
-  left: readonly Row[],
-  right: readonly Row[],
-  options: CompareInputOptions,
-): DiffResult
+## Import {#import}
+
+```js
+import { compareTables } from 'sheetdelta-core/compare';
 ```
 
-```ts
-type Cell = string | number | boolean | null | undefined;
-type Row = Record<string, Cell>;
+Also exported from：`sheetdelta-core`.
 
-type CompareInputOptions = {
-  keys: (string | { left: string; right: string })[];
-  columns?: (string | { left: string; right: string; numericTolerance?: number; trim?: boolean; ignoreCase?: boolean })[];
-  ignoreColumns?: string[];
-  valueMode?: "text" | "strict";
-  emptyValues?: "equal" | "distinct";
-  trim?: boolean;
-  ignoreCase?: boolean;
-};
+## Signature {#signature}
+
+```ts
+compareTables(left: readonly Row[], right: readonly Row[], options: CompareInputOptions): DiffResult
+```
+
+## Parameters {#parameters}
+
+| Parameter | Required | Type |
+| --- | --- | --- |
+| `left` | Yes | `readonly Row[]` |
+| `right` | Yes | `readonly Row[]` |
+| `options` | Yes | `CompareInputOptions` |
+
+Option meanings, defaults and limits： [Usage guide](../api/compare-tables#options).
+
+Related types：[`Row`](./types#row) · [`CompareInputOptions`](./types#compareinputoptions) · [`DiffResult`](./types#diffresult).
+
+## Return value {#returns}
+
+```ts
+DiffResult
+```
+
+## Runnable example {#example}
+
+Install with `npm install sheetdelta-core`, then save this example as an `.mjs` file and run it with Node.js 18+.
+
+```js
+import { compareTables } from 'sheetdelta-core/compare';
+const before = [{id:'001', qty:1}];
+const after = [{id:'001', qty:2}];
+const result = compareTables(before, after, {keys:['id']});
+console.log(result.summary.changed); // 1
 ```
 
 ## Options
@@ -75,3 +100,11 @@ const result = compareTables([{ id: 1, value: 10 }], [{ id: 1, value: "10" }], {
 ## Large jobs and compact results
 
 `includeUnchanged` defaults to `true`. Set it to `false` to retain only changed/added/removed records while preserving complete summary counts. Use `compareTablesAsync` for progress and cancellation; see [async comparison](../async). Comparison accepts primitive `Cell` values only and rejects nonfinite numbers and object values.
+
+
+## Related APIs and guides {#related}
+
+- [Usage, defaults and limits](../api/compare-tables#options)
+- [compareTablesAsync](./compare-tables-async)
+- [mergeTables](./merge-tables)
+- [appendTables](./append-tables)

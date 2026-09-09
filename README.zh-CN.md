@@ -4,7 +4,7 @@
 
 [English](README.md) · **简体中文**
 
-[English docs](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/) · [中文文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/) · [浏览器工具](https://sheetdelta.snowy-hero-3539.chatgpt.site/playground/) · [npm](https://www.npmjs.com/package/sheetdelta-core)
+[English docs](https://sheetdelta.nimokit.com/docs/) · [中文文档](https://sheetdelta.nimokit.com/docs/zh/) · [浏览器工具](https://sheetdelta.nimokit.com/playground/) · [npm](https://www.npmjs.com/package/sheetdelta-core)
 
 ```sh
 npm install sheetdelta-core
@@ -24,7 +24,7 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 
 表头别名和显式映射、独立的必需列检查、跨字段/表级规则、严格或有效行模式、源位置追踪，以及高亮错误工作簿。
 
-[导入教程](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/import-workflow.html) · [完整 API 和可运行案例](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/api/all.html) · [类型参考](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/api/types.html)
+[导入教程](https://sheetdelta.nimokit.com/docs/zh/import-workflow.html) · [完整 API 和可运行案例](https://sheetdelta.nimokit.com/docs/zh/api/all.html) · [类型参考](https://sheetdelta.nimokit.com/docs/zh/api/types.html)
 
 ## 工作簿与流式处理
 
@@ -33,7 +33,7 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 - **逐行读写**：CSV 流式解析和写出、XLSX 流式写出、Node 本地 XLSX 逐行读取，以及有序数据流比较。
 - **跨应用证据**：LibreOffice 真实重算、Excel 元数据的 Apache POI 文件样本，以及百万行逐行写出/读回基准。
 
-[公式文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/formulas.html) · [保留工作簿修改](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/workbooks.html) · [流式处理](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/streaming.html)
+[公式文档](https://sheetdelta.nimokit.com/docs/zh/formulas.html) · [保留工作簿修改](https://sheetdelta.nimokit.com/docs/zh/workbooks.html) · [流式处理](https://sheetdelta.nimokit.com/docs/zh/streaming.html)
 
 
 ## 可靠性与大任务
@@ -44,7 +44,7 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 - **结构化错误**：`sheetdelta-core/errors` 导出 `SheetDeltaError` 与 `isSheetDeltaError`，错误码和位置便于应用处理。
 - **整本工作簿限制**：默认 10 万物理数据行和 100 万矩形单元格，可配置；单表与字节限制继续生效。
 
-查看[异步与 Worker 示例](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/async.html)、[错误码](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/errors.html)、[兼容性与性能证据](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/compatibility.html)。**升级注意**：Excel 错误单元格现在默认拒绝，如需保留为文本，请设置 `cellErrors: 'text'`。详情见[升级说明](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/migration.html)。
+查看[异步与 Worker 示例](https://sheetdelta.nimokit.com/docs/zh/async.html)、[错误码](https://sheetdelta.nimokit.com/docs/zh/errors.html)、[兼容性与性能证据](https://sheetdelta.nimokit.com/docs/zh/compatibility.html)。**升级注意**：Excel 错误单元格现在默认拒绝，如需保留为文本，请设置 `cellErrors: 'text'`。详情见[升级说明](https://sheetdelta.nimokit.com/docs/zh/migration.html)。
 
 
 ## 功能与入口
@@ -67,7 +67,7 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 | `/excel-node` | Node 本地 XLSX 流式读取 |
 | `/types` | 公共 TypeScript 类型 |
 
-旧根入口继续兼容，根入口和 `/compare` 不加载第三方运行时代码。安装时包含完整文件依赖，前端构建按实际引用纳入模块，Excel 依赖使用时再加载。详见 [按需导入](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/imports.html)。
+旧根入口继续兼容，根入口和 `/compare` 不加载第三方运行时代码。安装时包含完整文件依赖，前端构建按实际引用纳入模块，Excel 依赖使用时再加载。详见 [按需导入](https://sheetdelta.nimokit.com/docs/zh/imports.html)。
 
 ## 数据规则
 
@@ -80,7 +80,7 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 - 数组 API 和工作簿修改在内存中处理；专用流式 API 增量处理，Node XLSX 读取在可配置限制内缓存共享字符串。公式支持范围以文档列表为准，不执行宏、不比较样式差异。
 - 数值采用 JavaScript 浮点数；精确小数请使用规范文本，已损坏的编号无法恢复。
 
-支持 ESM、Node.js 18+ 和支持 structuredClone 的现代浏览器，内置类型声明。详见 [完整流程](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/workflow.html) 与 [升级说明](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/migration.html)。
+支持 ESM、Node.js 18+ 和支持 structuredClone 的现代浏览器，内置类型声明。详见 [完整流程](https://sheetdelta.nimokit.com/docs/zh/workflow.html) 与 [升级说明](https://sheetdelta.nimokit.com/docs/zh/migration.html)。
 
 ## 浏览器工具
 
