@@ -1,0 +1,40 @@
+name: Pages HTTPS
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages-https-master
+  cancel-in-progress: true
+jobs:
+  https:
+    name: Verify and enforce HTTPS
+    # Only execute trusted master code after a successful release, or manually on master.
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'master' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      contents: read
+      pages: write
+    # No deployment environment: TLS provisioning must not hold a content deployment open.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+      - name: Enable HTTPS when the domain certificate is ready
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: node scripts/ensure-pages-https.mjs
