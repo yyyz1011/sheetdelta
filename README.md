@@ -4,7 +4,7 @@ An Excel and CSV data toolkit for TypeScript and JavaScript: read, validate, cle
 
 **English** · [简体中文](README.zh-CN.md)
 
-[Documentation](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/) · [中文文档](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/) · [Browser tool](https://sheetdelta.snowy-hero-3539.chatgpt.site/playground/) · [npm](https://www.npmjs.com/package/sheetdelta-core) · [Releases](https://github.com/yyyz1011/sheetdelta/releases)
+[Documentation](https://sheetdelta.nimokit.com/docs/) · [中文文档](https://sheetdelta.nimokit.com/docs/zh/) · [Browser tool](https://sheetdelta.nimokit.com/playground/) · [npm](https://www.npmjs.com/package/sheetdelta-core) · [Releases](https://github.com/yyyz1011/sheetdelta/releases)
 
 ```sh
 npm install sheetdelta-core
@@ -26,7 +26,7 @@ console.log(result.summary.changed); // 1
 
 Header aliases and explicit mapping, required-column checks, row/table business rules, strict or valid-row output, source tracing, and highlighted error workbooks.
 
-[Import tutorial](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/import-workflow.html) · [Every API with executable examples](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/all.html) · [Type reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/types.html)
+[Import tutorial](https://sheetdelta.nimokit.com/docs/import-workflow.html) · [Every API with executable examples](https://sheetdelta.nimokit.com/docs/api/all.html) · [Type reference](https://sheetdelta.nimokit.com/docs/api/types.html)
 
 ## Workbook and streaming workflows
 
@@ -35,7 +35,7 @@ Header aliases and explicit mapping, required-column checks, row/table business 
 - **Incremental I/O**: CSV reading/writing, XLSX writing, Node local-file XLSX reading, and sorted-stream comparison.
 - **Cross-application evidence**: actual LibreOffice recalculation, Apache POI fixtures with Excel application metadata, and a million-row incremental write/read benchmark.
 
-[Formula reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/formulas.html) · [Workbook editing](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/workbooks.html) · [Streaming](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/streaming.html)
+[Formula reference](https://sheetdelta.nimokit.com/docs/formulas.html) · [Workbook editing](https://sheetdelta.nimokit.com/docs/workbooks.html) · [Streaming](https://sheetdelta.nimokit.com/docs/streaming.html)
 
 
 ## Reliability and larger jobs
@@ -46,7 +46,7 @@ Header aliases and explicit mapping, required-column checks, row/table business 
 - **Structured errors**: `sheetdelta-core/errors` exports `SheetDeltaError` and `isSheetDeltaError`, with codes and source context.
 - **Workbook budgets**: 100,000 physical data rows and 1,000,000 rectangular cells by default, configurable in addition to per-sheet and byte limits.
 
-See [async & Worker examples](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/async.html), [error codes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/errors.html), and [compatibility & performance evidence](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/compatibility.html). **Upgrade note:** Excel error cells are now rejected by default; choose `cellErrors: 'text'` to keep literal error text. See [migration notes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/migration.html).
+See [async & Worker examples](https://sheetdelta.nimokit.com/docs/async.html), [error codes](https://sheetdelta.nimokit.com/docs/errors.html), and [compatibility & performance evidence](https://sheetdelta.nimokit.com/docs/compatibility.html). **Upgrade note:** Excel error cells are now rejected by default; choose `cellErrors: 'text'` to keep literal error text. See [migration notes](https://sheetdelta.nimokit.com/docs/migration.html).
 
 
 ## Features and imports
@@ -69,7 +69,7 @@ See [async & Worker examples](https://sheetdelta.snowy-hero-3539.chatgpt.site/do
 | `sheetdelta-core/excel-node` | `readExcelStream` (Node only) |
 | `sheetdelta-core/types` | Shared TypeScript types |
 
-Existing `import { compareTables, exportDiffCsv } from 'sheetdelta-core'` remains supported. The root and `/compare` load no third-party runtime code. The installation includes file-format dependencies; production bundlers only include modules reachable from your imports. Excel dependencies are loaded on demand. See [selective imports](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/imports.html).
+Existing `import { compareTables, exportDiffCsv } from 'sheetdelta-core'` remains supported. The root and `/compare` load no third-party runtime code. The installation includes file-format dependencies; production bundlers only include modules reachable from your imports. Excel dependencies are loaded on demand. See [selective imports](https://sheetdelta.nimokit.com/docs/imports.html).
 
 ## Data guarantees and limits
 
@@ -82,7 +82,7 @@ Existing `import { compareTables, exportDiffCsv } from 'sheetdelta-core'` remain
 - Array APIs and workbook patching work in memory. Dedicated stream APIs process incrementally; Node XLSX reading caches shared strings within a configurable bound. Formula support is the documented subset; no macro execution or formatting comparison.
 - Decimal arithmetic uses JavaScript numbers; use normalized text for exact decimals. IDs already damaged by source spreadsheet conversion cannot be reconstructed.
 
-ESM; Node.js 18+ or modern browsers with `structuredClone`. Type declarations are included. Read the [complete workflow](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/workflow.html), [API reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/all.html), and [migration notes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/migration.html).
+ESM; Node.js 18+ or modern browsers with `structuredClone`. Type declarations are included. Read the [complete workflow](https://sheetdelta.nimokit.com/docs/workflow.html), [API reference](https://sheetdelta.nimokit.com/docs/api/all.html), and [migration notes](https://sheetdelta.nimokit.com/docs/migration.html).
 
 ## Browser tool
 

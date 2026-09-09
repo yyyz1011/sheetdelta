@@ -1,17 +1,57 @@
+---
+description: "将差异结果导出为 CSV；changesOnly 和 escapeFormulae 默认开启。"
+---
+
 # exportDiffCsv
 
-将比较结果转换为包含变化前后字段的 CSV 报告。
+[API 参考](./all) / [CSV 读写](./all#csv)
 
-## 函数调用与默认值
+将差异结果导出为 CSV；changesOnly 和 escapeFormulae 默认开启。
 
-```ts
-exportDiffCsv(result, {
-  changesOnly: true,
-  escapeFormulae: true,
-});
+## 导入方式 {#import}
+
+```js
+import { exportDiffCsv } from 'sheetdelta-core/csv';
 ```
 
-返回带 UTF-8 BOM 的字符串，使用逗号分隔、双引号包裹字段、CRLF 换行，并转义字段内双引号。传入 `changesOnly: false` 可同时导出未变化记录。
+也可从以下入口导入：`sheetdelta-core`.
+
+## 函数签名 {#signature}
+
+```ts
+exportDiffCsv(result: DiffResult, { changesOnly, escapeFormulae }?: { changesOnly?: boolean | undefined; escapeFormulae?: boolean | undefined; } | undefined): string
+```
+
+## 参数 {#parameters}
+
+| 参数 | 必填 | 类型 |
+| --- | --- | --- |
+| `result` | 是 | `DiffResult` |
+| `{ changesOnly, escapeFormulae }` | 否 | `{ changesOnly?: boolean \| undefined; escapeFormulae?: boolean \| undefined; } \| undefined` |
+
+选项含义、默认值与限制： [使用指南](../api/export-diff-csv#报告列).
+
+相关类型：[`DiffResult`](./types#diffresult).
+
+## 返回值 {#returns}
+
+```ts
+string
+```
+
+返回文本包含 UTF-8 BOM、逗号分隔符、带引号字段及 CRLF 换行，字段内引号会被转义。设置 `changesOnly: false` 可包含未变化记录。
+
+## 可运行案例 {#example}
+
+先执行 `npm install sheetdelta-core`，将以下代码保存为 `.mjs` 文件，用 Node.js 18+ 运行。
+
+```js
+import { exportDiffCsv } from 'sheetdelta-core/csv';
+import { compareTables } from 'sheetdelta-core/compare';
+const result = compareTables([{id:'1',v:1}], [{id:'1',v:2}], {keys:['id']});
+const csv = exportDiffCsv(result);
+console.log(csv.includes('changed')); // true
+```
 
 ## 报告列
 
@@ -44,3 +84,11 @@ setTimeout(() => URL.revokeObjectURL(url), 1000);
 import { writeFile } from 'node:fs/promises';
 await writeFile('changes.csv', exportDiffCsv(result), 'utf8');
 ```
+
+
+## 相关 API 与指南 {#related}
+
+- [用法、默认值与限制](../api/export-diff-csv#报告列)
+- [readCsv](./read-csv)
+- [readCsvBytes](./read-csv-bytes)
+- [writeCsv](./write-csv)

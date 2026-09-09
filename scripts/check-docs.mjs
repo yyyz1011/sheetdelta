@@ -5,7 +5,10 @@ import { runInNewContext } from 'node:vm';
 import { pathToFileURL } from 'node:url';
 import MiniSearch from 'minisearch';
 import config from '../apps/docs/.vitepress/config.mjs';
-const pages = ['import-workflow', 'api/all', 'api/types', 'index', 'quick-start', 'browser-tool', 'mapping', 'comparison', 'validation', 'api/compare-tables', 'api/export-diff-csv', 'faq', 'imports', 'excel', 'csv', 'validate', 'clean', 'merge', 'workflow', 'migration', 'async', 'errors', 'compatibility', 'formulas', 'workbooks', 'streaming'];
+import { apiGroups, apiSlug } from './api-navigation.mjs';
+const pages = [...new Set(['import-workflow', 'api/all', 'api/types', 'index', 'quick-start', 'browser-tool', 'mapping', 'comparison', 'validation', 'api/compare-tables', 'api/export-diff-csv', 'faq', 'imports', 'excel', 'csv', 'validate', 'clean', 'merge', 'workflow', 'migration', 'async', 'errors', 'compatibility', 'formulas', 'workbooks', 'streaming', ...apiGroups.flatMap(group=>group.apis.map(name=>'api/'+apiSlug(name)))])];
+const sidebarLinks = items => items.flatMap(item => [...(item.link ? [item.link] : []), ...sidebarLinks(item.items ?? [])]);
+for(const zh of [false,true]) for(const name of apiGroups.flatMap(group=>group.apis)) assert.ok(sidebarLinks(config.locales[zh?'zh':'root'].themeConfig.sidebar).includes(`${zh?'/zh':''}/api/${apiSlug(name)}`), `Missing sidebar API: ${name}`);
 assert.equal(config.lang, 'en-US');
 assert.equal(config.appearance.initialValue, 'light');
 assert.equal(config.themeConfig.search.provider, 'local');
@@ -25,18 +28,19 @@ for (const prefix of ['', 'zh/']) for (const page of pages) {
     assert.equal(classes.has('dark'), preference === 'dark', 'OS dark preference must not override default light or a saved choice');
   }
   for (const [, raw] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
-    if (/^(https?:|data:|mailto:|#)/.test(raw)) continue;
+    if (/^(https?:|data:|mailto:)/.test(raw)) continue;
     const url = new URL(raw.replaceAll('&amp;', '&'), `https://example.com/docs/${prefix}${page === 'index' ? '' : page + '.html'}`);
     let target = resolve('dist', '.' + decodeURIComponent(url.pathname));
     if (url.pathname.endsWith('/')) target += '/index.html';
     assert.ok(existsSync(target), `Missing local link: ${raw} in ${path}`);
+    if(url.hash && target.endsWith('.html')) assert.ok(readFileSync(target,'utf8').includes(`id="${decodeURIComponent(url.hash.slice(1))}"`), `Missing anchor: ${raw} in ${path}`);
   }
   checked++;
 }
 assert.ok(readdirSync('dist/docs/assets/chunks').filter(name => /localSearchIndex/.test(name)).length === 2, 'Built local search indexes');
 assert.match(readFileSync('dist/index.html', 'utf8'), /url=\/docs\//);
 assert.match(readFileSync('dist/playground/index.html', 'utf8'), /\/playground\/assets\//);
-for (const name of ['README.md', 'README.zh-CN.md']) assert.ok(readFileSync(name, 'utf8').includes('https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/'));
+for (const name of ['README.md', 'README.zh-CN.md']) assert.ok(readFileSync(name, 'utf8').includes('https://sheetdelta.nimokit.com/docs/'));
 console.log(`${checked} localized pages, internal links, search indexes, theme defaults and saved preferences: PASS`);
 
 for (const [locale, query] of [['root', 'numericTolerance'], ['zh', '字段']]) {
@@ -46,3 +50,10 @@ for (const [locale, query] of [['root', 'numericTolerance'], ['zh', '字段']]) 
   assert.ok(index.search(query, { prefix: true, combineWith: 'AND' }).length > 0, `${locale} search: ${query}`);
 }
 console.log('English API search and Chinese keyword search: PASS');
+for(const locale of ['root','zh']) {
+  const file = readdirSync('dist/docs/assets/chunks').find(name=>name.startsWith('@localSearchIndex'+locale+'.'));
+  const {default:data} = await import(pathToFileURL(resolve('dist/docs/assets/chunks',file)));
+  const index=MiniSearch.loadJSON(data,{fields:['title','titles','text'],storeFields:['title','titles'],...config.themeConfig.search.options.miniSearch.options});
+  for(const query of ['importFile','import file']) assert.ok(index.search(query,{...config.themeConfig.search.options.miniSearch.searchOptions,prefix:true}).some(result=>result.id.includes('/api/import-file')),`${locale}: API page discoverable by ${query}`);
+}
+console.log('41 APIs in both sidebars; direct API search and internal anchors: PASS');

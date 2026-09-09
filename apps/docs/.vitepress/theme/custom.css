@@ -4,7 +4,7 @@
   --vp-c-brand-1: #2459cc; --vp-c-brand-2: #326bea; --vp-c-brand-3: #2459cc;
   --vp-c-brand-soft: #edf3ff; --vp-c-bg: #ffffff; --vp-c-bg-alt: #f7f9fc;
   --vp-c-text-1: #19263e; --vp-c-text-2: #526078; --vp-c-divider: #e3e8f0;
-  --vp-sidebar-width: 260px; --vp-code-font-size: 13px;
+  --vp-sidebar-width: 288px; --vp-code-font-size: 13px;
 }
 .dark { --vp-c-brand-1: #92b6ff; --vp-c-brand-2: #acc7ff; --vp-c-brand-3: #5285f4; --vp-c-brand-soft: #1a2c4a; --vp-c-bg: #111823; --vp-c-bg-alt: #161f2c; --vp-c-bg-elv: #1e293a; --vp-c-bg-soft: #192333; --vp-c-text-1: #e4ebf7; --vp-c-text-2: #aebdd2; --vp-c-divider: #29364a; }
 .VPNavBarTitle .title { font-weight: 800; letter-spacing: -.6px; }
@@ -31,7 +31,6 @@
 .vp-doc h2 { font-size: 23px; letter-spacing: -.55px; margin-top: 38px; }
 .vp-doc p, .vp-doc li { line-height: 1.85; }
 .vp-doc .doc-lead { font-size: 19px; color: var(--vp-c-text-2); line-height: 1.7; }
-.doc-eyebrow { color: var(--vp-c-brand-1); font-size: 12px; font-weight: 800; letter-spacing: 1.8px; margin-bottom: 16px; }
 .doc-meta { display: flex; gap: 9px; flex-wrap: wrap; margin: 20px 0 28px; }
 .doc-meta span { font-size: 12px; line-height: 24px; padding: 0 9px; border: 1px solid var(--vp-c-divider); border-radius: 5px; color: var(--vp-c-text-2); }
 .doc-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 25px 0; }
@@ -49,6 +48,13 @@
 .vp-doc th { background: var(--vp-c-bg-alt); }
 .VPSidebarItem.level-0 > .item > .text { font-size: 12px; letter-spacing: .3px; }
 .VPDocFooter { margin-top: 40px; }
+.vp-doc h1 { overflow-wrap: anywhere; }
+.vp-doc a { text-underline-offset: .18em; }
+.vp-doc td [id] { scroll-margin-top: 100px; }
+.vp-doc ::selection { background: var(--vp-c-brand-soft); }
+.VPSidebarItem.level-2 .text { font-family: var(--vp-font-family-mono); font-size: 13px; overflow-wrap: anywhere; }
+.VPSidebarItem .link:focus-visible, .VPSidebarItem .item[role="button"]:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; border-radius: 4px; }
+@media (max-width: 959px) { .VPSidebarItem .link, .VPSidebarItem .item[role="button"] { min-height: 44px; } }
 @media (min-width: 960px) { .VPDoc.has-aside .content-container { max-width: 730px; }.VPDoc { padding-top: 44px !important; } }
 @media (max-width: 639px) { .vp-doc h1 { font-size: 30px; }.doc-paths { grid-template-columns: 1fr; }.vp-doc .doc-lead { font-size: 17px; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
