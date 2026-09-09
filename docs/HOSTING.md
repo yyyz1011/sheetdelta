@@ -25,9 +25,9 @@ Every merge updates the website, including documentation-only commits. A failed 
 
 - Repository **Settings → Pages → Build and deployment**: source **GitHub Actions**.
 - Custom domain: `sheetdelta.nimokit.com` (configured in Pages settings, not inferred from a CNAME file).
-- The deployment job automatically enables **Enforce HTTPS** when the GitHub-managed certificate is approved. Each API request has a 15-second timeout; network errors, rate limits, truncated responses and server errors retry up to five consecutive failures. Authentication errors and incorrect domain settings stop immediately. It waits up to 45 minutes of elapsed time during initial provisioning, then reports a failure if GitHub is still pending. Re-run the documentation job after the certificate becomes ready. Subsequent deployments return immediately when HTTPS is already enforced.
+- The separate **Pages HTTPS** workflow runs after a successful Release (or manually on `master`) and automatically enables **Enforce HTTPS** when the GitHub-managed certificate is approved. Each API request has a 15-second timeout; network errors, rate limits, truncated responses and server errors retry up to five consecutive failures. Authentication errors and incorrect domain settings stop immediately. It waits up to 45 minutes of elapsed time during initial provisioning, then reports a failure if GitHub is still pending. Re-run **Pages HTTPS** after the certificate becomes ready. Subsequent checks return immediately when HTTPS is already enforced. Certificate polling does not hold the `github-pages` deployment open or mark a successful content deployment as failed.
 - Deployment environment: `github-pages`, limited to the protected `master` branch.
-- Workflow: `.github/workflows/publish.yml`; validated artifact upload: `.github/workflows/ci.yml`.
+- Deployment workflow: `.github/workflows/publish.yml`; validated artifact upload: `.github/workflows/ci.yml`; independent certificate check: `.github/workflows/pages-https.yml`.
 - Pages uses the built-in `GITHUB_TOKEN` with `pages: write` and OIDC `id-token: write`. npm keeps its existing trusted publisher bound to `publish.yml`, with no long-lived npm or hosting tokens.
 
 ## Domain
@@ -46,7 +46,7 @@ Official references: [custom domains](https://docs.github.com/en/pages/configuri
 
 Check **Actions → Release → Deploy documentation** and the `github-pages` environment for the deployed commit. Verify the home page, a direct API URL, the Chinese version, and `/playground/` over HTTPS. Root `/404.html` handles missing routes.
 
-If the HTTPS check fails, first inspect its error: a network failure is separate from certificate provisioning. The previously uploaded website remains deployed. For a failed deployment, rerun failed jobs in the same Release run while its artifact is available. Otherwise run Release manually on `master` to rebuild it. To roll back content, revert the offending change through a PR and merge; the normal checks and deployment apply. Disabling npm via `NPM_TRUSTED_PUBLISHING=false` does not disable documentation deployment.
+Check **Actions → Pages HTTPS** separately for certificate provisioning and enforcement. If that check fails, first inspect its error: a network failure is separate from certificate provisioning. The previously uploaded website remains deployed. For a failed deployment, rerun failed jobs in the same Release run while its artifact is available. Otherwise run Release manually on `master` to rebuild it. To roll back content, revert the offending change through a PR and merge; the normal checks and deployment apply. Disabling npm via `NPM_TRUSTED_PUBLISHING=false` does not disable documentation deployment.
 
 ## Design references
 
