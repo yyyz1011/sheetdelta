@@ -20,6 +20,12 @@ const result = compareTables(before.rows, after.rows, { keys: ['sku'] });
 const report = await exportDiffExcel(result); // XLSX Uint8Array
 ```
 
+## 导入与纠错
+
+表头别名和显式映射、独立的必需列检查、跨字段/表级规则、严格或有效行模式、源位置追踪，以及高亮错误工作簿。
+
+[导入教程](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/import-workflow.html) · [完整 API 和可运行案例](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/api/all.html) · [类型参考](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/zh/api/types.html)
+
 ## 工作簿与流式处理
 
 - **公式计算**：跨表引用、依赖重算、条件和聚合函数，以及精确 VLOOKUP/XLOOKUP/INDEX/MATCH；不支持的公式返回明确错误。

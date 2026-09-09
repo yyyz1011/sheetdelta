@@ -22,6 +22,12 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 console.log(result.summary.changed); // 1
 ```
 
+## Import and repair
+
+Header aliases and explicit mapping, required-column checks, row/table business rules, strict or valid-row output, source tracing, and highlighted error workbooks.
+
+[Import tutorial](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/import-workflow.html) · [Every API with executable examples](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/all.html) · [Type reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/types.html)
+
 ## Workbook and streaming workflows
 
 - **Formula calculation**: cross-sheet dependencies, conditions, aggregates and exact VLOOKUP/XLOOKUP/INDEX/MATCH; unsupported formulas return explicit errors.
@@ -74,7 +80,7 @@ Existing `import { compareTables, exportDiffCsv } from 'sheetdelta-core'` remain
 - Array APIs and workbook patching work in memory. Dedicated stream APIs process incrementally; Node XLSX reading caches shared strings within a configurable bound. Formula support is the documented subset; no macro execution or formatting comparison.
 - Decimal arithmetic uses JavaScript numbers; use normalized text for exact decimals. IDs already damaged by source spreadsheet conversion cannot be reconstructed.
 
-ESM; Node.js 18+ or modern browsers with `structuredClone`. Type declarations are included. Read the [complete workflow](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/workflow.html), [API reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/compare-tables.html), and [migration notes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/migration.html).
+ESM; Node.js 18+ or modern browsers with `structuredClone`. Type declarations are included. Read the [complete workflow](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/workflow.html), [API reference](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/api/all.html), and [migration notes](https://sheetdelta.snowy-hero-3539.chatgpt.site/docs/migration.html).
 
 ## Browser tool
 

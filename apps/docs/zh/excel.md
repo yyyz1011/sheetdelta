@@ -83,3 +83,7 @@ import { readExcel } from 'sheetdelta-core/excel';
 ## 模板修改和公式重算
 
 需要保留原工作簿时，使用[保留工作簿修改](./workbooks)。需要逐行读写大文件时，使用[流式 API](./streaming)。
+
+## ZIP 解压预算
+
+XLSX 读取新增 `maxUncompressedBytes`（默认 200 MiB）和 `maxEntries`（默认 10,000）。解析引擎运行前检查目录声明大小，并分块核对实际解压字节、重复或不安全路径及条目完整性。适用于 ZIP 型 XLSX，不适用于二进制 XLS。检查会增加一次解压开销，仍不是进程内存硬沙箱。超限返回 `LIMIT_EXCEEDED`；包结构不一致返回 `INVALID_WORKBOOK`。

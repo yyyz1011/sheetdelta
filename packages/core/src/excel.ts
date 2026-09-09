@@ -4,6 +4,7 @@ import { matrixToTable, readLimits, columnNames, assertRows } from './table.js';
 export type { TableData, ImportWarning } from './types.js';
 export type ExcelInput = ArrayBuffer | Uint8Array;
 export interface ExcelReadOptions extends TableReadOptions {
+  maxUncompressedBytes?: number; maxEntries?: number;
   sheets?: string[]; values?: 'display' | 'raw'; maxBytes?: number;
   maxTotalRows?: number; maxCells?: number;
   hiddenSheets?: 'include' | 'exclude'; formulas?: 'cached' | 'reject';
@@ -13,8 +14,9 @@ export interface ExcelReadOptions extends TableReadOptions {
 export async function readExcel(input: ExcelInput, options: ExcelReadOptions = {}): Promise<TableData[]> {
   assertRecord(options, 'options');
   const { headerRow, maxRows, maxColumns } = readLimits(options);
+  const maxUncompressedBytes = options.maxUncompressedBytes ?? 200 * 1024 * 1024, maxEntries = options.maxEntries ?? 10000;
   const maxBytes = options.maxBytes ?? 20 * 1024 * 1024, maxTotalRows = options.maxTotalRows ?? 100_000, maxCells = options.maxCells ?? 1_000_000;
-  for (const [option, value] of Object.entries({ maxBytes, maxTotalRows, maxCells })) if (!Number.isSafeInteger(value) || value < 1) fail('INVALID_OPTIONS', `${option} must be a positive integer.`, { option });
+  for (const [option, value] of Object.entries({ maxBytes, maxTotalRows, maxCells, maxUncompressedBytes, maxEntries })) if (!Number.isSafeInteger(value) || value < 1) fail('INVALID_OPTIONS', `${option} must be a positive integer.`, { option });
   if (!(input instanceof ArrayBuffer) && !(input instanceof Uint8Array)) fail('INVALID_DATA', 'Workbook input must be an ArrayBuffer or Uint8Array.');
   if (input.byteLength > maxBytes) fail('LIMIT_EXCEEDED', `File size limit exceeded (${maxBytes} bytes).`, { limit: maxBytes, actual: input.byteLength });
   for (const [key, allowed] of Object.entries({ values: ['display', 'raw'], hiddenSheets: ['include', 'exclude'], formulas: ['cached', 'reject'], mergedCells: ['anchor', 'reject'], cellErrors: ['reject', 'text'] })) {
@@ -26,6 +28,7 @@ export async function readExcel(input: ExcelInput, options: ExcelReadOptions = {
   const zip = bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 3 && bytes[3] === 4;
   const cfb = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1].every((v, i) => bytes[i] === v);
   if (!zip && !cfb) fail('INVALID_WORKBOOK', 'Expected an XLSX or XLS workbook, not CSV or arbitrary text.', { operation: 'readExcel' });
+  if (zip) { const { readZipBudget } = await import('./zip-budget.js'); readZipBudget(bytes, maxUncompressedBytes, maxEntries); }
   const XLSX = await import('xlsx');
   let workbook: ReturnType<typeof XLSX.read>;
   try { workbook = XLSX.read(bytes, { type: 'array', cellDates: false, sheetStubs: true, sheetRows: headerRow + maxRows + 1, ...(options.sheets ? { sheets: options.sheets } : {}) }); }

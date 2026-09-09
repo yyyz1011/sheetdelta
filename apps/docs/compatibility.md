@@ -24,7 +24,14 @@ One local run: **2026-09-09, Apple M4, macOS arm64, Node 25.9.0**. Each side has
 
 These single-run measurements describe this fixture and machine, not a service guarantee or comparison with other packages. Async adds scheduling time to permit progress and cancellation. CPU, row width, string lengths, changed fraction and garbage collection affect results substantially. The script also prints heap deltas; these are not peak-memory measurements.
 
-## Practical limits
+## 0.5 import workflow evidence
+
+- Regression tests cover header mapping, strict and partial acceptance, synchronous business rules, source positions, cancellation, issue limits and repair reports.
+- The CSV import, XLSX error report, cell repair and reimport workflow passed in Chromium, Firefox and WebKit. This does not certify every browser version or every UI flow.
+- A generated error report was opened and saved by LibreOfficeDev 26.8.0.0.alpha0. Reading it back verified the three worksheets, leading-zero identifier and error ledger. Visual formatting and native Microsoft Excel/WPS application behavior were not verified in this run.
+- All 41 public runtime APIs (48 export bindings) have executable English and Chinese examples: 82 example executions. The reference also documents 57 exported types. These checks establish example coverage, not correctness for every possible input.
+
+## Resource and compatibility limits
 
 - Array APIs and template patching retain data in memory. Dedicated streaming APIs process incrementally; shared-string dictionaries and row width still affect memory. Async array comparison itself is not streaming.
 - Excel dates in raw mode are serial numbers with date-system metadata. Display mode returns formatted text. No timezone conversion is inferred.

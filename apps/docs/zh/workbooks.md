@@ -46,3 +46,5 @@ console.log((await readExcel(output, { values: 'raw' }))[0].rows[0].total); // 1
 - 未触及的公式组、任意工作簿对象及源样式会保留，但不会完整解释其语义。该 API 不承担通用表格排版编辑器的功能。
 
 参见[兼容性证据](./compatibility)，其中包括修改后交由 LibreOffice 重新打开并重算的业务工作簿。
+
+ZIP 检查同时核对目录大小和实际分块解压输出；重复或不安全的包路径会被拒绝。

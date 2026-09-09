@@ -52,3 +52,7 @@ Read [async & Workers](./async), [structured errors](./errors), and [compatibili
 New entries: `/formula`, `/workbook`, `/stream`, `/excel-stream`, `/excel-node`. This remains one npm package. Existing root imports and 0.3 APIs are unchanged. `/excel-node` is Node-only; use other entries in browser bundles.
 
 Calculation supports the documented subset and reports unsupported formulas explicitly. `patchWorkbook` clears formula caches and requests recalculation on open by default; call `recalculateExcel` or a spreadsheet application before reading calculated results. Sorted-stream comparison requires presorted keys and explicit columns, emits key order, and may encounter an error after emitting earlier records. See [formulas](./formulas), [workbooks](./workbooks), and [streaming](./streaming).
+
+## 0.5 imports and documentation
+
+New `/import` and `/import-report` entries preserve existing root imports and comparison defaults. `validateTable` adds an optional issue budget. XLSX reading now defaults to a 200 MiB decompression budget and 10,000 entries; adjust explicitly for larger trusted workloads, while invalid packages remain rejected. See [import workflows](./import-workflow) and [all API examples](./api/all).

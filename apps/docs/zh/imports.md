@@ -21,6 +21,8 @@ npm install sheetdelta-core
 | `sheetdelta-core/stream` | `readCsvStream`, `writeCsvStream`, `compareSortedStreams`, `compareStreamKeys` | 无 |
 | `sheetdelta-core/excel-stream` | `writeExcelStream` | fflate |
 | `sheetdelta-core/excel-node` | `readExcelStream` | yauzl + saxes + XML DOM; 仅 Node |
+| `sheetdelta-core/import` | `mapImportHeaders`, `prepareImport`, `importFile`, `locateImportCell` | 读取时延迟加载 CSV/Excel 依赖 |
+| `sheetdelta-core/import-report` | `exportImportReport` | 导出时加载 SheetJS + fflate |
 | `sheetdelta-core/types` | 公共 TypeScript 类型、`TableValidationError` | 无 |
 
 ```ts
@@ -42,3 +44,5 @@ async function handleExcel(file: File) {
 npm 安装会下载完整包及其依赖。按需导入控制应用的依赖关系，并不减少 npm 安装体积。生产构建工具可以拆分动态导入并移除未使用导出；Node.js 本身不会自动裁剪。`/compare` 不加载 CSV 或 Excel 引擎。
 
 根入口保持轻量并兼容旧代码；新功能通过子路径访问。内部源码路径不属于公共 API。
+
+[所有 41 个运行时 API 的使用方法与可运行案例](./api/all) · [类型参考](./api/types) · [导入纠错流程](./import-workflow)

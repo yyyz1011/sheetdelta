@@ -77,6 +77,16 @@
       "types": "./dist/excel-node.d.ts",
       "import": "./dist/excel-node.js",
       "default": "./dist/excel-node.js"
+    },
+    "./import": {
+      "types": "./dist/import.d.ts",
+      "import": "./dist/import.js",
+      "default": "./dist/import.js"
+    },
+    "./import-report": {
+      "types": "./dist/import-report.d.ts",
+      "import": "./dist/import-report.js",
+      "default": "./dist/import-report.js"
     }
   },
   "files": [

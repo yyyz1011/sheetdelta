@@ -35,7 +35,7 @@ To obtain calculated results immediately, call `recalculateExcel` after patching
 | Option | Default |
 | --- | --- |
 | `maxBytes` | 20 MiB compressed input |
-| `maxUncompressedBytes` | 200 MiB declared total entry contents |
+| `maxUncompressedBytes` | 200 MiB declared and observed total entry contents |
 | `maxEntries` | 10,000 ZIP entries |
 
 This path buffers the workbook in memory; use the [stream APIs](./streaming) for large new data exports. Limits reject oversized inputs instead of truncating. The implementation does not claim a hard process-memory sandbox.
@@ -46,3 +46,5 @@ This path buffers the workbook in memory; use the [stream APIs](./streaming) for
 - Formula groups, arbitrary workbook objects and source styling are preserved where untouched; their semantics are not fully interpreted. The API is not a general spreadsheet layout editor.
 
 See [compatibility evidence](./compatibility), including a business workbook reopened and recalculated in LibreOffice.
+
+ZIP checks compare directory sizes with actual incremental decompression output. Duplicate or unsafe package paths are rejected.

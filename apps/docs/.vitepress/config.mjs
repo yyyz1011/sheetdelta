@@ -10,6 +10,7 @@ const sidebar = (zh = false) => {
       { text: zh ? '浏览器工具' : 'Browser tool', link: p + 'browser-tool' },
     ] },
     { text: zh ? '功能模块' : 'Toolkit modules', items: [
+      { text: zh ? '导入、校验与修复' : 'Import, validate & repair', link: p + 'import-workflow' },
       { text: zh ? '按需导入' : 'Selective imports', link: p + 'imports' },
       { text: zh ? 'Excel 读取与报告' : 'Excel files & reports', link: p + 'excel' },
       { text: zh ? 'CSV 读取与导出' : 'CSV files', link: p + 'csv' },
@@ -31,6 +32,8 @@ const sidebar = (zh = false) => {
       { text: zh ? '校验与错误处理' : 'Validation & errors', link: p + 'validation' },
     ] },
     { text: zh ? 'API 参考' : 'API reference', items: [
+      { text: zh ? '完整 API 与案例' : 'All APIs & examples', link: p + 'api/all' },
+      { text: zh ? '完整类型参考' : 'Type reference', link: p + 'api/types' },
       { text: 'compareTables', link: p + 'api/compare-tables' },
       { text: 'exportDiffCsv', link: p + 'api/export-diff-csv' },
       { text: zh ? '常见问题' : 'FAQ', link: p + 'faq' },

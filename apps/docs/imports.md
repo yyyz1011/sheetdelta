@@ -11,7 +11,7 @@ npm install sheetdelta-core
 | `sheetdelta-core` | `compareTables`, `compareTablesAsync`, `exportDiffCsv`, `SheetDeltaError`, `isSheetDeltaError`, `TableValidationError`, types | None |
 | `sheetdelta-core/compare` | `compareTables`, `compareTablesAsync`, `TableValidationError` | None |
 | `sheetdelta-core/csv` | `readCsv`, `readCsvBytes`, `writeCsv`, `exportDiffCsv` | Papa Parse |
-| `sheetdelta-core/excel` | `readExcel`, `writeExcel`, `exportDiffExcel` | SheetJS when called; fflate for reports |
+| `sheetdelta-core/excel` | `readExcel`, `writeExcel`, `exportDiffExcel` | SheetJS when called; fflate for ZIP preflight and reports |
 | `sheetdelta-core/validate` | `validateTable`, `isIsoDate` | None |
 | `sheetdelta-core/clean` | `cleanTable`, `deduplicateTable` | None |
 | `sheetdelta-core/merge` | `mergeTables`, `appendTables`, `MergeConflictError` | None |
@@ -21,6 +21,8 @@ npm install sheetdelta-core
 | `sheetdelta-core/stream` | `readCsvStream`, `writeCsvStream`, `compareSortedStreams`, `compareStreamKeys` | None |
 | `sheetdelta-core/excel-stream` | `writeExcelStream` | fflate |
 | `sheetdelta-core/excel-node` | `readExcelStream` | yauzl + saxes + XML DOM; Node only |
+| `sheetdelta-core/import` | `mapImportHeaders`, `prepareImport`, `importFile`, `locateImportCell` | File parsers loaded lazily when reading |
+| `sheetdelta-core/import-report` | `exportImportReport` | SheetJS + fflate when exporting |
 | `sheetdelta-core/types` | Shared TypeScript types; `TableValidationError` | None |
 
 ```ts
@@ -43,3 +45,5 @@ async function handleExcel(file: File) {
 The npm installation includes the complete package and its dependencies. Selective imports control the application's dependency graph, not the npm download size. Production bundlers can split dynamic imports and remove unused exports. Node.js does not automatically tree-shake code. Importing `/compare` does not load the CSV parser or Excel engine.
 
 The root entry stays lightweight and preserves previous imports. New features are deliberately accessed through subpaths. Internal file paths are not public APIs.
+
+[All 41 runtime APIs with executable examples](./api/all) · [Type reference](./api/types) · [Import and repair workflow](./import-workflow)

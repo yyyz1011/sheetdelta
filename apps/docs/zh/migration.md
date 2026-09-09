@@ -52,3 +52,7 @@ const options: CompareInputOptions = { keys: ['id'], ignoreColumns: ['updatedAt'
 新增 `/formula`、`/workbook`、`/stream`、`/excel-stream`、`/excel-node`，仍是单个 npm 包。已有根入口和 0.3 API 不变。`/excel-node` 仅供 Node，浏览器请使用其他入口。
 
 公式计算只覆盖文档列出的子集；未支持的公式明确返回错误。`patchWorkbook` 默认清除公式缓存并请求打开时重算，立即读取结果前先调用 `recalculateExcel` 或交由表格应用重算。有序流比较要求预先排序、明确字段，结果按键排序，可能在已经输出部分结果后遇到错误。参见[公式](./formulas)、[工作簿](./workbooks)、[流式处理](./streaming)。
+
+## 0.5 导入与文档
+
+新增 `/import`、`/import-report`，旧入口与比较默认行为保留。`validateTable` 增加可选问题数量预算。XLSX 读取新增默认 200 MiB 解压预算和 10,000 条目上限；超过时须显式调整，但非法 ZIP 包仍拒绝。[导入流程](./import-workflow)与[完整 API 案例](./api/all)列明参数、结果和限制。

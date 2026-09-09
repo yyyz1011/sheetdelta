@@ -31,3 +31,7 @@ schema 以列名为键、规则为值。`allowUnknown: false` 拒绝未声明的
 结果包括 `valid`、`issues`、`validRows`、`invalidRows`。每个问题含 `code`、`row`、`column`、`value`、`message`；行号是从 1 开始的数据位置。唯一性检查区分数字 `1` 与字符串 `'1'`。无效 schema 或正则会抛出配置错误，正则规则应来自可信配置。
 
 CSV 和 Excel 显示模式返回字符串。数字校验前可用 [cleanTable](./clean) 显式转换，或以原始模式读取 Excel。源文件行号通过 `table.rowNumbers[issue.row - 1]` 定位。
+
+## 问题数量与业务规则
+
+`validateTable` 支持可选 `maxIssues`（正整数）；超过时抛出 `LIMIT_EXCEEDED`，不返回截断报告。省略时保持原来的不设问题数上限行为。列存在性和跨字段规则请使用[导入流程](./import-workflow)，不要把单元格 `required` 当作独立的表头检查。

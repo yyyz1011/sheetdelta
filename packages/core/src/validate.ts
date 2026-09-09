@@ -17,8 +17,9 @@ export type TableSchema = Record<string, ColumnRule>;
 export interface ValidationIssue { code: 'required' | 'type' | 'unique' | 'min' | 'max' | 'minLength' | 'maxLength' | 'enum' | 'pattern' | 'unknown-column'; row: number; column: string; value: Cell; message: string }
 export interface ValidationResult { valid: boolean; issues: ValidationIssue[]; validRows: number[]; invalidRows: number[] }
 /** Validate without mutation or coercion. Row numbers are 1-based data rows. */
-export function validateTable(rows: readonly Row[], schema: TableSchema, options: { allowUnknown?: boolean } = {}): ValidationResult {
+export function validateTable(rows: readonly Row[], schema: TableSchema, options: { allowUnknown?: boolean; maxIssues?: number } = {}): ValidationResult {
   assertRows(rows); assertRecord(schema, 'schema'); assertRecord(options, 'options');
+  if (options.maxIssues !== undefined && (!Number.isSafeInteger(options.maxIssues) || options.maxIssues < 1)) fail('INVALID_OPTIONS', 'maxIssues must be positive.');
   const issues: ValidationIssue[] = [];
   const unique = new Map<string, Map<string, number[]>>();
   const patterns = new Map<string, RegExp>();
@@ -32,7 +33,7 @@ export function validateTable(rows: readonly Row[], schema: TableSchema, options
     if (rule.pattern != null) { try { patterns.set(column, new RegExp(rule.pattern)); } catch (error) { wrapError(error, 'INVALID_OPTIONS', `Invalid pattern for ${column}.`, { column, option: 'pattern' }); } }
     if (rule.unique) unique.set(column, new Map());
   }
-  const add = (code: ValidationIssue['code'], row: number, column: string, value: Cell) => issues.push({ code, row, column, value, message: `${column}: ${code} validation failed at data row ${row}.` });
+  const add = (code: ValidationIssue['code'], row: number, column: string, value: Cell) => { if (issues.length >= (options.maxIssues ?? Infinity)) fail('LIMIT_EXCEEDED', 'Validation issue budget exceeded.'); issues.push({ code, row, column, value, message: `${column}: ${code} validation failed at data row ${row}.` }); };
   rows.forEach((row, index) => {
     const number = index + 1;
     if (options.allowUnknown === false) for (const column of Object.keys(row)) if (!Object.hasOwn(schema, column)) add('unknown-column', number, column, row[column]);

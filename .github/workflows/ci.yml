@@ -21,11 +21,12 @@ jobs:
       - run: npm run check
       - run: npm run site:build
       - run: npm run site:check
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run test:e2e
       - run: npm run pack:core
       - run: node scripts/smoke-package.mjs
       - run: node scripts/check-doc-examples.mjs
+      - run: npm run check:api
       - run: npm run check:worker
       - run: node scripts/check-inventory-example.mjs
 

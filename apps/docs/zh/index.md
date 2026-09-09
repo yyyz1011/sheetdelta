@@ -17,7 +17,7 @@ npm install sheetdelta-core
 
 ## 从这里开始
 
-<div class="doc-paths"><a class="doc-path" href="./quick-start.html"><strong>接入第一次比较 →</strong><span>安装 npm 包，用几行代码得到比较结果。</span></a><a class="doc-path" href="./browser-tool.html"><strong>在浏览器中比较文件 →</strong><span>本地读取 Excel 或 CSV，无需编写代码。</span></a><a class="doc-path" href="./api/compare-tables.html"><strong>查阅 API →</strong><span>配置选项、返回类型、结果顺序和数据校验。</span></a><a class="doc-path" href="./mapping.html"><strong>映射你的数据 →</strong><span>处理不同列名、复合键和文本编号。</span></a></div>
+<div class="doc-paths"><a class="doc-path" href="./quick-start.html"><strong>接入第一次比较 →</strong><span>安装 npm 包，用几行代码得到比较结果。</span></a><a class="doc-path" href="./browser-tool.html"><strong>在浏览器中比较文件 →</strong><span>本地读取 Excel 或 CSV，无需编写代码。</span></a><a class="doc-path" href="./api/all.html"><strong>查阅 API →</strong><span>配置选项、返回类型、结果顺序和数据校验。</span></a><a class="doc-path" href="./mapping.html"><strong>映射你的数据 →</strong><span>处理不同列名、复合键和文本编号。</span></a></div>
 
 ## 核心包能做什么
 
@@ -62,3 +62,7 @@ npm install sheetdelta-core
 - [公式计算](./formulas)：常见业务函数、跨表依赖与精确查询。
 - [保留工作簿修改](./workbooks)：修改指定值，保留样式、图表和其他内容。
 - [流式处理](./streaming)：CSV、XLSX 逐行读写与有序数据流比较。
+
+## 导入与纠错
+
+[从表头映射到错误工作簿](./import-workflow)：独立检查缺列和空值，执行跨字段规则，保留源位置，修正后重新导入。[完整 API 使用方法](./api/all)包含每个运行时接口的可执行案例，[类型参考](./api/types)列出所有选项结构。
