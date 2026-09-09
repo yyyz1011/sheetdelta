@@ -8,13 +8,14 @@ npm install sheetdelta-core
 
 | 入口 | 导出功能 | 运行时加载的第三方依赖 |
 | --- | --- | --- |
-| `sheetdelta-core` | `compareTables`、`exportDiffCsv`、`TableValidationError`、类型 | 无 |
-| `sheetdelta-core/compare` | `compareTables`、`TableValidationError` | 无 |
-| `sheetdelta-core/csv` | `readCsv`、`writeCsv`、`exportDiffCsv` | Papa Parse |
+| `sheetdelta-core` | `compareTables`、`compareTablesAsync`、`SheetDeltaError`、`isSheetDeltaError`、`exportDiffCsv`、`TableValidationError`、类型 | 无 |
+| `sheetdelta-core/compare` | `compareTables`、`compareTablesAsync`、`TableValidationError` | 无 |
+| `sheetdelta-core/csv` | `readCsv`、`readCsvBytes`、`writeCsv`、`exportDiffCsv` | Papa Parse |
 | `sheetdelta-core/excel` | `readExcel`、`writeExcel`、`exportDiffExcel` | 调用时加载 SheetJS；报告还使用 fflate |
 | `sheetdelta-core/validate` | `validateTable`、`isIsoDate` | 无 |
 | `sheetdelta-core/clean` | `cleanTable`、`deduplicateTable` | 无 |
 | `sheetdelta-core/merge` | `mergeTables`、`appendTables`、`MergeConflictError` | 无 |
+| `sheetdelta-core/errors` | `SheetDeltaError`, `isSheetDeltaError` | 无 |
 | `sheetdelta-core/types` | 公共 TypeScript 类型、`TableValidationError` | 无 |
 
 ```ts

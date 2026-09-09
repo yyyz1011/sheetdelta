@@ -36,3 +36,13 @@ Installation now includes file-format dependencies. The root and `/compare` rema
 This release focuses on table data, not a spreadsheet editor or formula engine. No macros, formula evaluation, formatting comparison, fuzzy row matching, many-to-many joins or guaranteed constant-memory streaming are provided. The browser tool remains a file-comparison interface; the new validation, cleaning and merge APIs are available to npm consumers and documented here.
 
 When one side is empty, inferred comparison fields come from the populated side so addition/removal reports retain their values.
+
+## 0.3 reliability upgrade
+
+Root imports and the previous `CompareOptions` type remain supported. New APIs include cancellable `compareTablesAsync`, `includeUnchanged`, `readCsvBytes` and the `/errors` entry.
+
+Review these behavior changes: Excel error cells now throw `CELL_ERROR` by default; explicitly select `{ cellErrors: 'text' }` to keep their displayed text. New workbook budgets default to 100,000 physical data rows and 1,000,000 rectangular cells; adjust deliberately for your resource budget. The Excel entry only accepts actual XLSX/XLS bytes; use `/csv` for CSV. Comparison rejects nonfinite numbers and objects outside the `Cell` type instead of implicitly stringifying them.
+
+With `includeUnchanged: false`, `result.rows.length` can be smaller than `summary.total`; use summary fields for complete counts. Existing `TableValidationError.issues` and `MergeConflictError.conflicts` are preserved. Some English error messages have changed; use error codes.
+
+Read [async & Workers](./async), [structured errors](./errors), and [compatibility & performance](./compatibility).

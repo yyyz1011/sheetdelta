@@ -35,3 +35,15 @@ const csv = writeCsv(table.rows);
 数字类型的负数保持数字；危险前缀的文本会被转义，仅针对可信消费方关闭。表格软件仍可能自动推断编号类型，导入时应将编号列指定为文本。
 
 比较结果请使用 [exportDiffCsv](./api/export-diff-csv)，保留旧版的转义与行号规则。
+
+## readCsvBytes(input, options?)
+
+直接读取 `ArrayBuffer` 或 `Uint8Array`（包括 Node Buffer），返回与 `readCsv` 相同的表结构。支持全部 CSV 读取选项，并增加 `encoding`（默认 `'utf-8'`）与 `maxBytes`（默认 `20971520`，即 20 MiB）。
+
+```ts
+import { readCsvBytes } from 'sheetdelta-core/csv';
+const bytes = new TextEncoder().encode('id,name\n001,示例');
+const table = readCsvBytes(bytes, { encoding: 'utf-8' });
+```
+
+中文旧系统导出的文件可以明确指定 `{ encoding: 'gb18030' }`，支持范围取决于运行环境的 `TextDecoder`。不会自动猜测编码；不匹配或损坏的字节抛出 `INVALID_CSV`，不支持的编码抛出 `INVALID_OPTIONS`，超出大小抛出 `LIMIT_EXCEEDED`。两种读取 API 都在内存中解析，并非流式读取。

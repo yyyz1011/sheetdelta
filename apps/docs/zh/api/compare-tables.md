@@ -71,3 +71,7 @@ const result = compareTables([{ id: 1, value: 10 }], [{ id: 1, value: "10" }], {
 ```
 
 `columns` 可省略，自动选共同非主键列；显式空数组仍报错。`ignoreColumns` 忽略任一侧同名字段，不取消主键校验。严格模式区分类型，空值模式区分 null、undefined、空字符串。字段级 `trim` 与 `ignoreCase` 只影响值。结果 `schema` 含新增、删除、共同列，不单独改变行状态；结构从记录推断，空数组不携带列定义。旧 `CompareOptions` 继续要求显式映射，简写用 `CompareInputOptions`。
+
+## 大任务与精简结果
+
+`includeUnchanged` 默认 `true`。设为 `false` 时仅保留变化行，但汇总仍包含所有行。使用 `compareTablesAsync` 可获取进度和取消支持，参见[异步比较](../async)。比较仅接受 `Cell` 基础类型，非有限数字和对象值会被拒绝。

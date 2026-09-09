@@ -1,16 +1,19 @@
+import { assertRows } from './table.js';
+import { SheetDeltaError, fail, assertRecord } from './errors.js';
 import type { Cell, Row } from './types.js';
 import { assertKeys, keyOf, columnNames } from './table.js';
 export interface MergeOptions { keys: string[]; join?: 'left' | 'inner' | 'full'; conflict?: 'error' | 'left' | 'right' }
 export interface MergeConflict { key: Cell[]; column: string; left: Cell; right: Cell }
-export class MergeConflictError extends Error { constructor(readonly conflicts: MergeConflict[]) { super('Conflicting field values. Select an explicit left or right conflict policy.'); this.name = 'MergeConflictError'; } }
+export class MergeConflictError extends SheetDeltaError { constructor(readonly conflicts: MergeConflict[]) { super('MERGE_CONFLICT', 'Conflicting field values. Select an explicit left or right conflict policy.'); this.name = 'MergeConflictError'; } override toJSON() { return { ...super.toJSON(), conflicts: this.conflicts }; } }
 /** Join unique keyed rows. Conflicting values throw unless an explicit policy is provided. */
 export function mergeTables(left: readonly Row[], right: readonly Row[], options: MergeOptions) {
+  assertRows(left, 'left'); assertRows(right, 'right'); assertRecord(options, 'options');
   assertKeys(options.keys);
   const join = options.join ?? 'full', policy = options.conflict ?? 'error';
-  if (!['left', 'inner', 'full'].includes(join) || !['error', 'left', 'right'].includes(policy)) throw new Error('Invalid merge options.');
+  if (!['left', 'inner', 'full'].includes(join) || !['error', 'left', 'right'].includes(policy)) throw new SheetDeltaError('INVALID_OPTIONS', 'Invalid merge options.');
   const index = (rows: readonly Row[], side: string) => {
     const map = new Map<string, Row>();
-    rows.forEach((row, i) => { const key = keyOf(row, options.keys); if (map.has(key)) throw new Error(`Duplicate key on ${side} at data row ${i + 1}.`); map.set(key, row); }); return map;
+    rows.forEach((row, i) => { const key = keyOf(row, options.keys, { side, row: i + 1 }); if (map.has(key)) throw new SheetDeltaError('DUPLICATE_KEY', `Duplicate key on ${side} at data row ${i + 1}.`, { side, row: i + 1 }); map.set(key, row); }); return map;
   };
   const before = index(left, 'left'), after = index(right, 'right');
   const rows: Row[] = [], conflicts: MergeConflict[] = [];
@@ -37,12 +40,14 @@ export function mergeTables(left: readonly Row[], right: readonly Row[], options
 
 /** Append tables vertically with an explicit schema policy. */
 export function appendTables(tables: readonly (readonly Row[])[], options: { schema?: 'strict' | 'union' } = {}) {
+  if (!Array.isArray(tables)) fail('INVALID_DATA', 'tables must be an array.');
+  tables.forEach(table => assertRows(table)); assertRecord(options, 'options');
   const mode = options.schema ?? 'strict';
-  if (!['strict', 'union'].includes(mode)) throw new Error('schema must be strict or union.');
+  if (!['strict', 'union'].includes(mode)) throw new SheetDeltaError('INVALID_OPTIONS', 'schema must be strict or union.');
   const columns = [...new Set(tables.flatMap(columnNames))];
   const rows: Row[] = [], sources: { table: number; row: number }[] = [];
-  tables.forEach((table, index) => table.forEach((row, rowIndex) => {
-    if (mode === 'strict' && (Object.keys(row).length !== columns.length || columns.some(key => !Object.hasOwn(row, key)))) throw new Error(`Schema mismatch in table ${index + 1}, data row ${rowIndex + 1}.`);
+  tables.forEach((table: readonly Row[], index) => table.forEach((row, rowIndex) => {
+    if (mode === 'strict' && (Object.keys(row).length !== columns.length || columns.some(key => !Object.hasOwn(row, key)))) throw new SheetDeltaError('SCHEMA_MISMATCH', `Schema mismatch in table ${index + 1}, data row ${rowIndex + 1}.`, { side: String(index + 1), row: rowIndex + 1 });
     rows.push(Object.fromEntries(columns.map(key => [key, Object.hasOwn(row, key) ? row[key] : null])));
     sources.push({ table: index + 1, row: rowIndex + 1 });
   }));

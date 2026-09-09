@@ -71,3 +71,7 @@ const result = compareTables([{ id: 1, value: 10 }], [{ id: 1, value: "10" }], {
 ```
 
 `ignoreColumns` excludes names on either side, including explicit value mappings, but never removes key validation. Strict value mode distinguishes primitive types; empty-values mode distinguishes null, undefined and empty text. Field-level `trim` and `ignoreCase` override global rules for values, not keys. Existing `CompareOptions` retains explicit required mappings for source compatibility.
+
+## Large jobs and compact results
+
+`includeUnchanged` defaults to `true`. Set it to `false` to retain only changed/added/removed records while preserving complete summary counts. Use `compareTablesAsync` for progress and cancellation; see [async comparison](../async). Comparison accepts primitive `Cell` values only and rejects nonfinite numbers and object values.

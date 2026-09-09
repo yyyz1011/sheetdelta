@@ -1,3 +1,5 @@
+import { assertRows } from './table.js';
+import { SheetDeltaError, fail, assertRecord, wrapError } from './errors.js';
 import type { Cell, Row } from './types.js';
 import { ownValue } from './table.js';
 export interface ColumnRule {
@@ -16,15 +18,18 @@ export interface ValidationIssue { code: 'required' | 'type' | 'unique' | 'min' 
 export interface ValidationResult { valid: boolean; issues: ValidationIssue[]; validRows: number[]; invalidRows: number[] }
 /** Validate without mutation or coercion. Row numbers are 1-based data rows. */
 export function validateTable(rows: readonly Row[], schema: TableSchema, options: { allowUnknown?: boolean } = {}): ValidationResult {
+  assertRows(rows); assertRecord(schema, 'schema'); assertRecord(options, 'options');
   const issues: ValidationIssue[] = [];
   const unique = new Map<string, Map<string, number[]>>();
   const patterns = new Map<string, RegExp>();
   for (const [column, rule] of Object.entries(schema)) {
-    if (rule.type && !['string', 'number', 'boolean', 'date'].includes(rule.type)) throw new Error(`Invalid type for ${column}.`);
-    for (const bound of ['min', 'max', 'minLength', 'maxLength'] as const) if (rule[bound] != null && (!Number.isFinite(rule[bound]) || (bound.endsWith('Length') && (!Number.isInteger(rule[bound]) || rule[bound]! < 0)))) throw new Error(`Invalid ${bound} for ${column}.`);
-    if (rule.min != null && rule.max != null && rule.min > rule.max) throw new Error(`min exceeds max for ${column}.`);
-    if (rule.minLength != null && rule.maxLength != null && rule.minLength > rule.maxLength) throw new Error(`minLength exceeds maxLength for ${column}.`);
-    if (rule.pattern != null) patterns.set(column, new RegExp(rule.pattern));
+    assertRecord(rule, 'rule');
+    if (rule.enum && !Array.isArray(rule.enum)) fail('INVALID_OPTIONS', 'enum must be an array.', { column });
+    if (rule.type && !['string', 'number', 'boolean', 'date'].includes(rule.type)) throw new SheetDeltaError('INVALID_OPTIONS', `Invalid type for ${column}.`);
+    for (const bound of ['min', 'max', 'minLength', 'maxLength'] as const) if (rule[bound] != null && (!Number.isFinite(rule[bound]) || (bound.endsWith('Length') && (!Number.isInteger(rule[bound]) || rule[bound]! < 0)))) throw new SheetDeltaError('INVALID_OPTIONS', `Invalid ${bound} for ${column}.`);
+    if (rule.min != null && rule.max != null && rule.min > rule.max) throw new SheetDeltaError('INVALID_OPTIONS', `min exceeds max for ${column}.`);
+    if (rule.minLength != null && rule.maxLength != null && rule.minLength > rule.maxLength) throw new SheetDeltaError('INVALID_OPTIONS', `minLength exceeds maxLength for ${column}.`);
+    if (rule.pattern != null) { try { patterns.set(column, new RegExp(rule.pattern)); } catch (error) { wrapError(error, 'INVALID_OPTIONS', `Invalid pattern for ${column}.`, { column, option: 'pattern' }); } }
     if (rule.unique) unique.set(column, new Map());
   }
   const add = (code: ValidationIssue['code'], row: number, column: string, value: Cell) => issues.push({ code, row, column, value, message: `${column}: ${code} validation failed at data row ${row}.` });

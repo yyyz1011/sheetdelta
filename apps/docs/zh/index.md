@@ -50,3 +50,9 @@ npm install sheetdelta-core
 - [数据校验](./validate)、[清洗与去重](./clean)、[合并与追加](./merge)：准备业务数据。
 - [完整流程](./workflow)：从导入到报告的可运行示例。
 - [升级说明](./migration)：旧 API 兼容与显式规则。
+
+## 可靠性工具
+
+- [异步与 Worker](./async)：进度、取消和精简差异结果。
+- [结构化错误](./errors)：稳定错误码和源位置。
+- [兼容性与性能](./compatibility)：独立生成的工作簿样本、可复现基准与明确边界。

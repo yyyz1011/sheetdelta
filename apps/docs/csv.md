@@ -35,3 +35,15 @@ Returns CSV text with quoted fields and CRLF record separators.
 Numeric negative values remain numbers. Text beginning with a dangerous spreadsheet prefix is escaped; disable only for trusted consumers. Spreadsheet applications may still infer identifier types on import, so import ID columns as text.
 
 For structured comparison results, use [exportDiffCsv](./api/export-diff-csv). Its existing escaping and row-number behavior are retained for compatibility.
+
+## readCsvBytes(input, options?)
+
+Read an `ArrayBuffer` or `Uint8Array` (including Node Buffer) directly. Returns the same table shape as `readCsv`. Accepts every CSV read option plus `encoding` (default `'utf-8'`) and `maxBytes` (default `20971520`, 20 MiB).
+
+```ts
+import { readCsvBytes } from 'sheetdelta-core/csv';
+const bytes = new TextEncoder().encode('id,name\n001,Example');
+const table = readCsvBytes(bytes, { encoding: 'utf-8' });
+```
+
+For legacy Chinese exports, explicitly select `{ encoding: 'gb18030' }`. Supported labels depend on the runtime's `TextDecoder`. There is no encoding guessing: malformed bytes throw `INVALID_CSV`, unsupported encodings throw `INVALID_OPTIONS`, and oversized input throws `LIMIT_EXCEEDED`. Both reading APIs parse in memory; neither streams.

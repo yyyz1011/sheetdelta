@@ -1,12 +1,16 @@
+import { assertRows } from './table.js';
+import { SheetDeltaError, assertRecord } from './errors.js';
 import type { Cell, Row } from './types.js';
 import { keyOf, assertKeys } from './table.js';
 export interface CleanRule { trim?: boolean; case?: 'lower' | 'upper'; emptyValue?: Cell; type?: 'string' | 'number' | 'boolean' }
 export interface CleanChange { row: number; column: string; before: Cell; after: Cell }
 export interface CleanIssue { row: number; column: string; value: Cell; code: 'conversion' }
 export function cleanTable(rows: readonly Row[], rules: Record<string, CleanRule>): { rows: Row[]; changes: CleanChange[]; issues: CleanIssue[] } {
+  assertRows(rows); assertRecord(rules, 'rules');
   for (const rule of Object.values(rules)) {
-    if (rule.type && !['string', 'number', 'boolean'].includes(rule.type)) throw new Error('Invalid conversion type.');
-    if (rule.case && !['lower', 'upper'].includes(rule.case)) throw new Error('Invalid case rule.');
+    assertRecord(rule, 'rule');
+    if (rule.type && !['string', 'number', 'boolean'].includes(rule.type)) throw new SheetDeltaError('INVALID_OPTIONS', 'Invalid conversion type.');
+    if (rule.case && !['lower', 'upper'].includes(rule.case)) throw new SheetDeltaError('INVALID_OPTIONS', 'Invalid case rule.');
   }
   const changes: CleanChange[] = [], issues: CleanIssue[] = [];
   const output = rows.map((row, index) => {
@@ -39,10 +43,11 @@ export function cleanTable(rows: readonly Row[], rules: Record<string, CleanRule
   return { rows: output, changes, issues };
 }
 export function deduplicateTable(rows: readonly Row[], options: { keys: string[]; keep?: 'first' | 'last' } ) {
+  assertRows(rows); assertRecord(options, 'options');
   assertKeys(options.keys);
-  if (options.keep && !['first', 'last'].includes(options.keep)) throw new Error('keep must be first or last.');
+  if (options.keep && !['first', 'last'].includes(options.keep)) throw new SheetDeltaError('INVALID_OPTIONS', 'keep must be first or last.');
   const groups = new Map<string, number[]>();
-  rows.forEach((row, i) => { const key = keyOf(row, options.keys); const group = groups.get(key); if (group) group.push(i); else groups.set(key, [i]); });
+  rows.forEach((row, i) => { const key = keyOf(row, options.keys, { row: i + 1 }); const group = groups.get(key); if (group) group.push(i); else groups.set(key, [i]); });
   const kept = new Set([...groups.values()].map(indices => options.keep === 'last' ? indices[indices.length - 1] : indices[0]));
   return { rows: rows.filter((_, i) => kept.has(i)).map(row => ({ ...row })), removedRows: rows.map((_, i) => i).filter(i => !kept.has(i)).map(i => i + 1), duplicateGroups: [...groups.values()].filter(indices => indices.length > 1).map(indices => indices.map(i => i + 1)) };
 }

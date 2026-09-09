@@ -13,8 +13,9 @@ try {
   const code = `
     import assert from 'node:assert/strict';
     import { compareTables as rootCompare, exportDiffCsv, TableValidationError } from 'sheetdelta-core';
-    import { compareTables } from 'sheetdelta-core/compare';
-    import { readCsv, writeCsv } from 'sheetdelta-core/csv';
+    import { compareTables, compareTablesAsync } from 'sheetdelta-core/compare';
+    import { SheetDeltaError } from 'sheetdelta-core/errors';
+    import { readCsv, readCsvBytes, writeCsv } from 'sheetdelta-core/csv';
     import { readExcel, writeExcel, exportDiffExcel } from 'sheetdelta-core/excel';
     import { cleanTable, deduplicateTable } from 'sheetdelta-core/clean';
     import { validateTable } from 'sheetdelta-core/validate';
@@ -26,6 +27,10 @@ try {
     assert.ok(exportDiffCsv(result).includes('changed'));
     assert.equal(typeof TableValidationError, 'function');
     assert.equal(rootCompare, compareTables);
+    assert.deepEqual(await compareTablesAsync([{id:'001',price:10}], [{id:'001',price:12}], {keys:['id']}), compareTables([{id:'001',price:10}], [{id:'001',price:12}], {keys:['id']}));
+    assert.equal(readCsvBytes(new TextEncoder().encode('id,v\\n001,2')).rows[0].id, '001');
+    const controller = new AbortController(); controller.abort();
+    await assert.rejects(compareTablesAsync([], [], {keys:['id']}, {signal:controller.signal}), error => error instanceof SheetDeltaError && error.code === 'ABORTED');
     const table = readCsv(writeCsv([{id:'001',price:12}]));
     const clean = cleanTable(table.rows, {price:{type:'number'}});
     assert.equal(validateTable(clean.rows,{price:{type:'number'}}).valid,true);
@@ -59,7 +64,7 @@ try {
   writeFileSync(join(cwd, 'consumer.ts'), types);
   execFileSync(process.execPath, [resolve('node_modules/typescript/bin/tsc'), '--strict', '--noEmit', '--target', 'ES2022', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd, stdio: 'pipe' });
   console.log('Packed TypeScript consumer and legacy CompareOptions: PASS');
-  for (const entry of ['sheetdelta-core', 'sheetdelta-core/compare', 'sheetdelta-core/validate', 'sheetdelta-core/clean', 'sheetdelta-core/merge']) {
+  for (const entry of ['sheetdelta-core', 'sheetdelta-core/compare', 'sheetdelta-core/validate', 'sheetdelta-core/clean', 'sheetdelta-core/merge', 'sheetdelta-core/errors']) {
     const bundled = await build({ stdin: { contents: `export * from '${entry}';`, resolveDir: cwd }, bundle: true, minify: true, format: 'esm', platform: 'browser', write: false, metafile: true });
     assert.ok(!Object.keys(bundled.metafile.inputs).some(path => /node_modules\/(xlsx|papaparse|fflate)\//.test(path)), `${entry} must not load file dependencies`);
     assert.ok(bundled.outputFiles[0].contents.length < 20_000, `${entry} bundle budget`);

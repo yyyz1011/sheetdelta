@@ -41,7 +41,7 @@ File APIs are available through `/csv` and `/excel`. Comparison, validation, cle
 
 ## Runtime requirements
 
-Use ESM in Node.js 18+ or a modern browser with `structuredClone`. Type declarations are included. For large datasets in the browser, run the synchronous comparison inside a Web Worker.
+Use ESM in Node.js 18+ or a modern browser with `structuredClone`. Type declarations are included. For large datasets in the browser, use cooperative async comparison or run work in a Web Worker.
 
 ## Explore the toolkit
 
@@ -50,3 +50,9 @@ Use ESM in Node.js 18+ or a modern browser with `structuredClone`. Type declarat
 - [Validation](./validate), [cleaning](./clean), and [merge](./merge): prepare data for your application.
 - [Complete workflow](./workflow): a runnable import-to-report example.
 - [Migration](./migration): compatibility and deliberate behavior choices.
+
+## Reliability tools
+
+- [Async & Workers](./async): progress, cancellation and compact difference results.
+- [Structured errors](./errors): stable codes and source context.
+- [Compatibility & performance](./compatibility): independently generated workbooks, reproducible benchmarks and explicit limits.

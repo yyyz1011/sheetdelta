@@ -8,13 +8,14 @@ npm install sheetdelta-core
 
 | Entry | Exports | Runtime dependencies loaded |
 | --- | --- | --- |
-| `sheetdelta-core` | `compareTables`, `exportDiffCsv`, `TableValidationError`, types | None |
-| `sheetdelta-core/compare` | `compareTables`, `TableValidationError` | None |
-| `sheetdelta-core/csv` | `readCsv`, `writeCsv`, `exportDiffCsv` | Papa Parse |
+| `sheetdelta-core` | `compareTables`, `compareTablesAsync`, `exportDiffCsv`, `SheetDeltaError`, `isSheetDeltaError`, `TableValidationError`, types | None |
+| `sheetdelta-core/compare` | `compareTables`, `compareTablesAsync`, `TableValidationError` | None |
+| `sheetdelta-core/csv` | `readCsv`, `readCsvBytes`, `writeCsv`, `exportDiffCsv` | Papa Parse |
 | `sheetdelta-core/excel` | `readExcel`, `writeExcel`, `exportDiffExcel` | SheetJS when called; fflate for reports |
 | `sheetdelta-core/validate` | `validateTable`, `isIsoDate` | None |
 | `sheetdelta-core/clean` | `cleanTable`, `deduplicateTable` | None |
 | `sheetdelta-core/merge` | `mergeTables`, `appendTables`, `MergeConflictError` | None |
+| `sheetdelta-core/errors` | `SheetDeltaError`, `isSheetDeltaError` | None |
 | `sheetdelta-core/types` | Shared TypeScript types; `TableValidationError` | None |
 
 ```ts
