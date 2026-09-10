@@ -73,6 +73,14 @@ describe('bounded asynchronous business validation', () => {
     expect(result.issues.map(i => i.row)).toEqual([1, 2, 3, 4, 5]);
     expect(result.rows).toEqual([]);
   });
+  it('supports the documented maximum concurrency with shared cancellation', async () => {
+    let active = 0, peak = 0;
+    const input = readCsv('id\n' + Array.from({ length: 40 }, (_, i) => String(i)).join('\n'));
+    const result = await prepareImport(input, { fields: [{ key: 'id' }], batchRules: [{ id: 'wide', validate: async () => {
+      active++; peak = Math.max(peak, active); await wait(2); active--; return [];
+    } }] }, { batchValidation: { batchSize: 1, concurrency: 32 } });
+    expect(peak).toBe(32); expect(result.rows).toHaveLength(40);
+  });
   it('includes warnings without excluding rows and supports partial acceptance', async () => {
     const result = await prepareImport(table(), { fields: [{ key: 'id' }], batchRules: [{ id: 'check', validate: async () => [
       { row: 2, code: 'bad', message: 'Bad', severity: 'error' }, { row: 3, code: 'old', message: 'Old', severity: 'warning' },

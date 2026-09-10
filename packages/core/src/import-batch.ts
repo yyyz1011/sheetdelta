@@ -23,6 +23,10 @@ export function batchOptions(options: ImportBatchOptions = {}) {
 export async function runBatchRules(rows: readonly Readonly<Row>[], rules: readonly ImportBatchRule[], options: ImportBatchOptions | undefined, signal: AbortSignal | undefined, maxIssues: number, accept: (raw: unknown, id: string) => void, progress: (processed: number) => void) {
   const settings = batchOptions(options);
   const group = new AbortController();
+  // Fan out through one listener: Node warns above ten listeners on an AbortSignal.
+  const stops = new Set<() => void>();
+  const abortChildren = () => { for (const stop of stops) stop(); };
+  group.signal.addEventListener('abort', abortChildren, { once: true });
   const cancel = () => group.abort();
   signal?.addEventListener('abort', cancel, { once: true });
   if (signal?.aborted) cancel();
@@ -35,7 +39,7 @@ export async function runBatchRules(rows: readonly Readonly<Row>[], rules: reado
     try {
       const stopped = new Promise<never>((_, reject) => {
         onAbort = () => { reject(new SheetDeltaError('ABORTED', 'Batch validation cancelled.')); controller.abort(); };
-        group.signal.addEventListener('abort', onAbort, { once: true });
+        stops.add(onAbort);
         timer = setTimeout(() => { reject(new SheetDeltaError('VALIDATION_TIMEOUT', `Batch rule ${rule.id} timed out.`, { operation: rule.id })); controller.abort(); }, settings.timeoutMs);
       });
       const raw = await Promise.race([Promise.resolve().then(() => {
@@ -52,7 +56,7 @@ export async function runBatchRules(rows: readonly Readonly<Row>[], rules: reado
     } catch (error) {
       wrapError(error, 'VALIDATION_FAILED', `Batch rule ${rule.id} failed.`, { operation: rule.id });
     } finally {
-      clearTimeout(timer); group.signal.removeEventListener('abort', onAbort); controller.abort();
+      clearTimeout(timer); stops.delete(onAbort); controller.abort();
     }
   }
   try {
@@ -66,5 +70,5 @@ export async function runBatchRules(rows: readonly Readonly<Row>[], rules: reado
         progress(Math.min(rows.length, start + settings.batchSize * settings.concurrency));
       }
     }
-  } finally { group.abort(); signal?.removeEventListener('abort', cancel); }
+  } finally { group.abort(); group.signal.removeEventListener('abort', abortChildren); signal?.removeEventListener('abort', cancel); }
 }

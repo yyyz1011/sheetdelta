@@ -2,7 +2,7 @@
 
 ## 0.6 reusable import evidence
 
-- The local suite passes 130 tests, including template validation, dictionary ambiguity, bounded concurrency, deterministic issue order, timeout, cancellation and sibling cleanup.
+- The local suite passes 131 tests, including template validation, dictionary ambiguity, bounded concurrency, deterministic issue order, timeout, cancellation and sibling cleanup.
 - New template/dictionary/batch-rule flows pass in Chromium, Firefox and WebKit; 12 browser tests pass in total. These use local lookup callbacks, not certification of an external service.
 - The current reference covers 44 runtime APIs, 51 export bindings and 63 types; 88 bilingual API example executions are checked. Existing 0.5 evidence below describes that release.
 
