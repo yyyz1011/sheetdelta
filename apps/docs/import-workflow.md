@@ -74,7 +74,7 @@ const result = await importFile('start,end\n2026-09-10,2026-09-09', schema, { fo
 console.log(result.issues[0].ruleId); // date-order
 ```
 
-Rules receive frozen shallow snapshots whose values are primitives. They run on every processed row, including rows with earlier conversion/validation issues, so guard types before comparing. Exceptions propagate as programming failures. Promise returns and malformed issue arrays are rejected; asynchronous lookup validation is not part of this release. Callbacks must not perform side effects: strict mode controls returned data, not arbitrary external effects inside callbacks.
+Rules receive frozen shallow snapshots whose values are primitives. They run on every processed row, including rows with earlier conversion/validation issues, so guard types before comparing. Exceptions propagate as programming failures. Promise returns from these synchronous rules and malformed issue arrays are rejected. For asynchronous lookups, use the separate [batchRules interface](./reusable-imports#async-batch-rules). Callbacks must not perform side effects: strict mode controls returned data, not arbitrary external effects inside callbacks.
 
 ## File and execution options
 
@@ -94,7 +94,7 @@ Rules receive frozen shallow snapshots whose values are primitives. They run on 
 
 Preparation limits apply **after file parsing**. Parser limits must be configured separately in `csv`/`excel` when changing accepted file sizes. Use XLSX `maxUncompressedBytes` and `maxEntries` for ZIP budgets. All import/report APIs here work in memory; they do not turn ordinary XLSX parsing into streaming.
 
-Progress phases are `map`, `clean`, `validate`, `rules`, `complete`. Counts are local to each phase, not one global percentage. A phase may be skipped for empty input or structural errors. Parsing, built-in table validation and table-rule callbacks are synchronous work between cancellation checks. Use a Worker for long browser tasks. Do not mutate the table, schema or options while a task is running. Errors/cancellation return no partial result; exceptions in progress callbacks propagate.
+Progress phases are `map`, `clean`, `validate`, `rules`, `batch-rules`, `complete`. Counts are local to each phase, not one global percentage. A phase may be skipped for empty input or structural errors. Parsing, built-in table validation and table-rule callbacks are synchronous work between cancellation checks. Use a Worker for long browser tasks. Do not mutate the table, schema or options while a task is running. Errors/cancellation return no partial result; exceptions in progress callbacks propagate.
 
 ## Result and source positions
 

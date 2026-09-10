@@ -6,7 +6,7 @@ description: Find every SheetDelta API by task, with parameters and runnable exa
 
 # API reference
 
-**41 APIs, organized by task.** Open a function for its import, parameters, return value and runnable example. Search by function name with the search button in the header.
+**44 APIs, organized by task.** Open a function for its import, parameters, return value and runnable example. Search by function name with the search button in the header.
 
 [Start with the import workflow](../import-workflow) · [Choose an import entry](../imports) · [Browse all types](./types)
 
@@ -14,6 +14,9 @@ description: Find every SheetDelta API by task, with parameters and runnable exa
 
 | API | Use it to |
 | --- | --- |
+| <span id="serializeimporttemplate"></span>[serializeImportTemplate](./serialize-import-template) | Validate and serialize a version-1 JSON template; reject callbacks, unknown properties and oversized configuration. |
+| <span id="parseimporttemplate"></span>[parseImportTemplate](./parse-import-template) | Parse validated, portable import configuration. Unsupported versions and invalid fields fail explicitly. |
+| <span id="importwithtemplate"></span>[importWithTemplate](./import-with-template) | Apply saved fields and file layout with application-provided runtime rules, limits, progress and cancellation. |
 | <span id="importfile"></span>[importFile](./import-file) | Read an explicitly selected file format and run the import workflow. CSV accepts text/bytes; Excel accepts bytes and requires one selected sheet. |
 | <span id="prepareimport"></span>[prepareImport](./prepare-import) | Import an already parsed TableData. Returns original and processed rows, eligible rows, issues, audit and source locations. |
 | <span id="mapimportheaders"></span>[mapImportHeaders](./map-import-headers) | Resolve canonical keys/aliases or exact explicit source headers. Missing required columns and ambiguous/reused matches are returned as issues. |

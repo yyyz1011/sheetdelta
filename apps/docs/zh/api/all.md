@@ -6,7 +6,7 @@ description: 按任务查找 SheetDelta 全部 API、参数和可运行案例。
 
 # API 参考
 
-**41 个 API，按任务分类。** 点击函数查看导入方式、参数、返回值和可运行案例；也可使用顶栏搜索按函数名查找。
+**44 个 API，按任务分类。** 点击函数查看导入方式、参数、返回值和可运行案例；也可使用顶栏搜索按函数名查找。
 
 [从导入纠错流程开始](../import-workflow) · [选择按需导入入口](../imports) · [查看全部类型](./types)
 
@@ -14,6 +14,9 @@ description: 按任务查找 SheetDelta 全部 API、参数和可运行案例。
 
 | API | 用途 |
 | --- | --- |
+| <span id="serializeimporttemplate"></span>[serializeImportTemplate](./serialize-import-template) | 校验并序列化版本 1 的 JSON 模板；拒绝回调、未知属性及超限配置。 |
+| <span id="parseimporttemplate"></span>[parseImportTemplate](./parse-import-template) | 解析并校验可复用导入配置；不支持的版本和无效字段明确报错。 |
+| <span id="importwithtemplate"></span>[importWithTemplate](./import-with-template) | 应用已保存的字段和文件布局，业务回调、限制、进度和取消由应用运行时提供。 |
 | <span id="importfile"></span>[importFile](./import-file) | 按明确格式读取文件并执行导入；CSV 接受文本/字节，Excel 接受字节且需确定一个工作表。 |
 | <span id="prepareimport"></span>[prepareImport](./prepare-import) | 处理已解析的 TableData，返回原始/处理后/可提交数据、问题、审计和来源。 |
 | <span id="mapimportheaders"></span>[mapImportHeaders](./map-import-headers) | 解析标准字段/别名或显式源表头；缺列、歧义和重复映射以问题返回。 |

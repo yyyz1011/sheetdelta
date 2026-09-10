@@ -71,7 +71,7 @@ export interface CleanIssue {
     row: number;
     column: string;
     value: Cell;
-    code: 'conversion';
+    code: 'conversion' | 'dictionary';
 }
 ```
 
@@ -85,6 +85,7 @@ export interface CleanRule {
     case?: 'lower' | 'upper';
     emptyValue?: Cell;
     type?: 'string' | 'number' | 'boolean';
+    dictionary?: ValueDictionary;
 }
 ```
 
@@ -279,7 +280,7 @@ export interface DiffRow {
 `sheetdelta-core`, `sheetdelta-core/errors`
 
 ```ts
-export type ErrorCode = 'INVALID_OPTIONS' | 'INVALID_DATA' | 'INVALID_HEADER' | 'LIMIT_EXCEEDED' | 'INVALID_CSV' | 'INVALID_WORKBOOK' | 'SHEET_NOT_FOUND' | 'EMPTY_WORKBOOK' | 'MISSING_KEY' | 'DUPLICATE_KEY' | 'SCHEMA_MISMATCH' | 'MERGE_CONFLICT' | 'TABLE_VALIDATION' | 'FORMULA_REJECTED' | 'MERGED_CELLS' | 'CELL_ERROR' | 'ABORTED' | 'EXPORT_FAILED';
+export type ErrorCode = 'INVALID_OPTIONS' | 'INVALID_DATA' | 'INVALID_HEADER' | 'LIMIT_EXCEEDED' | 'INVALID_CSV' | 'INVALID_WORKBOOK' | 'SHEET_NOT_FOUND' | 'EMPTY_WORKBOOK' | 'MISSING_KEY' | 'DUPLICATE_KEY' | 'SCHEMA_MISMATCH' | 'MERGE_CONFLICT' | 'TABLE_VALIDATION' | 'FORMULA_REJECTED' | 'MERGED_CELLS' | 'CELL_ERROR' | 'ABORTED' | 'EXPORT_FAILED' | 'VALIDATION_TIMEOUT' | 'VALIDATION_FAILED';
 ```
 
 ## ErrorContext
@@ -430,6 +431,43 @@ export interface FormulaOptions {
 export type FormulaWorkbook = Record<string, Record<string, FormulaCell>>;
 ```
 
+## ImportBatchOptions
+
+`sheetdelta-core/import`
+
+```ts
+export interface ImportBatchOptions {
+    batchSize?: number;
+    concurrency?: number;
+    timeoutMs?: number;
+}
+```
+
+## ImportBatchRow
+
+`sheetdelta-core/import`
+
+```ts
+export interface ImportBatchRow {
+    readonly row: number;
+    readonly values: Readonly<Row>;
+}
+```
+
+## ImportBatchRule
+
+`sheetdelta-core/import`
+
+```ts
+export interface ImportBatchRule {
+    id: string;
+    /** Issues use global one-based data row numbers from the input items, not batch offsets. */
+    validate: (rows: readonly ImportBatchRow[], context: {
+        signal: AbortSignal;
+    }) => Promise<readonly Omit<ImportIssue, 'source' | 'ruleId'>[]>;
+}
+```
+
 ## ImportField
 
 `sheetdelta-core/import`
@@ -515,6 +553,7 @@ export interface ImportOptions {
     format?: 'table' | 'csv' | 'excel';
     signal?: AbortSignal;
     onProgress?: (event: ImportProgress) => void;
+    batchValidation?: ImportBatchOptions;
     batchSize?: number;
     maxRows?: number;
     maxCells?: number;
@@ -528,7 +567,7 @@ export interface ImportOptions {
 
 ```ts
 export interface ImportProgress {
-    phase: 'map' | 'clean' | 'validate' | 'rules' | 'complete';
+    phase: 'map' | 'clean' | 'validate' | 'rules' | 'batch-rules' | 'complete';
     processed: number;
     total: number;
 }
@@ -574,6 +613,27 @@ export interface ImportSchema {
     allowUnknownColumns?: boolean;
     rowRules?: readonly RowRule[];
     tableRules?: readonly TableRule[];
+    batchRules?: readonly ImportBatchRule[];
+}
+```
+
+## ImportTemplate
+
+`sheetdelta-core/import`
+
+```ts
+export interface ImportTemplate {
+    version: 1;
+    id: string;
+    revision: number;
+    format: 'csv' | 'excel';
+    headerRow?: number;
+    sheet?: string;
+    delimiter?: string;
+    encoding?: string;
+    values?: 'display' | 'raw';
+    fields: readonly ImportField[];
+    allowUnknownColumns?: boolean;
 }
 ```
 
@@ -724,6 +784,18 @@ export interface TableRule {
 export type TableSchema = Record<string, ColumnRule>;
 ```
 
+## TemplateImportOptions
+
+`sheetdelta-core/import`
+
+```ts
+export interface TemplateImportOptions extends Omit<ImportOptions, 'format'> {
+    rowRules?: ImportSchema['rowRules'];
+    tableRules?: ImportSchema['tableRules'];
+    batchRules?: ImportSchema['batchRules'];
+}
+```
+
 ## ValidationIssue
 
 `sheetdelta-core/validate`
@@ -748,6 +820,21 @@ export interface ValidationResult {
     issues: ValidationIssue[];
     validRows: number[];
     invalidRows: number[];
+}
+```
+
+## ValueDictionary
+
+`sheetdelta-core/clean`
+
+```ts
+export interface ValueDictionary {
+    /** Type-sensitive literal mappings; duplicate inputs are rejected. */
+    entries: readonly {
+        from: Exclude<Cell, undefined>;
+        to: Exclude<Cell, undefined>;
+    }[];
+    unknown?: 'error' | 'keep';
 }
 ```
 

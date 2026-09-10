@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import ts from 'typescript';
 mkdirSync('artifacts', { recursive: true });
-for (const locale of ['', 'zh/']) for (const page of ['import-workflow', 'workflow', 'async', 'errors', 'formulas', 'workbooks', 'streaming']) {
+for (const locale of ['', 'zh/']) for (const page of ['reusable-imports', 'import-workflow', 'workflow', 'async', 'errors', 'formulas', 'workbooks', 'streaming']) {
   const markdown = readFileSync(`apps/docs/${locale}${page}.md`, 'utf8');
   const code = markdown.match(/```ts\n([\s\S]*?)```/)?.[1];
   assert.ok(code);
@@ -12,6 +12,7 @@ for (const locale of ['', 'zh/']) for (const page of ['import-workflow', 'workfl
   try {
     writeFileSync(file, js);
     const output = execFileSync(process.execPath, [file], { encoding: 'utf8' });
+    if (page === 'reusable-imports') assert.match(output, /partial 1[\s\S]*true/);
     if (page === 'import-workflow') assert.match(output, /invalid 0[\s\S]*2[\s\S]*true/);
     if (page === 'workflow') assert.match(output, /^1 \d+/);
     if (page === 'async') assert.match(output, /complete[\s\S]*1/);

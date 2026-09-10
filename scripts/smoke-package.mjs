@@ -20,7 +20,7 @@ try {
     import { cleanTable, deduplicateTable } from 'sheetdelta-core/clean';
     import { validateTable } from 'sheetdelta-core/validate';
     import { mergeTables, appendTables } from 'sheetdelta-core/merge';
-    import { importFile, mapImportHeaders, prepareImport, locateImportCell } from 'sheetdelta-core/import';
+    import { importFile, mapImportHeaders, prepareImport, locateImportCell, importWithTemplate, serializeImportTemplate, parseImportTemplate } from 'sheetdelta-core/import';
     import { exportImportReport } from 'sheetdelta-core/import-report';
     import { calculateWorkbook } from 'sheetdelta-core/formula';
     import { patchWorkbook, recalculateExcel } from 'sheetdelta-core/workbook';
@@ -28,6 +28,9 @@ try {
     import { writeExcelStream } from 'sheetdelta-core/excel-stream';
     import { readExcelStream } from 'sheetdelta-core/excel-node';
     import { writeFileSync } from 'node:fs';
+    const savedTemplate = parseImportTemplate(serializeImportTemplate({version:1,id:'supplier',revision:1,format:'csv',fields:[{key:'id'},{key:'active',clean:{dictionary:{entries:[{from:'Yes',to:true}]}}}]}));
+    const reused = await importWithTemplate('id,active\\n001,Yes',savedTemplate,{batchRules:[{id:'known',validate:async items=>items.filter(item=>item.values.id!=='001').map(item=>({row:item.row,code:'unknown',message:'Unknown',severity:'error'}))}]});
+    assert.deepEqual(reused.rows,[{id:'001',active:true}]);
     const importSchema = {fields:[{key:'id',requiredColumn:true},{key:'qty',clean:{type:'number'},rule:{min:0}}]};
     const importResult = await importFile('id,qty\\n001,-2', importSchema, {format:'csv'});
     assert.equal(importResult.status,'invalid');
@@ -72,6 +75,10 @@ try {
   process.stdout.write(execFileSync(process.execPath, ['smoke.mjs'], { cwd, encoding: 'utf8' }));
   const types = `
     import { compareTables, type CompareOptions } from 'sheetdelta-core';
+    import { importWithTemplate, type ImportTemplate, type ImportBatchRule } from 'sheetdelta-core/import';
+    const template: ImportTemplate = {version:1,id:'sample',revision:1,format:'csv',fields:[{key:'id'}]};
+    const batchRule: ImportBatchRule = {id:'check',validate:async (items,{signal})=> signal.aborted ? [] : items.filter(item=>!item.values.id).map(item=>({row:item.row,code:'missing',message:'Missing',severity:'error'}))};
+    void importWithTemplate('id', template, {batchRules:[batchRule]});
     import type { CompareInputOptions, TableData, DiffResult } from 'sheetdelta-core/types';
     import { readExcel, writeExcel } from 'sheetdelta-core/excel';
     import { readCsv } from 'sheetdelta-core/csv';

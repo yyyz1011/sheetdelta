@@ -51,6 +51,9 @@ console.log(result.status, result.rows.length); // invalid 0
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../import-workflow)
+- [serializeImportTemplate](./serialize-import-template)
+- [parseImportTemplate](./parse-import-template)
+- [importWithTemplate](./import-with-template)
 - [prepareImport](./prepare-import)
 - [mapImportHeaders](./map-import-headers)
 - [locateImportCell](./locate-import-cell)
