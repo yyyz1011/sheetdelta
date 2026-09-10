@@ -26,6 +26,10 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 
 [导入教程](https://sheetdelta.nimokit.com/docs/zh/import-workflow.html) · [完整 API 和可运行案例](https://sheetdelta.nimokit.com/docs/zh/api/all.html) · [类型参考](https://sheetdelta.nimokit.com/docs/zh/api/types.html)
 
+## 可复用业务导入
+
+支持版本化 JSON 导入模板、业务字典转换、异步批量校验（批量大小、并发、超时、取消）。仍通过 `sheetdelta-core/import` 和 `/clean` 按需使用；模板不保存回调或凭据。参见[完整用法和案例](https://sheetdelta.nimokit.com/docs/zh/reusable-imports.html)。
+
 ## 工作簿与流式处理
 
 - **公式计算**：跨表引用、依赖重算、条件和聚合函数，以及精确 VLOOKUP/XLOOKUP/INDEX/MATCH；不支持的公式返回明确错误。

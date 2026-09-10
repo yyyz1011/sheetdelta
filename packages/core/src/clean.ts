@@ -2,13 +2,32 @@ import { assertRows } from './table.js';
 import { SheetDeltaError, assertRecord } from './errors.js';
 import type { Cell, Row } from './types.js';
 import { keyOf, assertKeys } from './table.js';
-export interface CleanRule { trim?: boolean; case?: 'lower' | 'upper'; emptyValue?: Cell; type?: 'string' | 'number' | 'boolean' }
+export interface ValueDictionary {
+  /** Type-sensitive literal mappings; duplicate inputs are rejected. */
+  entries: readonly { from: Exclude<Cell, undefined>; to: Exclude<Cell, undefined> }[];
+  unknown?: 'error' | 'keep';
+}
+export interface CleanRule { trim?: boolean; case?: 'lower' | 'upper'; emptyValue?: Cell; type?: 'string' | 'number' | 'boolean'; dictionary?: ValueDictionary }
 export interface CleanChange { row: number; column: string; before: Cell; after: Cell }
-export interface CleanIssue { row: number; column: string; value: Cell; code: 'conversion' }
+export interface CleanIssue { row: number; column: string; value: Cell; code: 'conversion' | 'dictionary' }
 export function cleanTable(rows: readonly Row[], rules: Record<string, CleanRule>): { rows: Row[]; changes: CleanChange[]; issues: CleanIssue[] } {
   assertRows(rows); assertRecord(rules, 'rules');
+  const dictionaries = new Map<CleanRule, Map<Cell, Cell>>();
   for (const rule of Object.values(rules)) {
     assertRecord(rule, 'rule');
+    if (rule.dictionary !== undefined) {
+      assertRecord(rule.dictionary, 'dictionary');
+      const { entries, unknown } = rule.dictionary;
+      if (!Array.isArray(entries) || (unknown !== undefined && unknown !== 'error' && unknown !== 'keep')) throw new SheetDeltaError('INVALID_OPTIONS', 'Invalid dictionary entries or unknown policy.');
+      const lookup = new Map<Cell, Cell>();
+      for (const entry of entries) {
+        assertRecord(entry, 'dictionary entry');
+        for (const value of [entry.from, entry.to]) if (value !== null && !['string', 'number', 'boolean'].includes(typeof value) || typeof value === 'number' && !Number.isFinite(value)) throw new SheetDeltaError('INVALID_OPTIONS', 'Dictionary values must be finite JSON primitives.');
+        if (lookup.has(entry.from)) throw new SheetDeltaError('INVALID_OPTIONS', 'Duplicate dictionary input.');
+        lookup.set(entry.from, entry.to);
+      }
+      dictionaries.set(rule, lookup);
+    }
     if (rule.type && !['string', 'number', 'boolean'].includes(rule.type)) throw new SheetDeltaError('INVALID_OPTIONS', 'Invalid conversion type.');
     if (rule.case && !['lower', 'upper'].includes(rule.case)) throw new SheetDeltaError('INVALID_OPTIONS', 'Invalid case rule.');
   }
@@ -24,6 +43,11 @@ export function cleanTable(rows: readonly Row[], rules: Record<string, CleanRule
         if (rule.case === 'upper') value = value.toLocaleUpperCase('en-US');
       }
       if ((value == null || value === '') && Object.hasOwn(rule, 'emptyValue')) value = rule.emptyValue;
+      const dictionary = dictionaries.get(rule);
+      if (dictionary) {
+        if (dictionary.has(value)) value = dictionary.get(value);
+        else if (rule.dictionary!.unknown !== 'keep') { issues.push({ row: index + 1, column, value: before, code: 'dictionary' }); continue; }
+      }
       if (value != null && value !== '' && rule.type) {
         if (rule.type === 'string') value = String(value);
         if (rule.type === 'number') {

@@ -1,3 +1,5 @@
+import { runBatchRules, batchOptions, type ImportBatchRule, type ImportBatchOptions } from './import-batch.js';
+export type { ImportBatchRule, ImportBatchRow, ImportBatchOptions } from './import-batch.js';
 import type { Cell, Row, TableData } from './types.js';
 import type { CleanRule, CleanChange } from './clean.js';
 import { cleanTable } from './clean.js';
@@ -40,11 +42,13 @@ export interface ImportSchema {
   allowUnknownColumns?: boolean;
   rowRules?: readonly RowRule[];
   tableRules?: readonly TableRule[];
+  batchRules?: readonly ImportBatchRule[];
 }
-export interface ImportProgress { phase: 'map' | 'clean' | 'validate' | 'rules' | 'complete'; processed: number; total: number }
+export interface ImportProgress { phase: 'map' | 'clean' | 'validate' | 'rules' | 'batch-rules' | 'complete'; processed: number; total: number }
 export interface ImportOptions {
   mode?: 'strict' | 'valid-rows'; fileName?: string; format?: 'table' | 'csv' | 'excel';
   signal?: AbortSignal; onProgress?: (event: ImportProgress) => void;
+  batchValidation?: ImportBatchOptions;
   batchSize?: number; maxRows?: number; maxCells?: number; maxIssues?: number;
 }
 export interface ImportResult {
@@ -118,6 +122,7 @@ export async function prepareImport(table: TableData, schema: ImportSchema, opti
   if (options.onProgress !== undefined && typeof options.onProgress !== 'function') fail('INVALID_OPTIONS', 'onProgress must be callable.');
   const aborted = () => { if (options.signal?.aborted) fail('ABORTED', 'Import cancelled.'); };
   const progress = (phase: ImportProgress['phase'], processed: number) => { aborted(); options.onProgress?.({ phase, processed, total: table.rows.length }); aborted(); };
+  batchOptions(options.batchValidation);
   progress('map', 0);
   const mapped = mapImportHeaders(table.headers, schema.fields, { allowUnknownColumns: schema.allowUnknownColumns });
   if (table.rows.length > limits.maxRows || (table.rows.length + 1) * Math.max(table.headers.length, schema.fields.length) > limits.maxCells) fail('LIMIT_EXCEEDED', 'Import row/cell budget exceeded.');
@@ -128,9 +133,9 @@ export async function prepareImport(table: TableData, schema: ImportSchema, opti
     if (value != null && !['string', 'boolean', 'number'].includes(typeof value) || typeof value === 'number' && !Number.isFinite(value)) fail('INVALID_DATA', 'Import cells must be finite primitive values.', { column: key });
   }
   const ids = new Set<string>();
-  for (const group of [schema.rowRules ?? [], schema.tableRules ?? []]) {
+  for (const group of [schema.rowRules ?? [], schema.tableRules ?? [], schema.batchRules ?? []]) {
     if (!Array.isArray(group)) fail('INVALID_OPTIONS', 'Custom rules must be arrays.');
-    for (const rule of group) { assertRecord(rule, 'custom rule'); if (typeof rule.id !== 'string' || !rule.id.trim() || ids.has(rule.id) || typeof rule.validate !== 'function') fail('INVALID_OPTIONS', 'Custom rules need unique IDs and synchronous validate functions.'); ids.add(rule.id); }
+    for (const rule of group) { assertRecord(rule, 'custom rule'); if (typeof rule.id !== 'string' || !rule.id.trim() || ids.has(rule.id) || typeof rule.validate !== 'function') fail('INVALID_OPTIONS', 'Custom rules need unique IDs and validate functions.'); ids.add(rule.id); }
   }
   const cleanRules = Object.fromEntries(schema.fields.filter(f => f.clean !== undefined).map(f => [f.key, f.clean!]));
   const rules = Object.fromEntries(schema.fields.filter(f => f.rule !== undefined).map(f => [f.key, f.rule!]));
@@ -152,7 +157,7 @@ export async function prepareImport(table: TableData, schema: ImportSchema, opti
       const batch = original.rows.slice(start, start + limits.batchSize).map(row => Object.fromEntries(mapped.mappings.map(m => [m.field, m.column === undefined ? null : Object.hasOwn(row, m.column) ? row[m.column] : null])));
       const cleaned = cleanTable(batch, cleanRules); for (const row of cleaned.rows) result.processedRows.push(row);
       for (const change of cleaned.changes) { const row = start + change.row; result.changes.push({ ...change, row, source: locateImportCell(result, row, change.column) }); }
-      for (const issue of cleaned.issues) add({ code: issue.code, row: start + issue.row, column: issue.column, severity: 'error', message: `Cannot convert ${issue.column}.` });
+      for (const issue of cleaned.issues) add({ code: issue.code, row: start + issue.row, column: issue.column, severity: 'error', message: issue.code === 'dictionary' ? `Unknown dictionary value for ${issue.column}.` : `Cannot convert ${issue.column}.` });
       progress('clean', result.processedRows.length);
       await new Promise<void>(resolve => setTimeout(resolve, 0)); aborted();
     }
@@ -179,6 +184,7 @@ export async function prepareImport(table: TableData, schema: ImportSchema, opti
       if ((i + 1) % limits.batchSize === 0) { progress('rules', i + 1); await new Promise<void>(resolve => setTimeout(resolve, 0)); aborted(); }
     }
     for (const rule of schema.tableRules ?? []) { aborted(); acceptCustom(rule.validate(snapshot), rule.id); }
+    await runBatchRules(snapshot, schema.batchRules ?? [], options.batchValidation, options.signal, limits.maxIssues, acceptCustom, processed => progress('batch-rules', processed));
   }
   const errors = result.issues.filter(i => i.severity === 'error');
   const global = !mapped.valid || errors.some(i => i.row === undefined);
@@ -209,3 +215,6 @@ export async function importFile(input: string | ArrayBuffer | Uint8Array, schem
   } else fail('INVALID_OPTIONS', 'Choose format csv or excel.');
   return prepareImport(table, schema, options);
 }
+
+export { serializeImportTemplate, parseImportTemplate, importWithTemplate } from './import-template.js';
+export type { ImportTemplate, TemplateImportOptions } from './import-template.js';

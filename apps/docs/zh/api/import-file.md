@@ -51,6 +51,9 @@ console.log(result.status, result.rows.length); // invalid 0
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../import-workflow)
+- [serializeImportTemplate](./serialize-import-template)
+- [parseImportTemplate](./parse-import-template)
+- [importWithTemplate](./import-with-template)
 - [prepareImport](./prepare-import)
 - [mapImportHeaders](./map-import-headers)
 - [locateImportCell](./locate-import-cell)

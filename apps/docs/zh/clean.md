@@ -15,7 +15,7 @@ const cleaned = cleanTable([{ id: '001', price: ' 12.50 ', active: 'false' }], {
 // cleaned.issues: []
 ```
 
-支持 `trim`、`case: 'lower' | 'upper'`、`emptyValue`、`type: 'string' | 'number' | 'boolean'`。顺序为去空格 → 大小写 → 空值替换 → 类型转换。仅处理已配置且实际存在的自有字段；未配置的编号仍是文本。未设置替换时，空值不会变成零。
+支持 `trim`、`case: 'lower' | 'upper'`、`emptyValue`、`type: 'string' | 'number' | 'boolean'`。顺序为去空格 → 大小写 → 空值替换 → 字典 → 类型转换。仅处理已配置且实际存在的自有字段；未配置的编号仍是文本。未设置替换时，空值不会变成零。
 
 数字转换接受有限的普通数字文本，不接受货币符号或千分位；拒绝不安全整数。小数使用 JavaScript IEEE 754，并非精确十进制运算。布尔转换只接受布尔值或精确的 `'true'`、`'false'` 字符串。
 
@@ -33,3 +33,6 @@ const result = deduplicateTable([{ id: 'a', n: 1 }, { id: 'a', n: 2 }], {
 `keys` 是非空列名列表，支持联合主键。`keep` 默认 `'first'`，可显式选择 `'last'`。结果按保留记录的原始位置排序。缺失或空主键会报错。主键区分类型，数字 `1` 与字符串 `'1'` 不同；需要统一时先显式清洗。
 
 所有变更、问题、删除位置和重复组的行号均从 1 开始。只有显式调用此函数才会去重；比较不会偷偷删除重复记录。
+
+
+`dictionary` 支持标签到业务值的明确映射，未知值返回 `dictionary` 问题。参见[字典案例与执行顺序](./reusable-imports#字典转换)。

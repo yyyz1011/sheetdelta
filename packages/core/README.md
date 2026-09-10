@@ -24,7 +24,9 @@ console.log(result.summary.changed); // 1
 
 ## Import and repair
 
-Header aliases and explicit mapping, required-column checks, row/table business rules, strict or valid-row output, source tracing, and highlighted error workbooks.
+Header aliases and explicit mapping, required-column checks, row/table business rules, strict or valid-row output, source tracing, and highlighted error workbooks. Save versioned JSON import templates, map business dictionaries, and run asynchronous batch validators with bounded concurrency, timeouts and cancellation.
+
+[Reusable import tutorial](https://sheetdelta.nimokit.com/docs/reusable-imports.html)
 
 [Import tutorial](https://sheetdelta.nimokit.com/docs/import-workflow.html) · [Every API with executable examples](https://sheetdelta.nimokit.com/docs/api/all.html) · [Type reference](https://sheetdelta.nimokit.com/docs/api/types.html)
 

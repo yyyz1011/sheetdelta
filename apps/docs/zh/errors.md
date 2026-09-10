@@ -29,6 +29,8 @@ try {
 | `SCHEMA_MISMATCH`, `MERGE_CONFLICT` | 修正追加表结构，或指定合并冲突策略 |
 | `FORMULA_REJECTED`, `MERGED_CELLS`, `CELL_ERROR` | Excel 导入策略拒绝了某个单元格 |
 | `ABORTED` | 调用方取消了比较 |
+| `VALIDATION_TIMEOUT` | 批量校验回调超时 |
+| `VALIDATION_FAILED` | 批量校验抛错或拒绝；检查 cause 和 context.operation |
 | `EXPORT_FAILED` | 无法构建生成的报告 |
 
 上下文随操作而不同，可能包含 `operation`、`sheet`、`row`、`column`、`cell`、`side`、`limit`、`actual`、`option`。CSV 行表示逻辑记录，工作表行表示从 1 开始的物理行，比较与合并的行表示从 1 开始的输入数据位置。并非每个错误都包含所有字段。

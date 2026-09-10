@@ -56,3 +56,8 @@ Calculation supports the documented subset and reports unsupported formulas expl
 ## 0.5 imports and documentation
 
 New `/import` and `/import-report` entries preserve existing root imports and comparison defaults. `validateTable` adds an optional issue budget. XLSX reading now defaults to a 200 MiB decompression budget and 10,000 entries; adjust explicitly for larger trusted workloads, while invalid packages remain rejected. See [import workflows](./import-workflow) and [all API examples](./api/all).
+
+
+## Reusable imports (0.6)
+
+Adds optional dictionaries, JSON templates and asynchronous batch rules. Existing calls retain their behavior. `CleanIssue.code` adds `dictionary`; `ErrorCode` adds `VALIDATION_TIMEOUT` and `VALIDATION_FAILED`; progress adds `batch-rules`. Update exhaustive switches if used. See [usage and limits](./reusable-imports).

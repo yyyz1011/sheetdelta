@@ -29,6 +29,8 @@ try {
 | `SCHEMA_MISMATCH`, `MERGE_CONFLICT` | Fix append schema or choose a merge conflict policy |
 | `FORMULA_REJECTED`, `MERGED_CELLS`, `CELL_ERROR` | An Excel import policy rejected a cell |
 | `ABORTED` | The caller cancelled comparison |
+| `VALIDATION_TIMEOUT` | A batch validator exceeded its per-callback deadline |
+| `VALIDATION_FAILED` | A batch validator threw/rejected; inspect cause and context.operation |
 | `EXPORT_FAILED` | Generated report could not be constructed |
 
 Context is operation-specific and may contain `operation`, `sheet`, `row`, `column`, `cell`, `side`, `limit`, `actual` or `option`. CSV rows mean logical records; worksheet rows are physical one-based rows; comparison/merge rows are one-based input data positions. Not every failure has every field.

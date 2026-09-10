@@ -54,6 +54,9 @@ console.log(source.sourceRow, source.sourceColumn); // 2 qty
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../import-workflow)
+- [serializeImportTemplate](./serialize-import-template)
+- [parseImportTemplate](./parse-import-template)
+- [importWithTemplate](./import-with-template)
 - [importFile](./import-file)
 - [prepareImport](./prepare-import)
 - [mapImportHeaders](./map-import-headers)

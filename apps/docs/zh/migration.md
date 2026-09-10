@@ -56,3 +56,8 @@ const options: CompareInputOptions = { keys: ['id'], ignoreColumns: ['updatedAt'
 ## 0.5 导入与文档
 
 新增 `/import`、`/import-report`，旧入口与比较默认行为保留。`validateTable` 增加可选问题数量预算。XLSX 读取新增默认 200 MiB 解压预算和 10,000 条目上限；超过时须显式调整，但非法 ZIP 包仍拒绝。[导入流程](./import-workflow)与[完整 API 案例](./api/all)列明参数、结果和限制。
+
+
+## 可复用导入（0.6）
+
+新增可选字典、JSON 模板和异步批量规则，原有调用行为保留。`CleanIssue.code` 新增 `dictionary`；`ErrorCode` 新增 `VALIDATION_TIMEOUT`、`VALIDATION_FAILED`；进度新增 `batch-rules`。如有穷尽 switch 检查需相应更新。参见[用法与边界](./reusable-imports)。
