@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+const releases = JSON.parse(readFileSync(new URL('../../../scripts/releases.json', import.meta.url), 'utf8'));
 import { defineConfig } from 'vitepress';
 import { apiSidebar } from '../../../scripts/api-navigation.mjs';
 const origin = 'https://sheetdelta.nimokit.com';
@@ -34,6 +36,10 @@ const sidebar = (zh = false) => {
       { text: zh ? '兼容性与性能' : 'Compatibility & performance', link: p + 'compatibility' },
       { text: zh ? '升级与兼容' : 'Migration & compatibility', link: p + 'migration' },
     ] },
+    { text: zh ? '更新日志' : 'Changelog', collapsed: true, items: [
+      { text: zh ? '全部版本' : 'All versions', link: p + 'changelog/' },
+      ...releases.map(r => ({ text: 'v' + r.version, link: p + 'changelog/v' + r.version })),
+    ] },
     { text: zh ? '核心概念与帮助' : 'Concepts & help', collapsed: true, items: [
       { text: zh ? '键与字段映射' : 'Keys & column mapping', link: p + 'mapping' },
       { text: zh ? '比较规则' : 'Comparison rules', link: p + 'comparison' },
@@ -50,8 +56,8 @@ export default defineConfig({
   head: [['link', { rel: 'icon', href: '/docs/logo.svg' }], ['meta', { name: 'theme-color', content: '#ffffff' }]],
   sitemap: { hostname: origin + '/docs/' },
   locales: {
-    root: { label: 'English', lang: 'en-US', themeConfig: { sidebar: sidebar(), nav: [{ text: 'Documentation', link: '/' }, { text: 'API', link: '/api/all' }, { text: 'npm', link: 'https://www.npmjs.com/package/sheetdelta-core' }], outline: { label: 'On this page', level: [2, 3] } } },
-    zh: { label: '简体中文', lang: 'zh-CN', description: '读取、清洗、校验、比较、合并和导出 Excel 与 CSV 数据。SheetDelta 中文文档。', themeConfig: { sidebar: sidebar(true), nav: [{ text: '文档', link: '/zh/' }, { text: 'API', link: '/zh/api/all' }, { text: 'npm', link: 'https://www.npmjs.com/package/sheetdelta-core' }], outline: { label: '本页内容', level: [2, 3] }, docFooter: { prev: '上一页', next: '下一页' }, sidebarMenuLabel: '菜单', returnToTopLabel: '返回顶部', darkModeSwitchLabel: '主题', lightModeSwitchTitle: '切换到浅色模式', darkModeSwitchTitle: '切换到深色模式', langMenuLabel: '切换语言', editLink: { pattern: repo + '/edit/master/apps/docs/:path', text: '在 GitHub 上编辑此页' } } },
+    root: { label: 'English', lang: 'en-US', themeConfig: { sidebar: sidebar(), nav: [{ text: 'Documentation', link: '/' }, { text: 'API', link: '/api/all' }, { text: 'Changelog', link: '/changelog/' }, { text: 'npm', link: 'https://www.npmjs.com/package/sheetdelta-core' }], outline: { label: 'On this page', level: [2, 3] } } },
+    zh: { label: '简体中文', lang: 'zh-CN', description: '读取、清洗、校验、比较、合并和导出 Excel 与 CSV 数据。SheetDelta 中文文档。', themeConfig: { sidebar: sidebar(true), nav: [{ text: '文档', link: '/zh/' }, { text: 'API', link: '/zh/api/all' }, { text: '更新日志', link: '/zh/changelog/' }, { text: 'npm', link: 'https://www.npmjs.com/package/sheetdelta-core' }], outline: { label: '本页内容', level: [2, 3] }, docFooter: { prev: '上一页', next: '下一页' }, sidebarMenuLabel: '菜单', returnToTopLabel: '返回顶部', darkModeSwitchLabel: '主题', lightModeSwitchTitle: '切换到浅色模式', darkModeSwitchTitle: '切换到深色模式', langMenuLabel: '切换语言', editLink: { pattern: repo + '/edit/master/apps/docs/:path', text: '在 GitHub 上编辑此页' } } },
   },
   themeConfig: {
     logo: '/logo.svg', siteTitle: 'SheetDelta', externalLinkIcon: true,

@@ -1,0 +1,92 @@
+[
+  {
+    "version": "0.7.0",
+    "date": "2026-09-11",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.7.0",
+    "en": "Worker imports and framework examples",
+    "zh": "Worker 导入与框架示例",
+    "summaryEn": "Dedicated worker imports with cancellation, deadlines and optional repair reports. Added React and Vue examples.",
+    "summaryZh": "独立线程导入支持取消、超时和纠错报告，新增 React/Vue 接入示例。",
+    "guide": "worker-imports"
+  },
+  {
+    "version": "0.6.0",
+    "date": "2026-09-10",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.6.0",
+    "en": "Reusable business imports",
+    "zh": "可复用业务导入",
+    "summaryEn": "Portable import templates, dictionary cleaning and batch validation. Pages content deployment no longer waits for HTTPS certificate issuance.",
+    "summaryZh": "新增可复用导入模板、字典清洗和批量校验。Pages 内容部署不再等待 HTTPS 证书签发。",
+    "guide": "reusable-imports"
+  },
+  {
+    "version": "0.5.0",
+    "date": "2026-09-09",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.5.0",
+    "en": "Import, validate and repair",
+    "zh": "导入、校验与修复",
+    "summaryEn": "Validated file-import workflows and complete API examples.",
+    "summaryZh": "新增带校验的文件导入流程及完整 API 使用案例。",
+    "guide": "import-workflow"
+  },
+  {
+    "version": "0.4.0",
+    "date": "2026-09-09",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.4.0",
+    "en": "Streaming, formulas and templates",
+    "zh": "流式处理、公式与模板",
+    "summaryEn": "Streaming workbook operations, formula calculation and template editing.",
+    "summaryZh": "新增工作簿流式处理、公式计算和模板编辑。",
+    "guide": "streaming"
+  },
+  {
+    "version": "0.3.0",
+    "date": "2026-09-09",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.3.0",
+    "en": "Cancellation and explicit import policies",
+    "zh": "取消与明确导入策略",
+    "summaryEn": "Cancellable comparison and explicit Excel import policies.",
+    "summaryZh": "新增可取消比较和明确的 Excel 导入策略。",
+    "guide": "async"
+  },
+  {
+    "version": "0.2.0",
+    "date": "2026-09-08",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.2.0",
+    "en": "Modular Excel and CSV toolkit",
+    "zh": "模块化 Excel/CSV 工具集",
+    "summaryEn": "Modular Excel and CSV data APIs. Documentation language and theme controls moved to the top navigation.",
+    "summaryZh": "新增模块化 Excel/CSV 数据接口，文档语言和主题切换移至顶部导航。",
+    "guide": "imports"
+  },
+  {
+    "version": "0.1.2",
+    "date": "2026-09-08",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.1.2",
+    "en": "Bilingual documentation links",
+    "zh": "双语文档链接",
+    "summaryEn": "Linked the npm package to the bilingual documentation site.",
+    "summaryZh": "为 npm 包补充中英文文档站链接。",
+    "guide": "quick-start"
+  },
+  {
+    "version": "0.1.1",
+    "date": "2026-09-08",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.1.1",
+    "en": "Package build fix",
+    "zh": "发布构建修复",
+    "summaryEn": "Build distribution files before packing the npm package.",
+    "summaryZh": "修复 npm 打包前未构建分发文件的问题。",
+    "guide": "quick-start"
+  },
+  {
+    "version": "0.1.0",
+    "date": "2026-09-08",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.1.0",
+    "en": "Initial release",
+    "zh": "首次发布",
+    "summaryEn": "Key-based table comparison, column mappings, composite keys, validation errors and CSV export.",
+    "summaryZh": "首次提供按键比较表格、列映射、复合键、校验错误和 CSV 导出。",
+    "guide": "comparison"
+  }
+]
