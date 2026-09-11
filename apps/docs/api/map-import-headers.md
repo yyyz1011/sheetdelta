@@ -51,6 +51,8 @@ console.log(result.mappings[0].column); // 商品编号
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../import-workflow)
+- [runImportWorker](./run-import-worker)
+- [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)
 - [parseImportTemplate](./parse-import-template)
 - [importWithTemplate](./import-with-template)

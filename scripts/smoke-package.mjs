@@ -107,7 +107,7 @@ try {
   assert.ok(excelBundle.outputFiles.length > 1, 'Excel dynamic dependency chunks');
   for (const output of Object.values(excelBundle.metafile.outputs)) assert.ok(!output.imports.some(i => i.external), 'No unresolvable browser externals');
   console.log('Browser Excel bundle with lazy chunks: PASS');
-  for (const entry of ['workbook', 'stream', 'excel-stream', 'import', 'import-report']) {
+  for (const entry of ['worker', 'workbook', 'stream', 'excel-stream', 'import', 'import-report']) {
     const output=await build({ stdin:{contents:`export * from 'sheetdelta-core/${entry}';`,resolveDir:cwd},bundle:true,splitting:true,minify:true,format:'esm',platform:'browser',outdir:join(cwd,'browser-'+entry),write:false,metafile:true });
     for(const file of Object.values(output.metafile.outputs)) assert.ok(!file.imports.some(i=>i.external), `${entry} has no unresolved browser imports`);
     console.log(`${entry} browser bundle: PASS`);

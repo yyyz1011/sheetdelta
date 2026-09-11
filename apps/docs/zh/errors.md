@@ -28,7 +28,9 @@ try {
 | `MISSING_KEY`, `DUPLICATE_KEY` | 合并、去重时的键问题，检查来源上下文 |
 | `SCHEMA_MISMATCH`, `MERGE_CONFLICT` | 修正追加表结构，或指定合并冲突策略 |
 | `FORMULA_REJECTED`, `MERGED_CELLS`, `CELL_ERROR` | Excel 导入策略拒绝了某个单元格 |
-| `ABORTED` | 调用方取消了比较 |
+| `WORKER_FAILED` | Worker 初始化、加载或通信失败 |
+| `WORKER_TIMEOUT` | 整个导入任务超过截止时间 |
+| `ABORTED` | 调用方取消了操作 |
 | `VALIDATION_TIMEOUT` | 批量校验回调超时 |
 | `VALIDATION_FAILED` | 批量校验抛错或拒绝；检查 cause 和 context.operation |
 | `EXPORT_FAILED` | 无法构建生成的报告 |

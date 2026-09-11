@@ -18,3 +18,5 @@ artifacts/
 .impeccable/
 
 apps/docs/.vitepress/cache/
+
+apps/docs/.vitepress/.temp/

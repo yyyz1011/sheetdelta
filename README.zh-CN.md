@@ -133,3 +133,7 @@ macOS 测试默认使用 Chrome。Linux 先运行 `npx playwright install --with
 ## 开源协议
 
 [MIT](LICENSE)。文件解析使用 Papa Parse 和官方 SheetJS 0.20.3 分发版本，文档使用 VitePress。
+
+## Worker 导入与框架示例
+
+通过 `sheetdelta-core/worker` 按需导入 `runImportWorker` 和 `installImportWorker`，在线程内处理 CSV/Excel 导入和纠错报告，支持取消及超时。React/Vue 不进入核心依赖。[接入指南及限制](https://sheetdelta.nimokit.com/docs/zh/worker-imports) · [在线示例](https://sheetdelta.nimokit.com/examples/)。

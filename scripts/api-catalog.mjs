@@ -4,6 +4,16 @@ const compare = `const before = [{id:'001', qty:1}];\nconst after = [{id:'001', 
 const file = `import { writeExcel } from 'sheetdelta-core/excel';\nconst bytes = await writeExcel([{name:'Data', rows:[{id:'001', qty:2}]}]);`;
 const imported = `import { importFile } from 'sheetdelta-core/import';\nconst schema = {fields:[{key:'id', requiredColumn:true}, {key:'qty', clean:{type:'number'}, rule:{min:0}}]};\nconst result = await importFile('id,qty\\n001,-2', schema, {format:'csv'});`;
 export const catalog = {
+  runImportWorker: spec('worker','worker-imports','Run a dedicated browser Worker with cancellation, deadline and optional repair workbook. See the guide for the module worker setup.','用独立浏览器 Worker 导入，支持取消、超时及纠错工作簿；模块 Worker 配置见指南。',`const controller = new AbortController();
+controller.abort();
+let code;
+try { await runImportWorker(() => { throw new Error('Must not start'); }, 'sku\\n001', {version:1,id:'supplier',revision:1,format:'csv',fields:[{key:'sku'}]}, {signal:controller.signal}); } catch(error) { code = error.code; }
+console.log(code); // ABORTED`,'assert.equal(code,"ABORTED")'),
+  installImportWorker: spec('worker','worker-imports','Install the import message handler in a dedicated module worker; register business callbacks there. Returns listener cleanup.','在独立模块 Worker 中安装导入处理器，业务回调在此注册，返回监听器清理函数。',`const listeners = new Set();
+const scope = {addEventListener:(_, fn)=>listeners.add(fn),removeEventListener:(_, fn)=>listeners.delete(fn),postMessage:()=>{}};
+const dispose = installImportWorker(scope);
+console.log(listeners.size); // 1
+dispose();`,'assert.equal(listeners.size,0)'),
   serializeImportTemplate: spec('import','reusable-imports','Validate and serialize a version-1 JSON template; reject callbacks, unknown properties and oversized configuration.','校验并序列化版本 1 的 JSON 模板；拒绝回调、未知属性及超限配置。',`const json = serializeImportTemplate({version:1,id:'supplier',revision:1,format:'csv',fields:[{key:'sku',requiredColumn:true}]});\nconsole.log(JSON.parse(json).id); // supplier`,'assert.equal(JSON.parse(json).id,"supplier")'),
   parseImportTemplate: spec('import','reusable-imports','Parse validated, portable import configuration. Unsupported versions and invalid fields fail explicitly.','解析并校验可复用导入配置；不支持的版本和无效字段明确报错。',`const template = parseImportTemplate('{"version":1,"id":"supplier","revision":1,"format":"csv","fields":[{"key":"sku"}]}');\nconsole.log(template.revision); // 1`,'assert.equal(template.revision,1)'),
   importWithTemplate: spec('import','reusable-imports','Apply saved fields and file layout with application-provided runtime rules, limits, progress and cancellation.','应用已保存的字段和文件布局，业务回调、限制、进度和取消由应用运行时提供。',`const result = await importWithTemplate('sku\\n001',{version:1,id:'supplier',revision:1,format:'csv',fields:[{key:'sku',requiredColumn:true}]});\nconsole.log(result.rows[0].sku); // 001`,'assert.equal(result.rows[0].sku,"001")'),

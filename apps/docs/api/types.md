@@ -280,7 +280,7 @@ export interface DiffRow {
 `sheetdelta-core`, `sheetdelta-core/errors`
 
 ```ts
-export type ErrorCode = 'INVALID_OPTIONS' | 'INVALID_DATA' | 'INVALID_HEADER' | 'LIMIT_EXCEEDED' | 'INVALID_CSV' | 'INVALID_WORKBOOK' | 'SHEET_NOT_FOUND' | 'EMPTY_WORKBOOK' | 'MISSING_KEY' | 'DUPLICATE_KEY' | 'SCHEMA_MISMATCH' | 'MERGE_CONFLICT' | 'TABLE_VALIDATION' | 'FORMULA_REJECTED' | 'MERGED_CELLS' | 'CELL_ERROR' | 'ABORTED' | 'EXPORT_FAILED' | 'VALIDATION_TIMEOUT' | 'VALIDATION_FAILED';
+export type ErrorCode = 'INVALID_OPTIONS' | 'INVALID_DATA' | 'INVALID_HEADER' | 'LIMIT_EXCEEDED' | 'INVALID_CSV' | 'INVALID_WORKBOOK' | 'SHEET_NOT_FOUND' | 'EMPTY_WORKBOOK' | 'MISSING_KEY' | 'DUPLICATE_KEY' | 'SCHEMA_MISMATCH' | 'MERGE_CONFLICT' | 'TABLE_VALIDATION' | 'FORMULA_REJECTED' | 'MERGED_CELLS' | 'CELL_ERROR' | 'ABORTED' | 'EXPORT_FAILED' | 'VALIDATION_TIMEOUT' | 'VALIDATION_FAILED' | 'WORKER_FAILED' | 'WORKER_TIMEOUT';
 ```
 
 ## ErrorContext
@@ -652,6 +652,18 @@ export interface ImportWarning {
 }
 ```
 
+## ImportWorkerScope
+
+`sheetdelta-core/worker`
+
+```ts
+export interface ImportWorkerScope {
+    addEventListener(type: "message", listener: (event: MessageEvent) => void): void;
+    removeEventListener(type: "message", listener: (event: MessageEvent) => void): void;
+    postMessage(message: unknown, transfer?: Transferable[]): void;
+}
+```
+
 ## MergeConflict
 
 `sheetdelta-core/merge`
@@ -847,6 +859,44 @@ export interface WorkbookOptions {
     maxBytes?: number;
     maxUncompressedBytes?: number;
     maxEntries?: number;
+}
+```
+
+## WorkerImportOptions
+
+`sheetdelta-core/worker`
+
+```ts
+export interface WorkerImportOptions extends Omit<TemplateImportOptions, "signal" | "onProgress" | "rowRules" | "tableRules" | "batchRules"> {
+    signal?: AbortSignal;
+    onProgress?: (progress: WorkerImportProgress) => void;
+    /** Whole task deadline, including Blob reading. Default: 120 seconds. */
+    timeoutMs?: number;
+    /** Include an editable original-data error report. Default: false. */
+    report?: boolean;
+}
+```
+
+## WorkerImportProgress
+
+`sheetdelta-core/worker`
+
+```ts
+export interface WorkerImportProgress {
+    phase: "read" | "parse" | "report" | ImportProgress["phase"];
+    processed: number;
+    total: number;
+}
+```
+
+## WorkerImportResult
+
+`sheetdelta-core/worker`
+
+```ts
+export interface WorkerImportResult {
+    result: ImportResult;
+    report?: Uint8Array;
 }
 ```
 

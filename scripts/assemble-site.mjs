@@ -2,6 +2,7 @@ import { cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist', { recursive: true });
 cpSync('apps/docs/.vitepress/dist', 'dist/docs', { recursive: true });
+cpSync('apps/import-examples/dist', 'dist/examples', { recursive: true });
 cpSync('apps/web/dist', 'dist/playground', { recursive: true });
 cpSync('dist/docs/404.html', 'dist/404.html');
 writeFileSync('dist/.nojekyll', '');

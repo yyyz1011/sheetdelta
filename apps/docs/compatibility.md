@@ -1,10 +1,18 @@
 # Compatibility & performance
 
+## Worker import evidence
+
+- 140 unit tests cover the current implementation, including worker lifecycle, input ownership, deadlines and worker-local rules.
+- Nine production-build React/Vue checks run across Chromium, Firefox and WebKit: import, report download, repaired Excel re-import, busy-worker cancellation and timeout. The existing 12 browser tests also pass.
+- The reference now covers 46 runtime APIs, 53 export bindings and 67 types, with 92 bilingual API example executions. Framework examples are type-checked with Vue/TypeScript before building.
+- This establishes functional behavior, not a browser-memory benchmark or support for every Excel feature.
+
+
 ## 0.6 reusable import evidence
 
 - The local suite passes 131 tests, including template validation, dictionary ambiguity, bounded concurrency, deterministic issue order, timeout, cancellation and sibling cleanup.
 - New template/dictionary/batch-rule flows pass in Chromium, Firefox and WebKit; 12 browser tests pass in total. These use local lookup callbacks, not certification of an external service.
-- The current reference covers 44 runtime APIs, 51 export bindings and 63 types; 88 bilingual API example executions are checked. Existing 0.5 evidence below describes that release.
+- The 0.6 reference covers 44 runtime APIs, 51 export bindings and 63 types; 88 bilingual API example executions are checked. Existing 0.5 evidence below describes that release.
 
 ## What is verified
 

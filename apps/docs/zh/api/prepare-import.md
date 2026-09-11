@@ -52,6 +52,8 @@ console.log(result.rows[0].qty); // 2
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../import-workflow)
+- [runImportWorker](./run-import-worker)
+- [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)
 - [parseImportTemplate](./parse-import-template)
 - [importWithTemplate](./import-with-template)

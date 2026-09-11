@@ -133,3 +133,7 @@ For documentation changes, update both the English page and its counterpart unde
 ## License
 
 [MIT](LICENSE). File parsing uses Papa Parse and the official SheetJS 0.20.3 distribution; documentation uses VitePress.
+
+## Worker imports and framework examples
+
+Import `runImportWorker` and `installImportWorker` from `sheetdelta-core/worker` for cancellable CSV/Excel imports and optional repair workbooks in a dedicated browser worker. React and Vue remain optional application dependencies. [Setup and limits](https://sheetdelta.nimokit.com/docs/worker-imports) · [Live React/Vue examples](https://sheetdelta.nimokit.com/examples/).

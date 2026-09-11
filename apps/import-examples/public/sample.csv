@@ -1,0 +1,4 @@
+sku,qty,active
+001,2,Yes
+002,-3,No
+003,4,Unknown

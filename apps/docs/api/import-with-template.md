@@ -51,6 +51,8 @@ console.log(result.rows[0].sku); // 001
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../reusable-imports)
+- [runImportWorker](./run-import-worker)
+- [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)
 - [parseImportTemplate](./parse-import-template)
 - [importFile](./import-file)

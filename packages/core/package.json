@@ -87,6 +87,11 @@
       "types": "./dist/import-report.d.ts",
       "import": "./dist/import-report.js",
       "default": "./dist/import-report.js"
+    },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "import": "./dist/worker.js",
+      "default": "./dist/worker.js"
     }
   },
   "files": [

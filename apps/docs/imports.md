@@ -46,4 +46,4 @@ The npm installation includes the complete package and its dependencies. Selecti
 
 The root entry stays lightweight and preserves previous imports. New features are deliberately accessed through subpaths. Internal file paths are not public APIs.
 
-[All 44 runtime APIs with executable examples](./api/all) · [Type reference](./api/types) · [Import and repair workflow](./import-workflow)
+[All 46 runtime APIs with executable examples](./api/all) · [Type reference](./api/types) · [Import and repair workflow](./import-workflow)
