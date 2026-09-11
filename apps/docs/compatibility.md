@@ -7,7 +7,7 @@
 - [Measured preparation improvements](./import-repair#performance-measurements) include raw samples and scope; they are not end-to-end file-processing or peak-memory claims.
 
 
-## Worker import evidence
+## 0.7 Worker import evidence
 
 - 140 unit tests cover the current implementation, including worker lifecycle, input ownership, deadlines and worker-local rules.
 - Nine production-build React/Vue checks run across Chromium, Firefox and WebKit: import, report download, repaired Excel re-import, busy-worker cancellation and timeout. The existing 12 browser tests also pass.
