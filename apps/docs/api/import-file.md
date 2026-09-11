@@ -51,6 +51,7 @@ console.log(result.status, result.rows.length); // invalid 0
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../import-workflow)
+- [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
 - [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)

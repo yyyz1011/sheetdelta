@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { WorkerImportResult } from "sheetdelta-core/worker";
-import { importSupplier, downloadReport } from "./shared";
+import { importSupplier, downloadReport, repairSupplier } from "./shared";
 export function ReactImport() {
   const [file, setFile] = useState<File>(),
     [format, setFormat] = useState<"csv" | "excel">("csv"),
@@ -8,6 +8,41 @@ export function ReactImport() {
   const [phase, setPhase] = useState("Choose a file"),
     [busy, setBusy] = useState(false),
     [result, setResult] = useState<WorkerImportResult>();
+  const [editRow, setEditRow] = useState(1),
+    [editColumn, setEditColumn] = useState("qty"),
+    [editValue, setEditValue] = useState("");
+  async function repair() {
+    if (!result) return;
+    const task = new AbortController();
+    controller.current = task;
+    setBusy(true);
+    try {
+      const next = await repairSupplier(
+        result,
+        editRow,
+        editColumn,
+        editValue,
+        task.signal,
+        (p) => {
+          if (controller.current === task) setPhase(p);
+        },
+      );
+      if (controller.current === task) {
+        setResult(next);
+        setPhase(
+          `${next.result.summary.accepted} accepted / ${next.result.summary.total} rows`,
+        );
+      }
+    } catch (error) {
+      if (controller.current === task)
+        setPhase(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (controller.current === task) {
+        setBusy(false);
+        controller.current = null;
+      }
+    }
+  }
   const controller = useRef<AbortController | null>(null);
   useEffect(
     () => () => {
@@ -108,6 +143,46 @@ export function ReactImport() {
             {result.result.summary.errors} errors ·{" "}
             {result.result.summary.warnings} warnings
           </p>
+          <fieldset disabled={busy}>
+            <legend>Repair a source cell</legend>
+            <p>
+              Data row counts from 1, excluding the header. Enter an exact
+              source column and a replacement value.
+            </p>
+            <label>
+              Data row
+              <input
+                type="number"
+                min="1"
+                max={result.result.original.rows.length}
+                value={editRow}
+                onChange={(e) => setEditRow(Number(e.target.value))}
+              />
+            </label>
+            <label>
+              Source column
+              <select
+                value={editColumn}
+                onChange={(e) => setEditColumn(e.target.value)}
+              >
+                {result.result.original.headers.map((h) => (
+                  <option key={h} value={h}>
+                    {h}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Replacement value
+              <input
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+              />
+            </label>
+            <button onClick={repair} disabled={busy}>
+              Apply and revalidate
+            </button>
+          </fieldset>
           <ul>
             {result.result.issues.slice(0, 20).map((issue, i) => (
               <li key={i}>

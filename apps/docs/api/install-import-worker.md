@@ -53,6 +53,7 @@ dispose();
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../worker-imports)
+- [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
 - [serializeImportTemplate](./serialize-import-template)
 - [parseImportTemplate](./parse-import-template)

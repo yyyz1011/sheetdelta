@@ -468,6 +468,20 @@ export interface ImportBatchRule {
 }
 ```
 
+## ImportCellEdit
+
+`sheetdelta-core/import`
+
+```ts
+export interface ImportCellEdit {
+    /** One-based original data-row index, not the worksheet row number. */
+    row: number;
+    /** Exact source header, not a canonical field alias. */
+    column: string;
+    value: Cell;
+}
+```
+
 ## ImportField
 
 `sheetdelta-core/import`

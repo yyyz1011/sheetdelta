@@ -55,6 +55,7 @@ console.log(code); // ABORTED
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../worker-imports)
+- [repairImport](./repair-import)
 - [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)
 - [parseImportTemplate](./parse-import-template)

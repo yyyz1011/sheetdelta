@@ -137,3 +137,7 @@ For documentation changes, update both the English page and its counterpart unde
 ## Worker imports and framework examples
 
 Import `runImportWorker` and `installImportWorker` from `sheetdelta-core/worker` for cancellable CSV/Excel imports and optional repair workbooks in a dedicated browser worker. React and Vue remain optional application dependencies. [Setup and limits](https://sheetdelta.nimokit.com/docs/worker-imports) · [Live React/Vue examples](https://sheetdelta.nimokit.com/examples/).
+
+## Repair imports and performance
+
+`repairImport` from `sheetdelta-core/import` applies source-cell edits without reparsing the file and reruns all validation. Try in-page correction in the React/Vue examples. [Usage and reproducible performance measurements](https://sheetdelta.nimokit.com/docs/import-repair). Run `npm run bench:import` in this repository for the parsed-table benchmark.

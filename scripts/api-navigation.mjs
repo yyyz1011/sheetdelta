@@ -1,6 +1,6 @@
 export const apiSlug = name => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 export const apiGroups = [
-  { id: 'import', en: 'Import & repair', zh: '导入与纠错', apis: ['runImportWorker', 'installImportWorker', 'serializeImportTemplate', 'parseImportTemplate', 'importWithTemplate', 'importFile', 'prepareImport', 'mapImportHeaders', 'locateImportCell', 'exportImportReport'] },
+  { id: 'import', en: 'Import & repair', zh: '导入与纠错', apis: ['repairImport', 'runImportWorker', 'installImportWorker', 'serializeImportTemplate', 'parseImportTemplate', 'importWithTemplate', 'importFile', 'prepareImport', 'mapImportHeaders', 'locateImportCell', 'exportImportReport'] },
   { id: 'excel', en: 'Excel files', zh: 'Excel 读写', apis: ['readExcel', 'writeExcel', 'exportDiffExcel'] },
   { id: 'csv', en: 'CSV files', zh: 'CSV 读写', apis: ['readCsv', 'readCsvBytes', 'writeCsv', 'exportDiffCsv'] },
   { id: 'compare', en: 'Compare & merge', zh: '比较与合并', apis: ['compareTables', 'compareTablesAsync', 'mergeTables', 'appendTables'] },
