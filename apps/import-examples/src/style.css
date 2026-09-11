@@ -1,0 +1,142 @@
+:root {
+  --ink: #182b45;
+  --muted: #50627a;
+  --line: #d2dce8;
+  --paper: #fff;
+  --wash: #edf3fa;
+  --blue: #2454d7;
+  font-family: system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--wash);
+  font-size: 16px;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 48px 24px;
+}
+header {
+  max-width: 700px;
+  margin-bottom: 36px;
+}
+h1 {
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  margin: 20px 0;
+}
+h2 {
+  font-size: 25px;
+  margin: 8px 0 24px;
+}
+.eyebrow {
+  color: var(--muted);
+  font:
+    600 12px ui-monospace,
+    monospace;
+  letter-spacing: 0.12em;
+}
+a {
+  color: var(--blue);
+  text-underline-offset: 4px;
+}
+p {
+  line-height: 1.6;
+}
+.examples {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+section {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--blue);
+  border-radius: 8px;
+  padding: 28px;
+  min-width: 0;
+}
+label {
+  display: block;
+  font-weight: 600;
+  margin: 18px 0;
+}
+input,
+select {
+  display: block;
+  margin-top: 8px;
+  max-width: 100%;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: inherit;
+  background: var(--paper);
+  color: var(--ink);
+}
+button {
+  font: 600 14px system-ui;
+  padding: 12px 18px;
+  min-height: 44px;
+  border: 1px solid var(--blue);
+  border-radius: 5px;
+  background: var(--blue);
+  color: var(--paper);
+  cursor: pointer;
+}
+.secondary {
+  background: var(--paper);
+  color: var(--blue);
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+[role="status"] {
+  background: var(--wash);
+  padding: 12px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+li {
+  margin: 8px 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+ul {
+  padding-left: 20px;
+  max-height: 240px;
+  overflow: auto;
+}
+footer {
+  margin-top: 28px;
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 14px;
+}
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+@media (max-width: 720px) {
+  .examples {
+    grid-template-columns: 1fr;
+  }
+  main {
+    padding: 24px 16px;
+  }
+  section {
+    padding: 20px;
+  }
+}

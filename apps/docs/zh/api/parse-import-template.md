@@ -49,6 +49,8 @@ console.log(template.revision); // 1
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../reusable-imports)
+- [runImportWorker](./run-import-worker)
+- [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)
 - [importWithTemplate](./import-with-template)
 - [importFile](./import-file)

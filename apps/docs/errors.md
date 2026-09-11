@@ -28,7 +28,9 @@ try {
 | `MISSING_KEY`, `DUPLICATE_KEY` | Merge/deduplication key problems; inspect source context |
 | `SCHEMA_MISMATCH`, `MERGE_CONFLICT` | Fix append schema or choose a merge conflict policy |
 | `FORMULA_REJECTED`, `MERGED_CELLS`, `CELL_ERROR` | An Excel import policy rejected a cell |
-| `ABORTED` | The caller cancelled comparison |
+| `WORKER_FAILED` | Worker setup, loading or communication failed |
+| `WORKER_TIMEOUT` | Whole import task deadline exceeded |
+| `ABORTED` | The caller cancelled an operation |
 | `VALIDATION_TIMEOUT` | A batch validator exceeded its per-callback deadline |
 | `VALIDATION_FAILED` | A batch validator threw/rejected; inspect cause and context.operation |
 | `EXPORT_FAILED` | Generated report could not be constructed |

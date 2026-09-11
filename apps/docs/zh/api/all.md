@@ -6,7 +6,7 @@ description: 按任务查找 SheetDelta 全部 API、参数和可运行案例。
 
 # API 参考
 
-**44 个 API，按任务分类。** 点击函数查看导入方式、参数、返回值和可运行案例；也可使用顶栏搜索按函数名查找。
+**46 个 API，按任务分类。** 点击函数查看导入方式、参数、返回值和可运行案例；也可使用顶栏搜索按函数名查找。
 
 [从导入纠错流程开始](../import-workflow) · [选择按需导入入口](../imports) · [查看全部类型](./types)
 
@@ -14,6 +14,8 @@ description: 按任务查找 SheetDelta 全部 API、参数和可运行案例。
 
 | API | 用途 |
 | --- | --- |
+| <span id="runimportworker"></span>[runImportWorker](./run-import-worker) | 用独立浏览器 Worker 导入，支持取消、超时及纠错工作簿；模块 Worker 配置见指南。 |
+| <span id="installimportworker"></span>[installImportWorker](./install-import-worker) | 在独立模块 Worker 中安装导入处理器，业务回调在此注册，返回监听器清理函数。 |
 | <span id="serializeimporttemplate"></span>[serializeImportTemplate](./serialize-import-template) | 校验并序列化版本 1 的 JSON 模板；拒绝回调、未知属性及超限配置。 |
 | <span id="parseimporttemplate"></span>[parseImportTemplate](./parse-import-template) | 解析并校验可复用导入配置；不支持的版本和无效字段明确报错。 |
 | <span id="importwithtemplate"></span>[importWithTemplate](./import-with-template) | 应用已保存的字段和文件布局，业务回调、限制、进度和取消由应用运行时提供。 |

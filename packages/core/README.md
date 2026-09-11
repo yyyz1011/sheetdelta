@@ -93,3 +93,7 @@ The separate browser tool compares CSV, TSV, XLSX and XLS locally, with visual d
 ## License
 
 MIT. Runtime dependencies retain their own licenses. External Apache POI fixtures are test-only and excluded from npm.
+
+## Worker imports and framework examples
+
+Import `runImportWorker` and `installImportWorker` from `sheetdelta-core/worker` for cancellable CSV/Excel imports and optional repair workbooks in a dedicated browser worker. React and Vue remain optional application dependencies. [Setup and limits](https://sheetdelta.nimokit.com/docs/worker-imports) · [Live React/Vue examples](https://sheetdelta.nimokit.com/examples/).

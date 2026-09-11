@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 import MiniSearch from 'minisearch';
 import config from '../apps/docs/.vitepress/config.mjs';
 import { apiGroups, apiSlug } from './api-navigation.mjs';
-const pages = [...new Set(['reusable-imports', 'import-workflow', 'api/all', 'api/types', 'index', 'quick-start', 'browser-tool', 'mapping', 'comparison', 'validation', 'api/compare-tables', 'api/export-diff-csv', 'faq', 'imports', 'excel', 'csv', 'validate', 'clean', 'merge', 'workflow', 'migration', 'async', 'errors', 'compatibility', 'formulas', 'workbooks', 'streaming', ...apiGroups.flatMap(group=>group.apis.map(name=>'api/'+apiSlug(name)))])];
+const pages = [...new Set(['worker-imports', 'reusable-imports', 'import-workflow', 'api/all', 'api/types', 'index', 'quick-start', 'browser-tool', 'mapping', 'comparison', 'validation', 'api/compare-tables', 'api/export-diff-csv', 'faq', 'imports', 'excel', 'csv', 'validate', 'clean', 'merge', 'workflow', 'migration', 'async', 'errors', 'compatibility', 'formulas', 'workbooks', 'streaming', ...apiGroups.flatMap(group=>group.apis.map(name=>'api/'+apiSlug(name)))])];
 const sidebarLinks = items => items.flatMap(item => [...(item.link ? [item.link] : []), ...sidebarLinks(item.items ?? [])]);
 for(const zh of [false,true]) for(const name of apiGroups.flatMap(group=>group.apis)) assert.ok(sidebarLinks(config.locales[zh?'zh':'root'].themeConfig.sidebar).includes(`${zh?'/zh':''}/api/${apiSlug(name)}`), `Missing sidebar API: ${name}`);
 assert.equal(config.lang, 'en-US');

@@ -24,6 +24,7 @@ jobs:
       - run: npm run site:check
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npm run test:e2e
+      - run: npm run test:examples
       - run: npm run pack:core
       - run: node scripts/smoke-package.mjs
       - run: node scripts/check-doc-examples.mjs
