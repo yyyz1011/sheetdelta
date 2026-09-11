@@ -4,6 +4,11 @@ const compare = `const before = [{id:'001', qty:1}];\nconst after = [{id:'001', 
 const file = `import { writeExcel } from 'sheetdelta-core/excel';\nconst bytes = await writeExcel([{name:'Data', rows:[{id:'001', qty:2}]}]);`;
 const imported = `import { importFile } from 'sheetdelta-core/import';\nconst schema = {fields:[{key:'id', requiredColumn:true}, {key:'qty', clean:{type:'number'}, rule:{min:0}}]};\nconst result = await importFile('id,qty\\n001,-2', schema, {format:'csv'});`;
 export const catalog = {
+  repairImport: spec('import','import-repair','Edit original source cells without reading the file again, then rerun all cleaning and validation. Earlier results are not mutated.','修改原始来源单元格后重新清洗和全量校验，不再读取文件，不修改先前结果。',`import { importFile } from 'sheetdelta-core/import';
+const schema = {fields:[{key:'sku'}, {key:'qty',clean:{type:'number'},rule:{min:0}}]};
+const previous = await importFile('sku,qty\\n001,-2',schema,{format:'csv'});
+const result = await repairImport(previous,[{row:1,column:'qty',value:'2'}],schema);
+console.log(result.rows[0].qty); // 2`,'assert.equal(result.rows[0].qty,2);assert.equal(previous.original.rows[0].qty,"-2")'),
   runImportWorker: spec('worker','worker-imports','Run a dedicated browser Worker with cancellation, deadline and optional repair workbook. See the guide for the module worker setup.','用独立浏览器 Worker 导入，支持取消、超时及纠错工作簿；模块 Worker 配置见指南。',`const controller = new AbortController();
 controller.abort();
 let code;

@@ -49,6 +49,7 @@ console.log(JSON.parse(json).id); // supplier
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../reusable-imports)
+- [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
 - [installImportWorker](./install-import-worker)
 - [parseImportTemplate](./parse-import-template)

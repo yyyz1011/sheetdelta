@@ -1,5 +1,15 @@
 [
   {
+    "version": "0.8.0",
+    "date": "2026-09-11",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.8.0",
+    "en": "Repair imports and reduce preparation overhead",
+    "zh": "导入纠错与性能优化",
+    "summaryEn": "Repair source cells without reparsing files, with full validation and React/Vue editing examples. Indexed header matching, cached source locations and removal of unnecessary empty-rule passes reduce preparation overhead. See the benchmark guide for measurements and limits.",
+    "summaryZh": "新增来源单元格纠错接口和 React/Vue 页面内修改案例，无需重新解析文件，仍执行全量校验。通过表头索引、来源定位缓存和跳过空业务规则遍历降低开销，性能数据和范围见相关指南。",
+    "guide": "import-repair"
+  },
+  {
     "version": "0.7.0",
     "date": "2026-09-11",
     "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.7.0",

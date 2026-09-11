@@ -1,13 +1,46 @@
 <script setup lang="ts">
 import { ref, onBeforeUnmount } from "vue";
 import type { WorkerImportResult } from "sheetdelta-core/worker";
-import { importSupplier, downloadReport } from "./shared";
+import { importSupplier, downloadReport, repairSupplier } from "./shared";
 const file = ref<File>(),
   format = ref<"csv" | "excel">("csv"),
   sheet = ref("Data"),
   phase = ref("Choose a file"),
   busy = ref(false),
   result = ref<WorkerImportResult>();
+const editRow = ref(1),
+  editColumn = ref("qty"),
+  editValue = ref("");
+async function repair() {
+  if (!result.value) return;
+  const task = new AbortController();
+  controller = task;
+  busy.value = true;
+  try {
+    const next = await repairSupplier(
+      result.value,
+      editRow.value,
+      editColumn.value,
+      editValue.value,
+      task.signal,
+      (p) => {
+        if (controller === task) phase.value = p;
+      },
+    );
+    if (controller === task) {
+      result.value = next;
+      phase.value = `${next.result.summary.accepted} accepted / ${next.result.summary.total} rows`;
+    }
+  } catch (error) {
+    if (controller === task)
+      phase.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    if (controller === task) {
+      busy.value = false;
+      controller = null;
+    }
+  }
+}
 let controller: AbortController | null = null;
 onBeforeUnmount(() => {
   controller?.abort();
@@ -80,6 +113,33 @@ async function start() {
       {{ result.result.summary.errors }} errors ·
       {{ result.result.summary.warnings }} warnings
     </p>
+    <fieldset :disabled="busy">
+      <legend>Repair a source cell</legend>
+      <p>
+        Data row counts from 1, excluding the header. Enter an exact source
+        column and a replacement value.
+      </p>
+      <label
+        >Data row<input
+          type="number"
+          min="1"
+          :max="result.result.original.rows.length"
+          v-model.number="editRow"
+      /></label>
+      <label
+        >Source column<select v-model="editColumn">
+          <option
+            v-for="h in result.result.original.headers"
+            :key="h"
+            :value="h"
+          >
+            {{ h }}
+          </option>
+        </select></label
+      >
+      <label>Replacement value<input v-model="editValue" /></label>
+      <button :disabled="busy" @click="repair">Apply and revalidate</button>
+    </fieldset>
     <ul>
       <li v-for="(issue, i) in result.result.issues.slice(0, 20)" :key="i">
         Row {{ issue.source?.sourceRow ?? "—" }} · {{ issue.column }}:

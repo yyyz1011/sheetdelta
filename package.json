@@ -25,7 +25,8 @@
     "docs:api": "npm run build -w sheetdelta-core && node scripts/check-api-docs.mjs --write",
     "check:api": "node scripts/check-api-docs.mjs",
     "test:examples": "playwright test --config playwright.examples.config.ts",
-    "docs:changelog": "node scripts/generate-changelog.mjs"
+    "docs:changelog": "node scripts/generate-changelog.mjs",
+    "bench:import": "npm run build -w sheetdelta-core && node --expose-gc scripts/benchmark-import.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

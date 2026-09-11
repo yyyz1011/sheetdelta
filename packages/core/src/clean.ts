@@ -31,10 +31,11 @@ export function cleanTable(rows: readonly Row[], rules: Record<string, CleanRule
     if (rule.type && !['string', 'number', 'boolean'].includes(rule.type)) throw new SheetDeltaError('INVALID_OPTIONS', 'Invalid conversion type.');
     if (rule.case && !['lower', 'upper'].includes(rule.case)) throw new SheetDeltaError('INVALID_OPTIONS', 'Invalid case rule.');
   }
+  const ruleEntries = Object.entries(rules);
   const changes: CleanChange[] = [], issues: CleanIssue[] = [];
   const output = rows.map((row, index) => {
     const entries = new Map(Object.entries(row));
-    for (const [column, rule] of Object.entries(rules)) {
+    for (const [column, rule] of ruleEntries) {
       if (!entries.has(column)) continue;
       const before = entries.get(column); let value = before;
       if (typeof value === 'string') {

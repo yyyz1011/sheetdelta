@@ -54,6 +54,7 @@ console.log(source.sourceRow, source.sourceColumn); // 2 qty
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../import-workflow)
+- [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
 - [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)

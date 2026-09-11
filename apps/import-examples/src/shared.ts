@@ -3,6 +3,31 @@ import {
   type WorkerImportResult,
 } from "sheetdelta-core/worker";
 import type { ImportTemplate } from "sheetdelta-core/import";
+export const supplierFields: ImportTemplate["fields"] = [
+  {
+    key: "sku",
+    requiredColumn: true,
+    rule: { required: true, unique: true },
+  },
+  {
+    key: "qty",
+    requiredColumn: true,
+    clean: { type: "number" },
+    rule: { required: true, min: 0 },
+  },
+  {
+    key: "active",
+    requiredColumn: true,
+    clean: {
+      dictionary: {
+        entries: [
+          { from: "Yes", to: true },
+          { from: "No", to: false },
+        ],
+      },
+    },
+  },
+];
 export function importSupplier(
   file: File,
   format: "csv" | "excel",
@@ -16,31 +41,7 @@ export function importSupplier(
     revision: 1,
     format,
     ...(format === "excel" && sheet.trim() ? { sheet: sheet.trim() } : {}),
-    fields: [
-      {
-        key: "sku",
-        requiredColumn: true,
-        rule: { required: true, unique: true },
-      },
-      {
-        key: "qty",
-        requiredColumn: true,
-        clean: { type: "number" },
-        rule: { required: true, min: 0 },
-      },
-      {
-        key: "active",
-        requiredColumn: true,
-        clean: {
-          dictionary: {
-            entries: [
-              { from: "Yes", to: true },
-              { from: "No", to: false },
-            ],
-          },
-        },
-      },
-    ],
+    fields: supplierFields,
   };
   return runImportWorker(
     () =>
@@ -69,4 +70,26 @@ export function downloadReport(bytes: Uint8Array) {
   link.download = "import-errors.xlsx";
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function repairSupplier(
+  previous: WorkerImportResult,
+  row: number,
+  column: string,
+  value: string,
+  signal: AbortSignal,
+  progress: (phase: string) => void,
+): Promise<WorkerImportResult> {
+  const { repairImport } = await import("sheetdelta-core/import");
+  const result = await repairImport(
+    previous.result,
+    [{ row, column, value }],
+    { fields: supplierFields },
+    { signal, mode: "valid-rows", onProgress: (e) => progress(e.phase) },
+  );
+  const { exportImportReport } = await import("sheetdelta-core/import-report");
+  if (signal.aborted) throw new Error("Repair cancelled.");
+  const report = await exportImportReport(result);
+  if (signal.aborted) throw new Error("Repair cancelled.");
+  return { result, report };
 }

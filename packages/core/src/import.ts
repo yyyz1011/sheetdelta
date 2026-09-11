@@ -83,9 +83,17 @@ export function mapImportHeaders(headers: readonly string[], fields: readonly Im
   if (options.allowUnknownColumns !== undefined && typeof options.allowUnknownColumns !== 'boolean') fail('INVALID_OPTIONS', 'allowUnknownColumns must be boolean.');
   const issues: ImportIssue[] = [];
   const add = (code: string, column: string, message: string) => issues.push({ code, column, message, severity: 'error' });
+  const headerPositions = new Map(headers.map((header, i) => [header, i]));
+  const headersByName = new Map<string, string[]>();
+  for (const header of headers) {
+    const name = fold(header), group = headersByName.get(name);
+    if (group) group.push(header); else headersByName.set(name, [header]);
+  }
+  const matchedHeaders = new Set<string>();
   const mappings = fields.map(f => {
     const names = new Set([f.key, ...(f.aliases ?? [])].map(fold));
-    const candidates = headers.filter(h => f.source !== undefined ? h === f.source : names.has(fold(h)));
+    const candidates = f.source !== undefined ? headerPositions.has(f.source) ? [f.source] : [] : [...names].flatMap(name => headersByName.get(name) ?? []).sort((a, b) => headerPositions.get(a)! - headerPositions.get(b)!);
+    for (const candidate of candidates) matchedHeaders.add(candidate);
     if (candidates.length > 1) add('ambiguous-column', f.key, `More than one source header matches ${f.key}; set source explicitly.`);
     if (!candidates.length && (f.requiredColumn || f.source !== undefined)) add('missing-column', f.key, `Source column for ${f.key} is missing.`);
     return { field: f.key, column: candidates.length === 1 ? candidates[0] : undefined, candidates };
@@ -93,7 +101,7 @@ export function mapImportHeaders(headers: readonly string[], fields: readonly Im
   const used = new Map<string, string[]>();
   for (const m of mappings) if (m.column !== undefined) used.set(m.column, [...(used.get(m.column) ?? []), m.field]);
   for (const [column, keys] of used) if (keys.length > 1) for (const key of keys) add('reused-column', key, `Source column ${column} matches several fields.`);
-  const unknownColumns = headers.filter(h => !mappings.some(m => m.candidates.includes(h)));
+  const unknownColumns = headers.filter(h => !matchedHeaders.has(h));
   if (options.allowUnknownColumns === false) for (const h of unknownColumns) add('unknown-column', h, `Unexpected source column ${h}.`);
   return { mappings, issues, unknownColumns, valid: issues.length === 0 };
 }
@@ -144,9 +152,22 @@ export async function prepareImport(table: TableData, schema: ImportSchema, opti
   const positionKind = options.format === 'excel' ? 'worksheet-row' : options.format === 'csv' ? 'csv-record' : 'data-row';
   const rowSources: ImportLocation[] = table.rowNumbers.map(sourceRow => ({ ...(options.fileName === undefined ? {} : { fileName: options.fileName }), sheet: table.name, sourceRow, positionKind }));
   const result: ImportResult = { status: 'invalid', valid: false, rows: [], sources: [], processedRows: [], rowSources, original, mappings: mapped.mappings, issues: [], changes: [], validRows: [], invalidRows: [], summary: { total: table.rows.length, accepted: 0, errors: 0, warnings: 0 } };
+  const sourceColumns = new Map(table.headers.map((column, i) => [column, i + 1]));
+  const fieldLocations = new Map(mapped.mappings.map(mapping => {
+    const index = mapping.column === undefined ? undefined : sourceColumns.get(mapping.column);
+    return [mapping.field, {column: mapping.column, index, letters: index ? columnLetters(index) : undefined}] as const;
+  }));
+  const locate = (row: number, field: string): ImportLocation => {
+    const source = {...rowSources[row - 1]}, mapped = fieldLocations.get(field)!;
+    if (mapped.column !== undefined) {
+      source.sourceColumn = mapped.column; source.columnIndex = mapped.index;
+      if (positionKind === 'worksheet-row') source.cell = mapped.letters + String(source.sourceRow);
+    }
+    return source;
+  };
   const add = (issue: ImportIssue) => {
     if (result.issues.length >= limits.maxIssues) fail('LIMIT_EXCEEDED', 'Import issue budget exceeded; no partial result returned.', { limit: limits.maxIssues });
-    const source = issue.source ?? (issue.row ? issue.column && result.mappings.some(m => m.field === issue.column) ? locateImportCell(result, issue.row, issue.column) : { ...rowSources[issue.row - 1] } : { fileName: options.fileName, sheet: table.name, positionKind });
+    const source = issue.source ?? (issue.row ? issue.column && fieldLocations.has(issue.column) ? locate(issue.row, issue.column) : { ...rowSources[issue.row - 1] } : { fileName: options.fileName, sheet: table.name, positionKind });
     result.issues.push({ ...issue, source });
   };
   for (const issue of mapped.issues) add(issue);
@@ -156,7 +177,7 @@ export async function prepareImport(table: TableData, schema: ImportSchema, opti
     for (let start = 0; start < original.rows.length; start += limits.batchSize) {
       const batch = original.rows.slice(start, start + limits.batchSize).map(row => Object.fromEntries(mapped.mappings.map(m => [m.field, m.column === undefined ? null : Object.hasOwn(row, m.column) ? row[m.column] : null])));
       const cleaned = cleanTable(batch, cleanRules); for (const row of cleaned.rows) result.processedRows.push(row);
-      for (const change of cleaned.changes) { const row = start + change.row; result.changes.push({ ...change, row, source: locateImportCell(result, row, change.column) }); }
+      for (const change of cleaned.changes) { const row = start + change.row; result.changes.push({ ...change, row, source: locate(row, change.column) }); }
       for (const issue of cleaned.issues) add({ code: issue.code, row: start + issue.row, column: issue.column, severity: 'error', message: issue.code === 'dictionary' ? `Unknown dictionary value for ${issue.column}.` : `Cannot convert ${issue.column}.` });
       progress('clean', result.processedRows.length);
       await new Promise<void>(resolve => setTimeout(resolve, 0)); aborted();
@@ -164,6 +185,8 @@ export async function prepareImport(table: TableData, schema: ImportSchema, opti
     const validated = validateTable(result.processedRows, rules, { maxIssues: limits.maxIssues });
     for (const issue of validated.issues) add({ ...issue, severity: 'error' });
     progress('validate', result.processedRows.length);
+    const hasCustomRules = !!(schema.rowRules?.length || schema.tableRules?.length || schema.batchRules?.length);
+    if (hasCustomRules) {
     const snapshot = Object.freeze(result.processedRows.map(row => Object.freeze({ ...row })));
     const acceptCustom = (raw: unknown, ruleId: string, row?: number) => {
       if (raw && typeof (raw as PromiseLike<unknown>).then === 'function') {
@@ -179,12 +202,13 @@ export async function prepareImport(table: TableData, schema: ImportSchema, opti
         add({ code: issue.code, message: issue.message, severity: issue.severity, row: index, column: issue.column, ruleId });
       }
     };
-    for (let i = 0; i < snapshot.length; i++) {
+    if (schema.rowRules?.length) for (let i = 0; i < snapshot.length; i++) {
       for (const rule of schema.rowRules ?? []) acceptCustom(rule.validate(snapshot[i], { row: i + 1 }), rule.id, i + 1);
       if ((i + 1) % limits.batchSize === 0) { progress('rules', i + 1); await new Promise<void>(resolve => setTimeout(resolve, 0)); aborted(); }
     }
     for (const rule of schema.tableRules ?? []) { aborted(); acceptCustom(rule.validate(snapshot), rule.id); }
     await runBatchRules(snapshot, schema.batchRules ?? [], options.batchValidation, options.signal, limits.maxIssues, acceptCustom, processed => progress('batch-rules', processed));
+    } else progress('rules', result.processedRows.length);
   }
   const errors = result.issues.filter(i => i.severity === 'error');
   const global = !mapped.valid || errors.some(i => i.row === undefined);
@@ -218,3 +242,32 @@ export async function importFile(input: string | ArrayBuffer | Uint8Array, schem
 
 export { serializeImportTemplate, parseImportTemplate, importWithTemplate } from './import-template.js';
 export type { ImportTemplate, TemplateImportOptions } from './import-template.js';
+
+export interface ImportCellEdit {
+  /** One-based original data-row index, not the worksheet row number. */
+  row: number;
+  /** Exact source header, not a canonical field alias. */
+  column: string;
+  value: Cell;
+}
+/** Apply source-cell edits without reparsing the file, then rerun all validation including cross-row rules. */
+export async function repairImport(previous: ImportResult, edits: readonly ImportCellEdit[], schema: ImportSchema, options: ImportOptions = {}): Promise<ImportResult> {
+  assertRecord(previous, 'previous'); assertRecord(options, 'options');
+  if (options.signal?.aborted) fail('ABORTED', 'Import repair cancelled.');
+  assertRecord(previous.original, 'original'); assertRows(previous.original.rows);
+  if (!Array.isArray(edits) || edits.length > (options.maxCells ?? 1000000)) fail('INVALID_OPTIONS', 'Provide edits within the cell budget.');
+  const headers = new Set(previous.original.headers), seen = new Map<number, Set<string>>();
+  const rows = previous.original.rows.slice();
+  for (const edit of edits) {
+    assertRecord(edit, 'edit');
+    if (!Number.isSafeInteger(edit.row) || edit.row < 1 || edit.row > rows.length || typeof edit.column !== 'string' || !headers.has(edit.column)) fail('INVALID_OPTIONS', 'Edit must identify an existing source row and header.');
+    if (edit.value != null && !['string','boolean','number'].includes(typeof edit.value) || typeof edit.value === 'number' && !Number.isFinite(edit.value)) fail('INVALID_DATA', 'Edit values must be finite primitives.');
+    if (!seen.has(edit.row)) { seen.set(edit.row, new Set()); rows[edit.row - 1] = {...rows[edit.row - 1]}; }
+    if (seen.get(edit.row)!.has(edit.column)) fail('INVALID_OPTIONS', 'Duplicate edits for the same cell are ambiguous.');
+    seen.get(edit.row)!.add(edit.column);
+    Object.defineProperty(rows[edit.row - 1], edit.column, {value:edit.value, enumerable:true, writable:true, configurable:true});
+  }
+  const source = previous.rowSources?.[0];
+  const format = source?.positionKind === 'worksheet-row' ? 'excel' : source?.positionKind === 'csv-record' ? 'csv' : 'table';
+  return prepareImport({...previous.original, rows}, schema, {format, ...(source?.fileName === undefined ? {} : {fileName:source.fileName}), ...options});
+}

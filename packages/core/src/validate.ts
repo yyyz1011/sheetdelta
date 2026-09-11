@@ -20,10 +20,11 @@ export interface ValidationResult { valid: boolean; issues: ValidationIssue[]; v
 export function validateTable(rows: readonly Row[], schema: TableSchema, options: { allowUnknown?: boolean; maxIssues?: number } = {}): ValidationResult {
   assertRows(rows); assertRecord(schema, 'schema'); assertRecord(options, 'options');
   if (options.maxIssues !== undefined && (!Number.isSafeInteger(options.maxIssues) || options.maxIssues < 1)) fail('INVALID_OPTIONS', 'maxIssues must be positive.');
+  const ruleEntries = Object.entries(schema);
   const issues: ValidationIssue[] = [];
   const unique = new Map<string, Map<string, number[]>>();
   const patterns = new Map<string, RegExp>();
-  for (const [column, rule] of Object.entries(schema)) {
+  for (const [column, rule] of ruleEntries) {
     assertRecord(rule, 'rule');
     if (rule.enum && !Array.isArray(rule.enum)) fail('INVALID_OPTIONS', 'enum must be an array.', { column });
     if (rule.type && !['string', 'number', 'boolean', 'date'].includes(rule.type)) throw new SheetDeltaError('INVALID_OPTIONS', `Invalid type for ${column}.`);
@@ -37,7 +38,7 @@ export function validateTable(rows: readonly Row[], schema: TableSchema, options
   rows.forEach((row, index) => {
     const number = index + 1;
     if (options.allowUnknown === false) for (const column of Object.keys(row)) if (!Object.hasOwn(schema, column)) add('unknown-column', number, column, row[column]);
-    for (const [column, rule] of Object.entries(schema)) {
+    for (const [column, rule] of ruleEntries) {
       const value = ownValue(row, column), blank = value == null || (typeof value === 'string' && value.trim() === '');
       if (blank) { if (rule.required) add('required', number, column, value); continue; }
       if (rule.type) {

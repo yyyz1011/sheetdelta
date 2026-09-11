@@ -55,6 +55,7 @@ console.log(code); // ABORTED
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../worker-imports)
+- [repairImport](./repair-import)
 - [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)
 - [parseImportTemplate](./parse-import-template)

@@ -113,3 +113,11 @@ test("hard cancellation and timeout stop busy workers", async ({ page }) => {
     page.getByRole("heading", { name: "Check the file. Keep the good rows." }),
   ).toBeVisible();
 });
+
+for(const framework of ['react','vue']) test(`${framework}: repair in the page without re-upload`,async({page})=>{
+ await page.goto('./');const panel=page.locator('#'+framework);
+ await panel.locator('input[type=file]').setInputFiles('apps/import-examples/public/sample.csv');
+ await panel.getByRole('button',{name:'Import',exact:true}).click();await expect(panel.getByRole('status')).toHaveText('1 accepted / 3 rows');
+ await panel.getByLabel('Data row').fill('2');await panel.getByLabel('Source column').selectOption('qty');await panel.getByLabel('Replacement value').fill('3');await panel.getByRole('button',{name:'Apply and revalidate'}).click();await expect(panel.getByRole('status')).toHaveText('2 accepted / 3 rows');
+ await panel.getByLabel('Data row').fill('3');await panel.getByLabel('Source column').selectOption('active');await panel.getByLabel('Replacement value').fill('Yes');await panel.getByRole('button',{name:'Apply and revalidate'}).click();await expect(panel.getByRole('status')).toHaveText('3 accepted / 3 rows');
+});
