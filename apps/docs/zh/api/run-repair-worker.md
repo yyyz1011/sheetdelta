@@ -56,6 +56,8 @@ console.log(code); // ABORTED
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../worker-imports)
+- [createImportSession](./create-import-session)
+- [installImportSessionWorker](./install-import-session-worker)
 - [runReportWorker](./run-report-worker)
 - [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)

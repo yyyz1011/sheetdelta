@@ -27,6 +27,7 @@ try {
     import { readCsvStream, writeCsvStream, compareSortedStreams } from 'sheetdelta-core/stream';
     import { writeExcelStream } from 'sheetdelta-core/excel-stream';
     import { readExcelStream } from 'sheetdelta-core/excel-node';
+    import { createImportSession } from 'sheetdelta-core/session';
     import { writeFileSync } from 'node:fs';
     const savedTemplate = parseImportTemplate(serializeImportTemplate({version:1,id:'supplier',revision:1,format:'csv',fields:[{key:'id'},{key:'active',clean:{dictionary:{entries:[{from:'Yes',to:true}]}}}]}));
     const reused = await importWithTemplate('id,active\\n001,Yes',savedTemplate,{batchRules:[{id:'known',validate:async items=>items.filter(item=>item.values.id!=='001').map(item=>({row:item.row,code:'unknown',message:'Unknown',severity:'error'}))}]});
@@ -60,6 +61,7 @@ try {
     assert.equal(readCsvBytes(new TextEncoder().encode('id,v\\n001,2')).rows[0].id, '001');
     const controller = new AbortController(); controller.abort();
     await assert.rejects(compareTablesAsync([], [], {keys:['id']}, {signal:controller.signal}), error => error instanceof SheetDeltaError && error.code === 'ABORTED');
+    await assert.rejects(createImportSession(() => { throw new Error('must not start'); }, 'id\\n001', {format:'csv',signal:controller.signal}), error => error instanceof SheetDeltaError && error.code === 'ABORTED');
     const table = readCsv(writeCsv([{id:'001',price:12}]));
     const clean = cleanTable(table.rows, {price:{type:'number'}});
     assert.equal(validateTable(clean.rows,{price:{type:'number'}}).valid,true);
@@ -76,6 +78,7 @@ try {
   const types = `
     import { compareTables, type CompareOptions } from 'sheetdelta-core';
     import { importWithTemplate, type ImportTemplate, type ImportBatchRule } from 'sheetdelta-core/import';
+    import { createImportSession, type ImportSessionState } from 'sheetdelta-core/session';
     const template: ImportTemplate = {version:1,id:'sample',revision:1,format:'csv',fields:[{key:'id'}]};
     const batchRule: ImportBatchRule = {id:'check',validate:async (items,{signal})=> signal.aborted ? [] : items.filter(item=>!item.values.id).map(item=>({row:item.row,code:'missing',message:'Missing',severity:'error'}))};
     void importWithTemplate('id', template, {batchRules:[batchRule]});
@@ -89,6 +92,9 @@ try {
     old.columns[0].left;
     const modern: CompareInputOptions = {keys:['id']};
     const result: DiffResult = compareTables([], [], modern);
+    const state = null as ImportSessionState | null;
+    void state;
+    void createImportSession;
     const table: TableData = readCsv('id,v\\n001,2');
     await readExcel(await writeExcel([{name:'Data',rows:table.rows}]));
     validateTable(cleanTable(table.rows,{v:{type:'number'}}).rows,{v:{type:'number'}});
@@ -107,7 +113,7 @@ try {
   assert.ok(excelBundle.outputFiles.length > 1, 'Excel dynamic dependency chunks');
   for (const output of Object.values(excelBundle.metafile.outputs)) assert.ok(!output.imports.some(i => i.external), 'No unresolvable browser externals');
   console.log('Browser Excel bundle with lazy chunks: PASS');
-  for (const entry of ['worker', 'workbook', 'stream', 'excel-stream', 'import', 'import-report']) {
+  for (const entry of ['worker', 'session', 'workbook', 'stream', 'excel-stream', 'import', 'import-report']) {
     const output=await build({ stdin:{contents:`export * from 'sheetdelta-core/${entry}';`,resolveDir:cwd},bundle:true,splitting:true,minify:true,format:'esm',platform:'browser',outdir:join(cwd,'browser-'+entry),write:false,metafile:true });
     for(const file of Object.values(output.metafile.outputs)) assert.ok(!file.imports.some(i=>i.external), `${entry} has no unresolved browser imports`);
     console.log(`${entry} browser bundle: PASS`);

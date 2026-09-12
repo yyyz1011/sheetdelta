@@ -92,6 +92,11 @@
       "types": "./dist/worker.d.ts",
       "import": "./dist/worker.js",
       "default": "./dist/worker.js"
+    },
+    "./session": {
+      "types": "./dist/session.d.ts",
+      "import": "./dist/session.js",
+      "default": "./dist/session.js"
     }
   },
   "files": [

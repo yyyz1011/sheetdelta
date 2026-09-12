@@ -4,6 +4,16 @@ const compare = `const before = [{id:'001', qty:1}];\nconst after = [{id:'001', 
 const file = `import { writeExcel } from 'sheetdelta-core/excel';\nconst bytes = await writeExcel([{name:'Data', rows:[{id:'001', qty:2}]}]);`;
 const imported = `import { importFile } from 'sheetdelta-core/import';\nconst schema = {fields:[{key:'id', requiredColumn:true}, {key:'qty', clean:{type:'number'}, rule:{min:0}}]};\nconst result = await importFile('id,qty\\n001,-2', schema, {format:'csv'});`;
 export const catalog = {
+  createImportSession: spec('session','import-sessions','Open a persistent browser Worker that parses a CSV/Excel file once, returns bounded previews, then reuses retained data for mapping, batch repair, reports and deferred result collection.','打开持久化浏览器 Worker：CSV/Excel 只解析一次，返回有限预览，并复用线程内数据完成映射、批量纠错、报告和延后结果收集。',`const controller = new AbortController();
+controller.abort();
+let code;
+try { await createImportSession(() => { throw new Error('Must not start'); }, 'sku\\n001', {format:'csv',signal:controller.signal}); } catch(error) { code = error.code; }
+console.log(code); // ABORTED`,'assert.equal(code,"ABORTED")'),
+  installImportSessionWorker: spec('session','import-sessions','Install the persistent import-session protocol in an application-owned module Worker. Register callback rules in this Worker.','在应用自有模块 Worker 中安装持久化导入会话协议；回调规则需在线程内注册。',`const listeners = new Set();
+const scope = {addEventListener:(_, fn)=>listeners.add(fn),removeEventListener:(_, fn)=>listeners.delete(fn),postMessage:()=>{}};
+const dispose = installImportSessionWorker(scope);
+console.log(listeners.size); // 1
+dispose();`,'assert.equal(listeners.size,0)'),
   runRepairWorker: spec('worker','worker-imports','Repair source cells and revalidate in a dedicated worker; reports are optional and disabled by default. Register business callbacks inside the worker.','在独立 Worker 中纠错及重新校验，默认不生成报告；业务回调在线程内注册。',`const controller = new AbortController();
 controller.abort();
 let code;

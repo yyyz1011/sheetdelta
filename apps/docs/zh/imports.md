@@ -23,6 +23,7 @@ npm install sheetdelta-core
 | `sheetdelta-core/excel-node` | `readExcelStream` | yauzl + saxes + XML DOM; 仅 Node |
 | `sheetdelta-core/import` | `mapImportHeaders`, `prepareImport`, `importFile`, `locateImportCell` | 读取时延迟加载 CSV/Excel 依赖 |
 | `sheetdelta-core/import-report` | `exportImportReport` | 导出时加载 SheetJS + fflate |
+| `sheetdelta-core/session` | `createImportSession`、`installImportSessionWorker` | 在应用自有浏览器 Worker 内使用 CSV/Excel 解析器 |
 | `sheetdelta-core/types` | 公共 TypeScript 类型、`TableValidationError` | 无 |
 
 ```ts
@@ -45,4 +46,4 @@ npm 安装会下载完整包及其依赖。按需导入控制应用的依赖关�
 
 根入口保持轻量并兼容旧代码；新功能通过子路径访问。内部源码路径不属于公共 API。
 
-[所有 49 个运行时 API 的使用方法与可运行案例](./api/all) · [类型参考](./api/types) · [导入纠错流程](./import-workflow)
+[所有 51 个运行时 API 的使用方法与可运行案例](./api/all) · [类型参考](./api/types) · [持久化导入工作台](./import-sessions)

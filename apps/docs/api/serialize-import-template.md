@@ -49,6 +49,8 @@ console.log(JSON.parse(json).id); // supplier
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../reusable-imports)
+- [createImportSession](./create-import-session)
+- [installImportSessionWorker](./install-import-session-worker)
 - [runRepairWorker](./run-repair-worker)
 - [runReportWorker](./run-report-worker)
 - [repairImport](./repair-import)

@@ -1,219 +1,110 @@
 import { test, expect } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import { readExcel, writeExcel } from "../../packages/core/src/excel";
-for (const framework of ["react", "vue"])
-  test(`${framework}: real worker import and report`, async ({ page }) => {
+
+for (const framework of ["react", "vue"]) {
+  test(`${framework}: persistent session, batch repair and deferred delivery`, async ({ page }) => {
+    const requests: string[] = [];
+    page.on("request", (request) => requests.push(request.url()));
     await page.goto("./");
     const panel = page.locator(`#${framework}`);
-    await panel
-      .locator("input[type=file]")
-      .setInputFiles("apps/import-examples/public/sample.csv");
-    await panel.getByRole("button", { name: "Import", exact: true }).click();
+    await panel.locator("input[type=file]").setInputFiles("apps/import-examples/public/sample.csv");
+    await panel.getByRole("button", { name: "Open file" }).click();
+    await expect(panel.getByRole("status")).toContainText("3 rows inspected");
+    await expect(panel.getByRole("columnheader", { name: "sku" })).toBeVisible();
+    await panel.getByRole("button", { name: "Validate mapping" }).click();
     await expect(panel.getByRole("status")).toHaveText("1 accepted / 3 rows");
-    const download = page.waitForEvent("download");
-    await panel
-      .getByRole("button", { name: "Download repair workbook" })
-      .click();
-    const path = await (await download).path();
-    const tables = await readExcel(new Uint8Array(await readFile(path!)));
-    expect(tables.map((t) => t.name)).toEqual(["Data", "Issues", "Summary"]);
-    await panel.getByLabel("Format").selectOption("excel");
-    await panel.locator("input[type=file]").setInputFiles({
-      name: "repair.xlsx",
-      mimeType:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      buffer: await readFile(path!),
-    });
-    await panel.getByRole("button", { name: "Import", exact: true }).click();
-    await expect(panel.getByRole("status")).toHaveText("1 accepted / 3 rows");
-    tables[0].rows[1].qty = 3;
-    tables[0].rows[2].active = "Yes";
-    const repaired = await writeExcel([{ name: "Data", rows: tables[0].rows }]);
-    await panel
-      .locator("input[type=file]")
-      .setInputFiles({
-        name: "fixed.xlsx",
-        mimeType:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        buffer: Buffer.from(repaired),
-      });
-    await panel.getByRole("button", { name: "Import", exact: true }).click();
-    await expect(panel.getByRole("status")).toHaveText("3 accepted / 3 rows");
-    await page.setViewportSize({ width: 390, height: 844 });
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
-    ).toBe(true);
-    if (framework === "react")
-      await page.screenshot({
-        path: `artifacts/import-${test.info().project.name}.png`,
-        fullPage: true,
-      });
-  });
+    expect(requests.some((url) => /import-report-/.test(url))).toBe(false);
 
-test("hard cancellation and timeout stop busy workers", async ({ page }) => {
+    await panel.locator(".issues li").filter({ hasText: "qty" }).getByRole("button", { name: "Queue fix" }).click();
+    await expect(panel.getByLabel("Replacement value")).toBeFocused();
+    await panel.getByLabel("Replacement value").fill("3");
+    await panel.getByRole("button", { name: "Add to batch" }).click();
+    await panel.locator(".issues li").filter({ hasText: "active" }).getByRole("button", { name: "Queue fix" }).click();
+    await panel.getByLabel("Replacement value").fill("Yes");
+    await panel.getByRole("button", { name: "Add to batch" }).click();
+    await expect(panel.locator(".queue")).toContainText("row 2 / qty");
+    await expect(panel.locator(".queue")).toContainText("row 3 / active");
+    await panel.getByRole("button", { name: "Apply 2 changes" }).click();
+    await expect(panel.getByRole("status")).toHaveText("3 accepted / 3 rows");
+
+    await panel.getByRole("button", { name: "Collect accepted rows" }).click();
+    await expect(panel.getByText("3 rows ready")).toBeVisible();
+    const download = page.waitForEvent("download");
+    await panel.getByRole("button", { name: "Download repair workbook" }).click();
+    const downloaded = await download;
+    const tables = await readExcel(new Uint8Array(await readFile((await downloaded.path())!)));
+    expect(tables.map((table) => table.name)).toEqual(["Data", "Issues", "Summary"]);
+    expect(String(tables[0].rows[1].qty)).toBe("3");
+    expect(tables[0].rows[2].active).toBe("Yes");
+    expect(requests.some((url) => /import-report-/.test(url))).toBe(true);
+  });
+}
+
+test("Excel sheet selection and explicit unfamiliar-header mapping", async ({ page }) => {
+  const workbook = await writeExcel([
+    { name: "Read me", rows: [{ note: "Choose Inventory" }] },
+    {
+      name: "Inventory",
+      rows: [
+        { "Product ID": "A-1", Stock: 2, Enabled: "Yes" },
+        { "Product ID": "A-2", Stock: 4, Enabled: "No" },
+      ],
+    },
+  ]);
+  await page.goto("./");
+  const panel = page.locator("#react");
+  await panel.getByLabel("Format").selectOption("excel");
+  await panel.locator("input[type=file]").setInputFiles({
+    name: "unknown-columns.xlsx",
+    mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    buffer: Buffer.from(workbook),
+  });
+  await panel.getByRole("button", { name: "Open file" }).click();
+  await expect(panel.getByRole("status")).toContainText("2 sheet");
+  await panel.getByLabel("Worksheet").selectOption("Inventory");
+  await expect(panel.getByRole("columnheader", { name: "Product ID" })).toBeVisible();
+  await panel.getByLabel("SKU source").selectOption("Product ID");
+  await panel.getByLabel("Quantity source").selectOption("Stock");
+  await panel.getByLabel("Active source").selectOption("Enabled");
+  await panel.getByRole("button", { name: "Validate mapping" }).click();
+  await expect(panel.getByRole("status")).toHaveText("2 accepted / 2 rows");
+});
+
+test("session cancellation terminates a busy worker and keeps the page responsive", async ({ page }) => {
   const { build } = await import("esbuild");
   const built = await build({
     stdin: {
-      contents:
-        "export {runImportWorker,runRepairWorker,runReportWorker} from 'sheetdelta-core/worker'",
+      contents: "export {createImportSession} from 'sheetdelta-core/session'",
       resolveDir: process.cwd(),
     },
     bundle: true,
     format: "esm",
     write: false,
   });
-  await page.route("**/worker-client.js", (route) =>
-    route.fulfill({
-      contentType: "text/javascript",
-      body: built.outputFiles[0].text,
-    }),
-  );
-  await page.route("**/busy-worker.js", (route) =>
-    route.fulfill({
-      contentType: "text/javascript",
-      body: "postMessage({ready:true}); while(true) {}",
-    }),
-  );
+  await page.route("**/session-client.js", (route) => route.fulfill({ contentType: "text/javascript", body: built.outputFiles[0].text }));
+  await page.route("**/busy-session.js", (route) => route.fulfill({ contentType: "text/javascript", body: "onmessage=()=>{postMessage({ready:true});while(true){}}" }));
   await page.goto("./");
-  const codes = await page.evaluate(async () => {
-    const { runImportWorker, runRepairWorker, runReportWorker } = await import(
-      /* @vite-ignore */ "/worker-client.js"
-    );
-    const template = {
-      version: 1,
-      id: "test",
-      revision: 1,
-      format: "csv",
-      fields: [{ key: "sku" }],
-    };
+  const code = await page.evaluate(async () => {
+    const { createImportSession } = await import(/* @vite-ignore */ "/session-client.js");
     const controller = new AbortController();
     const create = () => {
-      const w = new Worker("/busy-worker.js");
-      w.addEventListener("message", () => controller.abort(), { once: true });
-      return w;
+      const worker = new Worker("/busy-session.js");
+      worker.addEventListener("message", () => controller.abort(), { once: true });
+      return worker;
     };
-    const errors = [];
     try {
-      await runImportWorker(create, "sku\n001", template, {
-        signal: controller.signal,
-      });
-    } catch (e: any) {
-      errors.push(e.code);
+      await createImportSession(create, "sku\nA-1", { format: "csv", signal: controller.signal });
+    } catch (error: any) {
+      return error.code;
     }
-    try {
-      await runImportWorker(
-        () => new Worker("/busy-worker.js"),
-        "sku\n001",
-        template,
-        { timeoutMs: 100 },
-      );
-    } catch (e: any) {
-      errors.push(e.code);
-    }
-    const previous = {
-      original: {
-        name: "Data",
-        headers: ["sku"],
-        rows: [{ sku: "001" }],
-        rowNumbers: [2],
-      },
-      rowSources: [],
-      issues: [],
-      summary: { total: 1, accepted: 1, errors: 0, warnings: 0 },
-      status: "ready",
-    };
-    for (const kind of ["repair", "report"]) {
-      const c = new AbortController();
-      const factory = () => {
-        const w = new Worker("/busy-worker.js");
-        w.addEventListener("message", () => c.abort(), { once: true });
-        return w;
-      };
-      try {
-        if (kind === "repair")
-          await runRepairWorker(
-            factory,
-            previous,
-            [],
-            { fields: [{ key: "sku" }] },
-            { signal: c.signal },
-          );
-        else await runReportWorker(factory, previous, { signal: c.signal });
-      } catch (e: any) {
-        errors.push(e.code);
-      }
-    }
-    return errors;
   });
-  expect(codes).toEqual(["ABORTED", "WORKER_TIMEOUT", "ABORTED", "ABORTED"]);
-  await expect(
-    page.getByRole("heading", { name: "Check the file. Keep the good rows." }),
-  ).toBeVisible();
+  expect(code).toBe("ABORTED");
+  await expect(page.getByRole("heading", { name: /Turn unfamiliar sheets/ })).toBeVisible();
 });
 
-for (const framework of ["react", "vue"])
-  test(`${framework}: lazy reports, cached downloads and click-to-repair`, async ({
-    page,
-  }) => {
-    const requests: string[] = [];
-    page.on("request", (r) => requests.push(r.url()));
-    await page.goto("./");
-    const panel = page.locator("#" + framework);
-    await panel
-      .locator("input[type=file]")
-      .setInputFiles("apps/import-examples/public/sample.csv");
-    await panel.getByRole("button", { name: "Import", exact: true }).click();
-    await expect(panel.getByRole("status")).toHaveText("1 accepted / 3 rows");
-    expect(requests.some((r) => /import-report-/.test(r))).toBe(false);
-    await panel.getByRole("button", { name: "Edit row 3 · qty" }).click();
-    await expect(panel.getByLabel("Data row")).toHaveValue("2");
-    await expect(panel.getByLabel("Replacement value")).toHaveValue("-3");
-    await expect(panel.getByLabel("Replacement value")).toBeFocused();
-    await panel.getByLabel("Replacement value").fill("3");
-    await panel.getByRole("button", { name: "Apply and revalidate" }).click();
-    await expect(panel.getByRole("status")).toHaveText("2 accepted / 3 rows");
-    expect(requests.some((r) => /import-report-/.test(r))).toBe(false);
-    const download = page.waitForEvent("download");
-    await panel
-      .getByRole("button", { name: "Download repair workbook" })
-      .click();
-    const downloaded = await download;
-    const tables = await readExcel(
-      new Uint8Array(await readFile((await downloaded.path())!)),
-    );
-    expect(String(tables[0].rows[1].qty)).toBe("3");
-    const reports = requests.filter((r) => /import-report-/.test(r)).length;
-    expect(reports).toBeGreaterThan(0);
-    const again = page.waitForEvent("download");
-    await panel
-      .getByRole("button", { name: "Download repair workbook" })
-      .click();
-    await again;
-    expect(requests.filter((r) => /import-report-/.test(r))).toHaveLength(
-      reports,
-    );
-    await panel.getByRole("button", { name: "Edit row 4 · active" }).click();
-    await panel.getByLabel("Replacement value").fill("Yes");
-    await panel.getByRole("button", { name: "Apply and revalidate" }).click();
-    await expect(panel.getByRole("status")).toHaveText("3 accepted / 3 rows");
-    const refreshed = page.waitForEvent("download");
-    await panel
-      .getByRole("button", { name: "Download repair workbook" })
-      .click();
-    const freshTables = await readExcel(
-      new Uint8Array(await readFile((await (await refreshed).path())!)),
-    );
-    expect(freshTables[0].rows[2].active).toBe("Yes");
-  });
-for (const framework of ['react', 'vue']) test(`${framework}: cancel report, retain result and retry`, async ({page}) => {
- await page.goto('./'); const panel=page.locator('#'+framework);const downloads:unknown[]=[];page.on('download',d=>downloads.push(d));
- await panel.locator('input[type=file]').setInputFiles('apps/import-examples/public/sample.csv');
- await panel.getByRole('button',{name:'Import',exact:true}).click();await expect(panel.getByRole('status')).toHaveText('1 accepted / 3 rows');
- await page.route('**/assets/import.worker-*.js',route=>route.fulfill({contentType:'text/javascript',body:`onmessage=()=>{postMessage({protocol:'sheetdelta-import-v1',type:'progress',progress:{phase:'report',processed:0,total:1}});while(true){}}`}));
- await panel.getByRole('button',{name:'Download repair workbook'}).click();await expect(panel.getByRole('status')).toHaveText('report');
- await panel.getByRole('button',{name:'Cancel',exact:true}).click();await expect(panel.getByRole('status')).toContainText('cancelled');
- expect(downloads).toHaveLength(0);await expect(panel.getByRole('button',{name:'Edit row 3 · qty'})).toBeEnabled();
- await page.unrouteAll();const download=page.waitForEvent('download');await panel.getByRole('button',{name:'Download repair workbook'}).click();await download;expect(downloads).toHaveLength(1);
+test("mobile layout has no viewport overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("./");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

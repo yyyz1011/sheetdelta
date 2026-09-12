@@ -1,5 +1,15 @@
 [
   {
+    "version": "0.10.0",
+    "date": "2026-09-12",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.10.0",
+    "en": "Persistent import sessions and visual mapping",
+    "zh": "持久化导入会话与可视化映射",
+    "summaryEn": "Parse each CSV/Excel file once in a persistent Worker, inspect worksheets and bounded previews, map unfamiliar headers, batch-repair source cells, generate reports on demand and collect full accepted rows only at delivery. React and Vue workbench examples cover the complete flow.",
+    "summaryZh": "每个 CSV/Excel 文件仅在持久化 Worker 中解析一次，支持工作表与有限预览、陌生表头映射、来源单元格批量纠错、按需报告，并仅在交付时收集完整可提交行；React/Vue 工作台覆盖完整流程。",
+    "guide": "import-sessions"
+  },
+  {
     "version": "0.9.0",
     "date": "2026-09-12",
     "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.9.0",
