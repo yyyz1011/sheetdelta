@@ -27,7 +27,8 @@
     "test:examples": "playwright test --config playwright.examples.config.ts",
     "docs:changelog": "node scripts/generate-changelog.mjs",
     "bench:import": "npm run build -w sheetdelta-core && node --expose-gc scripts/benchmark-import.mjs",
-    "bench:session": "npm run build -w sheetdelta-core && node --expose-gc scripts/benchmark-session.mjs"
+    "bench:session": "npm run build -w sheetdelta-core && node --expose-gc scripts/benchmark-session.mjs",
+    "check:pr-title": "node scripts/check-pr-title.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
