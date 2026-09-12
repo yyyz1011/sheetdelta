@@ -61,3 +61,7 @@ const options: CompareInputOptions = { keys: ['id'], ignoreColumns: ['updatedAt'
 ## 可复用导入（0.6）
 
 新增可选字典、JSON 模板和异步批量规则，原有调用行为保留。`CleanIssue.code` 新增 `dictionary`；`ErrorCode` 新增 `VALIDATION_TIMEOUT`、`VALIDATION_FAILED`；进度新增 `batch-rules`。如有穷尽 switch 检查需相应更新。参见[用法与边界](./reusable-imports)。
+
+## 持久化导入会话（0.10）
+
+新增 `/session` 入口，原有一次性 Worker API 不变。`ErrorCode` 增加 `SESSION_BUSY`、`SESSION_CLOSED`，穷尽 switch 需同步更新。一个会话独占一个 Worker 并保留解析数据，结束后应调用 `close()`；任何命令取消或超时都会关闭整个会话。参见[会话生命周期与案例](./import-sessions)。

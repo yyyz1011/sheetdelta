@@ -1,35 +1,35 @@
 ---
-description: "在独立模块 Worker 中安装导入处理器，业务回调在此注册，返回监听器清理函数。"
+description: "在应用自有模块 Worker 中安装持久化导入会话协议；回调规则需在线程内注册。"
 ---
 
-# installImportWorker
+# installImportSessionWorker
 
 [API 参考](./all) / [导入与纠错](./all#import)
 
-在独立模块 Worker 中安装导入处理器，业务回调在此注册，返回监听器清理函数。
+在应用自有模块 Worker 中安装持久化导入会话协议；回调规则需在线程内注册。
 
 ## 导入方式 {#import}
 
 ```js
-import { installImportWorker } from 'sheetdelta-core/worker';
+import { installImportSessionWorker } from 'sheetdelta-core/session';
 ```
 
 ## 函数签名 {#signature}
 
 ```ts
-installImportWorker(scope: ImportWorkerScope, rules?: Pick<TemplateImportOptions, "rowRules" | "tableRules" | "batchRules"> | undefined): () => void
+installImportSessionWorker(scope: SessionWorkerScope, rules?: Pick<ImportSchema, "rowRules" | "tableRules" | "batchRules"> | undefined): () => void
 ```
 
 ## 参数 {#parameters}
 
 | 参数 | 必填 | 类型 |
 | --- | --- | --- |
-| `scope` | 是 | `ImportWorkerScope` |
-| `rules` | 否 | `Pick<TemplateImportOptions, "rowRules" \| "tableRules" \| "batchRules"> \| undefined` |
+| `scope` | 是 | `SessionWorkerScope` |
+| `rules` | 否 | `Pick<ImportSchema, "rowRules" \| "tableRules" \| "batchRules"> \| undefined` |
 
-选项含义、默认值与限制： [使用指南](../worker-imports).
+选项含义、默认值与限制： [使用指南](../import-sessions).
 
-相关类型：[`TemplateImportOptions`](./types#templateimportoptions) · [`ImportWorkerScope`](./types#importworkerscope).
+相关类型：[`ImportSchema`](./types#importschema).
 
 ## 返回值 {#returns}
 
@@ -42,23 +42,23 @@ installImportWorker(scope: ImportWorkerScope, rules?: Pick<TemplateImportOptions
 先执行 `npm install sheetdelta-core`，将以下代码保存为 `.mjs` 文件，用 Node.js 18+ 运行。
 
 ```js
-import { installImportWorker } from 'sheetdelta-core/worker';
+import { installImportSessionWorker } from 'sheetdelta-core/session';
 const listeners = new Set();
 const scope = {addEventListener:(_, fn)=>listeners.add(fn),removeEventListener:(_, fn)=>listeners.delete(fn),postMessage:()=>{}};
-const dispose = installImportWorker(scope);
+const dispose = installImportSessionWorker(scope);
 console.log(listeners.size); // 1
 dispose();
 ```
 
 ## 相关 API 与指南 {#related}
 
-- [用法、默认值与限制](../worker-imports)
+- [用法、默认值与限制](../import-sessions)
 - [createImportSession](./create-import-session)
-- [installImportSessionWorker](./install-import-session-worker)
 - [runRepairWorker](./run-repair-worker)
 - [runReportWorker](./run-report-worker)
 - [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
+- [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)
 - [parseImportTemplate](./parse-import-template)
 - [importWithTemplate](./import-with-template)

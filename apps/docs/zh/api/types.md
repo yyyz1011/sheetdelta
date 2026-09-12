@@ -280,7 +280,7 @@ export interface DiffRow {
 `sheetdelta-core`, `sheetdelta-core/errors`
 
 ```ts
-export type ErrorCode = 'INVALID_OPTIONS' | 'INVALID_DATA' | 'INVALID_HEADER' | 'LIMIT_EXCEEDED' | 'INVALID_CSV' | 'INVALID_WORKBOOK' | 'SHEET_NOT_FOUND' | 'EMPTY_WORKBOOK' | 'MISSING_KEY' | 'DUPLICATE_KEY' | 'SCHEMA_MISMATCH' | 'MERGE_CONFLICT' | 'TABLE_VALIDATION' | 'FORMULA_REJECTED' | 'MERGED_CELLS' | 'CELL_ERROR' | 'ABORTED' | 'EXPORT_FAILED' | 'VALIDATION_TIMEOUT' | 'VALIDATION_FAILED' | 'WORKER_FAILED' | 'WORKER_TIMEOUT';
+export type ErrorCode = 'INVALID_OPTIONS' | 'INVALID_DATA' | 'INVALID_HEADER' | 'LIMIT_EXCEEDED' | 'INVALID_CSV' | 'INVALID_WORKBOOK' | 'SHEET_NOT_FOUND' | 'EMPTY_WORKBOOK' | 'MISSING_KEY' | 'DUPLICATE_KEY' | 'SCHEMA_MISMATCH' | 'MERGE_CONFLICT' | 'TABLE_VALIDATION' | 'FORMULA_REJECTED' | 'MERGED_CELLS' | 'CELL_ERROR' | 'ABORTED' | 'EXPORT_FAILED' | 'VALIDATION_TIMEOUT' | 'VALIDATION_FAILED' | 'WORKER_FAILED' | 'WORKER_TIMEOUT' | 'SESSION_CLOSED' | 'SESSION_BUSY';
 ```
 
 ## ErrorContext
@@ -628,6 +628,149 @@ export interface ImportSchema {
     rowRules?: readonly RowRule[];
     tableRules?: readonly TableRule[];
     batchRules?: readonly ImportBatchRule[];
+}
+```
+
+## ImportSession
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSession {
+    readonly inspection: ImportSessionInspection;
+    readonly closed: boolean;
+    preview(sheet: string, options?: {
+        offset?: number;
+        limit?: number;
+    } & ImportSessionCommandOptions): Promise<ImportSessionPreview>;
+    prepare(sheet: string, schema: PortableSchema, options?: PortableOptions & ImportSessionCommandOptions): Promise<ImportSessionState>;
+    repair(edits: readonly ImportCellEdit[], options?: PortableOptions & ImportSessionCommandOptions): Promise<ImportSessionState>;
+    result(options?: ImportSessionCommandOptions): Promise<ImportResult>;
+    report(options?: ImportSessionCommandOptions): Promise<Uint8Array>;
+    close(): void;
+}
+```
+
+## ImportSessionCommandOptions
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionCommandOptions {
+    signal?: AbortSignal;
+    timeoutMs?: number;
+    onProgress?: (progress: ImportSessionProgress) => void;
+}
+```
+
+## ImportSessionInspection
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionInspection {
+    format: "csv" | "excel";
+    sheets: ImportSessionSheet[];
+}
+```
+
+## ImportSessionIssue
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionIssue extends ImportIssue {
+    /** Current value at the issue's source location, when one exists. */
+    sourceValue?: Cell;
+}
+```
+
+## ImportSessionOpenOptions
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionOpenOptions {
+    format: "csv" | "excel";
+    headerRow?: number;
+    csv?: Omit<CsvByteReadOptions, "headerRow" | "name">;
+    excel?: Omit<ExcelReadOptions, "headerRow" | "sheets">;
+    previewRows?: number;
+    fileName?: string;
+    signal?: AbortSignal;
+    timeoutMs?: number;
+    onProgress?: (progress: ImportSessionProgress) => void;
+}
+```
+
+## ImportSessionPreview
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionPreview {
+    sheet: string;
+    offset: number;
+    total: number;
+    headers: string[];
+    rows: Row[];
+    rowNumbers: number[];
+}
+```
+
+## ImportSessionProgress
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionProgress {
+    phase: "read" | "parse" | "report" | ImportProgress["phase"];
+    processed: number;
+    total: number;
+}
+```
+
+## ImportSessionRowPreview
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionRowPreview {
+    row: number;
+    source: ImportLocation;
+    original: Row;
+    processed: Row;
+    valid: boolean;
+}
+```
+
+## ImportSessionSheet
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionSheet {
+    name: string;
+    headers: string[];
+    rowCount: number;
+    preview: Row[];
+    rowNumbers: number[];
+}
+```
+
+## ImportSessionState
+
+`sheetdelta-core/session`
+
+```ts
+export interface ImportSessionState {
+    status: ImportResult["status"];
+    valid: boolean;
+    summary: ImportResult["summary"];
+    mappings: ImportMapping[];
+    issues: ImportSessionIssue[];
+    changeCount: number;
+    preview: ImportSessionRowPreview[];
 }
 ```
 

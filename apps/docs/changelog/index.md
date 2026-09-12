@@ -11,6 +11,7 @@ npm install sheetdelta-core@latest
 
 | Version | Date (UTC) | Highlights |
 | --- | --- | --- |
+| [v0.10.0](./v0.10.0) | 2026-09-12 | Persistent import sessions and visual mapping |
 | [v0.9.0](./v0.9.0) | 2026-09-12 | Worker repair and on-demand reports |
 | [v0.8.0](./v0.8.0) | 2026-09-11 | Repair imports and reduce preparation overhead |
 | [v0.7.0](./v0.7.0) | 2026-09-11 | Worker imports and framework examples |

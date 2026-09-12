@@ -1,0 +1,25 @@
+{
+  "environment": {
+    "date": "2026-09-12",
+    "platform": "macOS 26.5.2 arm64",
+    "processor": "Apple M4",
+    "node": "25.9.0"
+  },
+  "command": "npm run bench:session",
+  "fixture": {
+    "rows": 10000,
+    "columns": 4,
+    "workbookBytes": 495282,
+    "passes": 2,
+    "samples": 7
+  },
+  "repeatedParseMs": [359.37, 340.2, 622.72, 449.77, 367.28, 418.05, 319.58],
+  "retainedParseMs": [225.18, 245.29, 216.83, 225.81, 427.84, 211.86, 187.46],
+  "repeatedMedianMs": 367.28,
+  "retainedMedianMs": 225.18,
+  "savedPercent": 38.69,
+  "fullResultBytes": 4689390,
+  "compactStateBytes": 1219,
+  "payloadReductionPercent": 99.97,
+  "scope": "Synthetic XLSX; two full validations; repeated path parses before each validation; retained path parses once; JSON byte count approximates structured-clone payload size and excludes transfer/runtime overhead."
+}

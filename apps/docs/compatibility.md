@@ -1,5 +1,14 @@
 # Compatibility & performance
 
+## 0.10 Persistent-session evidence
+
+- 161 unit tests and 27 browser checks pass. The API reference covers 51 runtime functions, 58 export bindings and 80 public types, with 102 executable bilingual examples.
+- The session protocol keeps parsed tables in one Worker across preview, mapping, validation, batch repair, report and final collection. Unit tests cover multi-sheet inspection, bounded paging, source values, batch repair, worker-local callbacks, input ownership, busy-state errors and terminal cancellation.
+- The production React/Vue workbench is checked in Chromium, Firefox and WebKit, including unfamiliar Excel headers, explicit worksheet mapping, two-cell batch repair, deferred report loading, final row collection, hard cancellation and mobile overflow.
+- `npm run bench:session` creates a deterministic 10,000-row, four-column XLSX and runs seven samples. On Apple M4 / macOS arm64 / Node 25.9.0, retaining one parse for two validations measured a 225.18 ms median versus 367.28 ms when parsing before each validation, 38.69% lower for this fixture. The compact state was 1,219 JSON bytes versus 4,689,390 bytes for the full result, 99.97% smaller.
+
+These measurements exclude real browser structured-clone time, Worker startup, UI rendering, network and peak memory. JSON size only approximates transferable payload cost. Raw samples and exact scope are committed in [`benchmarks/session-2026-09-12.json`](https://github.com/yyyz1011/sheetdelta/blob/master/benchmarks/session-2026-09-12.json).
+
 ## 0.9 Worker repair and report evidence
 
 - 156 unit tests and 33 browser checks cover import, repair, deferred reports, caching, cancellation and retry across Chromium, Firefox and WebKit.

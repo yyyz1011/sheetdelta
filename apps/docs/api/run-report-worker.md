@@ -54,6 +54,8 @@ console.log(code); // ABORTED
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../worker-imports)
+- [createImportSession](./create-import-session)
+- [installImportSessionWorker](./install-import-session-worker)
 - [runRepairWorker](./run-repair-worker)
 - [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)

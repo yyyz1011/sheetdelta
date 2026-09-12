@@ -30,6 +30,7 @@ try {
 | `FORMULA_REJECTED`, `MERGED_CELLS`, `CELL_ERROR` | Excel 导入策略拒绝了某个单元格 |
 | `WORKER_FAILED` | Worker 初始化、加载或通信失败 |
 | `WORKER_TIMEOUT` | 整个导入任务超过截止时间 |
+| `SESSION_BUSY`, `SESSION_CLOSED` | 等待当前会话命令完成，或在会话关闭后重新打开 |
 | `ABORTED` | 调用方取消了操作 |
 | `VALIDATION_TIMEOUT` | 批量校验回调超时 |
 | `VALIDATION_FAILED` | 批量校验抛错或拒绝；检查 cause 和 context.operation |

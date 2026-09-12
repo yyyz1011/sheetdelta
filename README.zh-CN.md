@@ -63,6 +63,7 @@ const report = await exportDiffExcel(result); // XLSX Uint8Array
 | `/merge` | 左/内/全连接、冲突报告、严格或并集结构的纵向追加 |
 | `/import` | 表头映射、清洗、业务校验、部分接收和源位置追踪 |
 | `/import-report` | 可修改的 XLSX 错误报告、单元格高亮和源位置明细 |
+| `/session` | 持久化浏览器 Worker 会话：工作表预览、可视化映射、批量纠错和延后传输完整结果 |
 | `/errors` | 结构化错误码、上下文和序列化 |
 | `/formula` | 公式计算及跨表依赖 |
 | `/workbook` | 保留工作簿内容修改、公式重算 |
@@ -145,3 +146,7 @@ macOS 测试默认使用 Chrome。Linux 先运行 `npx playwright install --with
 ## Worker 纠错与按需报告
 
 通过 `sheetdelta-core/worker` 的 `runRepairWorker`、`runReportWorker` 将纠错与 XLSX 报告生成移到独立线程。React/Vue 示例支持点击问题定位修改、下载时生成报告，以及编辑成功前复用报告缓存。[接入指南](https://sheetdelta.nimokit.com/docs/zh/worker-imports)。
+
+## 持久化导入工作台
+
+交互式导入可使用 `sheetdelta-core/session` 的 `createImportSession`。CSV 或 Excel 只在持久化 Worker 中解析一次；页面仅接收有限工作表预览，可映射陌生表头、一次提交多处来源单元格纠错、按需生成报告，并在交付时才收集完整可提交行。[完整指南](https://sheetdelta.nimokit.com/docs/zh/import-sessions) · [React/Vue 在线工作台](https://sheetdelta.nimokit.com/examples/)。

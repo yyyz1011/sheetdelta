@@ -61,3 +61,7 @@ New `/import` and `/import-report` entries preserve existing root imports and co
 ## Reusable imports (0.6)
 
 Adds optional dictionaries, JSON templates and asynchronous batch rules. Existing calls retain their behavior. `CleanIssue.code` adds `dictionary`; `ErrorCode` adds `VALIDATION_TIMEOUT` and `VALIDATION_FAILED`; progress adds `batch-rules`. Update exhaustive switches if used. See [usage and limits](./reusable-imports).
+
+## Persistent import sessions (0.10)
+
+The new `/session` entry is additive. Existing one-shot Worker APIs are unchanged. `ErrorCode` adds `SESSION_BUSY` and `SESSION_CLOSED`; update exhaustive switches. A session owns one Worker and retained parsed data, so call `close()` when finished. Cancelling or timing out any session command closes it. See the [session lifecycle and examples](./import-sessions).

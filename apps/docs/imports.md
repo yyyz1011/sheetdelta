@@ -23,6 +23,7 @@ npm install sheetdelta-core
 | `sheetdelta-core/excel-node` | `readExcelStream` | yauzl + saxes + XML DOM; Node only |
 | `sheetdelta-core/import` | `mapImportHeaders`, `prepareImport`, `importFile`, `locateImportCell` | File parsers loaded lazily when reading |
 | `sheetdelta-core/import-report` | `exportImportReport` | SheetJS + fflate when exporting |
+| `sheetdelta-core/session` | `createImportSession`, `installImportSessionWorker` | CSV/Excel parsers inside an application-owned browser Worker |
 | `sheetdelta-core/types` | Shared TypeScript types; `TableValidationError` | None |
 
 ```ts
@@ -46,4 +47,4 @@ The npm installation includes the complete package and its dependencies. Selecti
 
 The root entry stays lightweight and preserves previous imports. New features are deliberately accessed through subpaths. Internal file paths are not public APIs.
 
-[All 49 runtime APIs with executable examples](./api/all) · [Type reference](./api/types) · [Import and repair workflow](./import-workflow)
+[All 51 runtime APIs with executable examples](./api/all) · [Type reference](./api/types) · [Persistent import workbench](./import-sessions)

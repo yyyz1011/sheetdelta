@@ -54,6 +54,8 @@ console.log(source.sourceRow, source.sourceColumn); // 2 qty
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../import-workflow)
+- [createImportSession](./create-import-session)
+- [installImportSessionWorker](./install-import-session-worker)
 - [runRepairWorker](./run-repair-worker)
 - [runReportWorker](./run-report-worker)
 - [repairImport](./repair-import)

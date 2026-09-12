@@ -18,6 +18,7 @@ const sidebar = (zh = false) => {
       ...apiSidebar(zh),
     ] },
     { text: zh ? '功能指南' : 'Guides', collapsed: true, items: [
+      { text: zh ? '持久化导入工作台' : 'Persistent import workbench', link: p + 'import-sessions' },
       { text: zh ? '页面内纠错与重新校验' : 'Repair and revalidate', link: p + 'import-repair' },
       { text: zh ? 'Worker 与 React / Vue' : 'Worker & React / Vue', link: p + 'worker-imports' },
       { text: zh ? '可复用业务导入' : 'Reusable business imports', link: p + 'reusable-imports' },

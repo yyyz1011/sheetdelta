@@ -6,7 +6,7 @@ description: 按任务查找 SheetDelta 全部 API、参数和可运行案例。
 
 # API 参考
 
-**49 个 API，按任务分类。** 点击函数查看导入方式、参数、返回值和可运行案例；也可使用顶栏搜索按函数名查找。
+**51 个 API，按任务分类。** 点击函数查看导入方式、参数、返回值和可运行案例；也可使用顶栏搜索按函数名查找。
 
 [从导入纠错流程开始](../import-workflow) · [选择按需导入入口](../imports) · [查看全部类型](./types)
 
@@ -14,6 +14,8 @@ description: 按任务查找 SheetDelta 全部 API、参数和可运行案例。
 
 | API | 用途 |
 | --- | --- |
+| <span id="createimportsession"></span>[createImportSession](./create-import-session) | 打开持久化浏览器 Worker：CSV/Excel 只解析一次，返回有限预览，并复用线程内数据完成映射、批量纠错、报告和延后结果收集。 |
+| <span id="installimportsessionworker"></span>[installImportSessionWorker](./install-import-session-worker) | 在应用自有模块 Worker 中安装持久化导入会话协议；回调规则需在线程内注册。 |
 | <span id="runrepairworker"></span>[runRepairWorker](./run-repair-worker) | 在独立 Worker 中纠错及重新校验，默认不生成报告；业务回调在线程内注册。 |
 | <span id="runreportworker"></span>[runReportWorker](./run-report-worker) | 按需在线程中生成 XLSX 报告字节，不重复校验数据。 |
 | <span id="repairimport"></span>[repairImport](./repair-import) | 修改原始来源单元格后重新清洗和全量校验，不再读取文件，不修改先前结果。 |

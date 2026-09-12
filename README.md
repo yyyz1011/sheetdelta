@@ -63,6 +63,7 @@ See [async & Worker examples](https://sheetdelta.nimokit.com/docs/async.html), [
 | `sheetdelta-core/merge` | Left/inner/full joins with conflict reporting; strict or union-schema vertical append |
 | `sheetdelta-core/import` | Header mapping, cleaning, business validation, partial acceptance and source tracing |
 | `sheetdelta-core/import-report` | Editable XLSX error reports with cell highlights and source details |
+| `sheetdelta-core/session` | Persistent browser Worker sessions for worksheet preview, visual mapping, batch repair and deferred full-result transfer |
 | `sheetdelta-core/errors` | Structured error codes, context and serialization |
 | `sheetdelta-core/formula` | `calculateWorkbook` |
 | `sheetdelta-core/workbook` | `patchWorkbook`, `recalculateExcel` |
@@ -145,3 +146,7 @@ Import `runImportWorker` and `installImportWorker` from `sheetdelta-core/worker`
 ## Worker repair and lazy reports
 
 Use `runRepairWorker` and `runReportWorker` from `sheetdelta-core/worker` to move correction and XLSX report generation off the calling thread. React/Vue examples support click-to-repair, report generation on download, and report caching until the next successful edit. [Guide](https://sheetdelta.nimokit.com/docs/worker-imports).
+
+## Persistent import workbench
+
+Use `createImportSession` from `sheetdelta-core/session` for interactive imports. A CSV or Excel file is parsed once in a persistent Worker; the page receives bounded worksheet previews, maps unfamiliar headers, queues multiple source-cell repairs, generates a report only when requested, and collects full accepted rows only at delivery. [Complete guide](https://sheetdelta.nimokit.com/docs/import-sessions) · [React/Vue workbench](https://sheetdelta.nimokit.com/examples/).

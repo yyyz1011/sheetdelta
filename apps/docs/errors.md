@@ -30,6 +30,7 @@ try {
 | `FORMULA_REJECTED`, `MERGED_CELLS`, `CELL_ERROR` | An Excel import policy rejected a cell |
 | `WORKER_FAILED` | Worker setup, loading or communication failed |
 | `WORKER_TIMEOUT` | Whole import task deadline exceeded |
+| `SESSION_BUSY`, `SESSION_CLOSED` | Wait for the active session command, or open a new session after closure |
 | `ABORTED` | The caller cancelled an operation |
 | `VALIDATION_TIMEOUT` | A batch validator exceeded its per-callback deadline |
 | `VALIDATION_FAILED` | A batch validator threw/rejected; inspect cause and context.operation |
