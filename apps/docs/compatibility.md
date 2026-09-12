@@ -1,6 +1,13 @@
 # Compatibility & performance
 
-## Import repair and performance evidence
+## 0.9 Worker repair and report evidence
+
+- 156 unit tests and 33 browser checks cover import, repair, deferred reports, caching, cancellation and retry across Chromium, Firefox and WebKit.
+- All 49 APIs have executable bilingual reference examples (98 executions). Both framework examples are type-checked before building.
+- Repair/report transport omits unrelated result arrays, and report computation is skipped until requested. These are verified behavior changes, not measured peak-memory or end-to-end timing claims.
+
+
+## 0.8 Import repair and performance evidence
 
 - 149 unit tests, 27 browser checks, and 47 APIs with 94 bilingual example executions cover this iteration.
 - Source-cell repair rechecks cross-row uniqueness and business rules without reparsing the file. The previous result remains unchanged.

@@ -53,6 +53,8 @@ dispose();
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../worker-imports)
+- [runRepairWorker](./run-repair-worker)
+- [runReportWorker](./run-report-worker)
 - [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
 - [serializeImportTemplate](./serialize-import-template)

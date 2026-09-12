@@ -141,3 +141,7 @@ macOS 测试默认使用 Chrome。Linux 先运行 `npx playwright install --with
 ## 导入纠错与性能
 
 通过 `sheetdelta-core/import` 按需导入 `repairImport`，修改来源单元格后重新全量校验，无需再次解析文件。React/Vue 示例支持页面内纠错。[使用方法与可复现性能数据](https://sheetdelta.nimokit.com/docs/zh/import-repair)，仓库内运行 `npm run bench:import` 可执行已解析表格基准。
+
+## Worker 纠错与按需报告
+
+通过 `sheetdelta-core/worker` 的 `runRepairWorker`、`runReportWorker` 将纠错与 XLSX 报告生成移到独立线程。React/Vue 示例支持点击问题定位修改、下载时生成报告，以及编辑成功前复用报告缓存。[接入指南](https://sheetdelta.nimokit.com/docs/zh/worker-imports)。

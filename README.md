@@ -141,3 +141,7 @@ Import `runImportWorker` and `installImportWorker` from `sheetdelta-core/worker`
 ## Repair imports and performance
 
 `repairImport` from `sheetdelta-core/import` applies source-cell edits without reparsing the file and reruns all validation. Try in-page correction in the React/Vue examples. [Usage and reproducible performance measurements](https://sheetdelta.nimokit.com/docs/import-repair). Run `npm run bench:import` in this repository for the parsed-table benchmark.
+
+## Worker repair and lazy reports
+
+Use `runRepairWorker` and `runReportWorker` from `sheetdelta-core/worker` to move correction and XLSX report generation off the calling thread. React/Vue examples support click-to-repair, report generation on download, and report caching until the next successful edit. [Guide](https://sheetdelta.nimokit.com/docs/worker-imports).

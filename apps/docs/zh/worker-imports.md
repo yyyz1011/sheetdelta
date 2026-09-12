@@ -39,7 +39,7 @@ Excel 模板设置 `format: 'excel'` 和 `sheet: 'Data'` 等工作表名称。�
 [在线示例](https://sheetdelta.nimokit.com/examples/)使用同一供应商模板：下载 CSV 样例后导入，三行中一行通过。下载纠错工作簿，修改 **Data** 中的负数数量和未知 Yes/No 值；选择 **Excel**，重新导入 **Data** 工作表。
 
 - React 用 `useRef` 保存控制器，组件卸载、替换任务前调用 `abort()`。
-- Vue 在响应式结果之外保存控制器，并在 `onBeforeUnmount` 中取消。
+- Vue 用 `shallowRef` 保存结果，保持内部数据可以结构化克隆，并在响应式结果之外保存控制器，并在 `onBeforeUnmount` 中取消。
 - 两套示例均忽略旧任务回调、禁止重复提交、显示来源行问题，并释放下载对象 URL。
 - React/Vue 仅是示例应用的依赖，不会随着核心 npm 包安装。
 
@@ -54,3 +54,31 @@ Blob 在调用侧异步读取；取消可丢弃结果，但无法终止浏览器
 ## API 参考
 
 [runImportWorker](./api/run-import-worker) · [installImportWorker](./api/install-import-worker) · [可复用模板](./reusable-imports)
+
+## Worker 纠错与按需生成报告
+
+三个操作共用同一份 `import.worker.ts` 和工厂：
+
+```ts
+import { runImportWorker, runRepairWorker, runReportWorker } from 'sheetdelta-core/worker';
+const createWorker = () => new Worker(new URL('./import.worker.ts', import.meta.url), {type:'module'});
+const controller = new AbortController();
+const fields = [{key:'sku'}, {key:'qty',clean:{type:'number' as const},rule:{min:0}}];
+const imported = await runImportWorker(createWorker, file,
+  {version:1,id:'supplier',revision:1,format:'csv',fields},
+  {signal:controller.signal,mode:'valid-rows'}); // 不生成报告
+const repaired = await runRepairWorker(createWorker, imported.result,
+  [{row:1,column:'qty',value:'3'}], {fields},
+  {signal:controller.signal,mode:'valid-rows'}); // 不重新解析、不生成报告
+// 用户点击下载时调用：
+const bytes = await runReportWorker(createWorker, repaired.result,
+  {signal:controller.signal,timeoutMs:120_000});
+```
+
+`runRepairWorker` 接受一批来源单元格修改，重新执行完整校验。业务回调在 Worker 模块的 `installImportWorker` 中注册，不随 schema 跨线程发送。`report` 默认关闭，仅在立即需要两个输出时开启。
+
+`runReportWorker` 直接返回 XLSX 字节，不重复校验。示例缓存当前结果的报告，纠错成功后清除旧缓存；重复下载复用已有报告。取消按钮也能停止纠错和报告 Worker。取消或组件卸载后不会下载迟到的旧报告。
+
+每个任务独占一个 Worker。纠错仅传输旧结果的原始表格和行来源；报告仅传输原始数据、问题、状态和汇总；纠错返回的仍是完整结果。结构化克隆和界面渲染仍在调用侧发生，不能承诺主线程零开销或限定内存。传递普通数据，避免响应式代理，Vue 示例因此使用 `shallowRef`。
+
+验证覆盖 Chromium、Firefox、WebKit 的真实纠错及报告线程、报告模块延迟加载、重复下载缓存和编辑后失效；忙碌 Worker 样例验证两个新任务的取消。这些是功能验证，不表示测得了端到端速度提升。

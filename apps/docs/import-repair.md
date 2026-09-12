@@ -29,7 +29,7 @@ console.log(result.rows); // [{ sku: '001', qty: 2 }]
 
 [Open the workbench](https://sheetdelta.nimokit.com/examples/). Import the sample, then use **Repair a source cell**: data row `2`, column `qty`, value `3`; then data row `3`, column `active`, value `Yes`. All three rows become eligible without uploading again.
 
-Initial file imports use a Worker. The current repair example runs cooperative preparation on the calling thread and lazily regenerates the report; synchronous validation/report work can still occupy that thread. This is not a virtualized spreadsheet editor or a bounded-memory import engine.
+Initial imports, corrections and report generation now use dedicated Workers. Click an issue to select its source cell and focus the replacement field. Reports are generated only when downloaded, cached for the unchanged result, and invalidated after a successful repair. Direct `repairImport` calls still run on the calling thread; use [runRepairWorker](./api/run-repair-worker) to move the work. This is not a virtualized spreadsheet editor or a bounded-memory import engine.
 
 ## Performance measurements
 

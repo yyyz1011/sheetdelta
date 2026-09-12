@@ -39,7 +39,7 @@ For Excel use `format: 'excel'` and a `sheet` in the template, such as `sheet: '
 The [live examples](https://sheetdelta.nimokit.com/examples/) use the same supplier schema in two independent components. Download the sample CSV, select it, and import: one of three rows is accepted. Download the repair workbook, fix negative quantity and the unknown Yes/No value in **Data**, select **Excel**, and re-import **Data**.
 
 - React: hold the AbortController in `useRef`; abort on unmount and before a replacement job.
-- Vue: hold the controller outside reactive result state; abort in `onBeforeUnmount`.
+- Vue: store the result in `shallowRef` so its nested data remains structured-cloneable; hold the controller outside reactive result state; abort in `onBeforeUnmount`.
 - Both examples ignore callbacks from an obsolete task, disable duplicate imports, show source row issues, and release downloaded object URLs.
 - React and Vue are example-app dependencies. Installing `sheetdelta-core` does not install either framework.
 
@@ -54,3 +54,31 @@ Blob reading is asynchronous on the caller side; cancellation discards its event
 ## API reference
 
 [runImportWorker](./api/run-import-worker) · [installImportWorker](./api/install-import-worker) · [Portable templates](./reusable-imports)
+
+## Worker repair and on-demand reports
+
+Use the same `import.worker.ts` installer and factory for all three operations:
+
+```ts
+import { runImportWorker, runRepairWorker, runReportWorker } from 'sheetdelta-core/worker';
+const createWorker = () => new Worker(new URL('./import.worker.ts', import.meta.url), {type:'module'});
+const controller = new AbortController();
+const fields = [{key:'sku'}, {key:'qty',clean:{type:'number' as const},rule:{min:0}}];
+const imported = await runImportWorker(createWorker, file,
+  {version:1,id:'supplier',revision:1,format:'csv',fields},
+  {signal:controller.signal,mode:'valid-rows'}); // No report generated.
+const repaired = await runRepairWorker(createWorker, imported.result,
+  [{row:1,column:'qty',value:'3'}], {fields},
+  {signal:controller.signal,mode:'valid-rows'}); // No reparse or report.
+// Call from the user's Download action:
+const bytes = await runReportWorker(createWorker, repaired.result,
+  {signal:controller.signal,timeoutMs:120_000});
+```
+
+`runRepairWorker` accepts a batch of source-cell edits and reruns all validation. Pass business callbacks to `installImportWorker` in the worker module, not in the schema sent across threads. Its `report` option defaults to false; opt in only if the caller immediately needs both outputs.
+
+`runReportWorker` returns XLSX bytes without repeating validation. The examples cache these bytes for the current result and discard them after a successful edit; repeated downloads reuse the same report. The cancellation button also stops repair and report workers. No stale report is downloaded after cancellation or component teardown.
+
+Each job owns one worker. Repair sends only the original table and row sources from the previous result; report generation sends only original data, issues, status and summary. Returned repair results are still complete. Structured cloning and rendering still happen on the caller side; moving computation to a worker does not promise zero main-thread work or bounded memory. Use plain data, not reactive proxies; Vue examples use `shallowRef` for this reason.
+
+Verification covers real repair/report workers in Chromium, Firefox and WebKit, deferred report-module loading, cached downloads and cache invalidation after edits. A busy-worker fixture verifies main-thread cancellation for both new task types. These are functional checks, not a claim of a measured end-to-end speedup.

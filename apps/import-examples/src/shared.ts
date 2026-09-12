@@ -1,5 +1,7 @@
 import {
   runImportWorker,
+  runRepairWorker,
+  runReportWorker,
   type WorkerImportResult,
 } from "sheetdelta-core/worker";
 import type { ImportTemplate } from "sheetdelta-core/import";
@@ -53,7 +55,7 @@ export function importSupplier(
     {
       signal,
       mode: "valid-rows",
-      report: true,
+      report: false,
       fileName: file.name,
       onProgress: (event) => progress(event.phase),
     },
@@ -80,16 +82,28 @@ export async function repairSupplier(
   signal: AbortSignal,
   progress: (phase: string) => void,
 ): Promise<WorkerImportResult> {
-  const { repairImport } = await import("sheetdelta-core/import");
-  const result = await repairImport(
+  return runRepairWorker(
+    () =>
+      new Worker(new URL("./import.worker.ts", import.meta.url), {
+        type: "module",
+      }),
     previous.result,
     [{ row, column, value }],
     { fields: supplierFields },
     { signal, mode: "valid-rows", onProgress: (e) => progress(e.phase) },
   );
-  const { exportImportReport } = await import("sheetdelta-core/import-report");
-  if (signal.aborted) throw new Error("Repair cancelled.");
-  const report = await exportImportReport(result);
-  if (signal.aborted) throw new Error("Repair cancelled.");
-  return { result, report };
+}
+export function generateSupplierReport(
+  previous: WorkerImportResult,
+  signal: AbortSignal,
+  progress: (phase: string) => void,
+): Promise<Uint8Array> {
+  return runReportWorker(
+    () =>
+      new Worker(new URL("./import.worker.ts", import.meta.url), {
+        type: "module",
+      }),
+    previous.result,
+    { signal, onProgress: (e) => progress(e.phase) },
+  );
 }

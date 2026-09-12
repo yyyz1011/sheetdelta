@@ -1,5 +1,15 @@
 [
   {
+    "version": "0.9.0",
+    "date": "2026-09-12",
+    "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.9.0",
+    "en": "Worker repair and on-demand reports",
+    "zh": "Worker 纠错与按需报告",
+    "summaryEn": "Dedicated repair and report workers with cancellation and deadlines. React/Vue examples generate reports only on download, cache unchanged reports and select source cells directly from issues. Worker payloads omit unrelated result arrays.",
+    "summaryZh": "新增可取消、可超时的纠错与报告 Worker。React/Vue 示例仅在下载时生成报告，复用未改变结果的报告缓存，点击问题即可定位来源单元格，跨线程不再传输任务无关的结果数组。",
+    "guide": "worker-imports"
+  },
+  {
     "version": "0.8.0",
     "date": "2026-09-11",
     "url": "https://github.com/yyyz1011/sheetdelta/releases/tag/v0.8.0",
