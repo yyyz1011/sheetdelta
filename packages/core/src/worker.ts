@@ -4,6 +4,9 @@ import type {
   ImportResult,
   ImportProgress,
   TemplateImportOptions,
+  ImportSchema,
+  ImportOptions,
+  ImportCellEdit,
 } from "./import.js";
 
 export interface WorkerImportProgress {
@@ -34,11 +37,81 @@ export function runImportWorker(
   template: ImportTemplate,
   options: WorkerImportOptions = {},
 ): Promise<WorkerImportResult> {
+  return executeWorker(
+    createWorker,
+    input,
+    () => ({ kind: "import", template }),
+    options,
+    true,
+  );
+}
+export type WorkerTaskOptions = Pick<
+  WorkerImportOptions,
+  "signal" | "onProgress" | "timeoutMs"
+>;
+export interface WorkerRepairOptions extends Omit<ImportOptions, "onProgress"> {
+  onProgress?: (progress: WorkerImportProgress) => void;
+  timeoutMs?: number;
+  report?: boolean;
+}
+/** Repair source cells in a dedicated worker; register business callbacks with installImportWorker. */
+export function runRepairWorker(
+  createWorker: () => Worker,
+  previous: ImportResult,
+  edits: readonly ImportCellEdit[],
+  schema: Omit<ImportSchema, "rowRules" | "tableRules" | "batchRules">,
+  options: WorkerRepairOptions = {},
+): Promise<WorkerImportResult> {
+  return executeWorker(
+    createWorker,
+    null,
+    () => ({
+      kind: "repair",
+      previous: {
+        original: previous.original,
+        rowSources: previous.rowSources,
+      },
+      edits,
+      schema,
+    }),
+    options,
+    false,
+  );
+}
+/** Generate a report on demand in a dedicated worker; only report inputs cross the thread boundary. */
+export function runReportWorker(
+  createWorker: () => Worker,
+  result: ImportResult,
+  options: WorkerTaskOptions = {},
+): Promise<Uint8Array> {
+  return executeWorker(
+    createWorker,
+    null,
+    () => ({
+      kind: "report",
+      previous: {
+        original: result.original,
+        issues: result.issues,
+        status: result.status,
+        summary: result.summary,
+      },
+    }),
+    options,
+    false,
+  );
+}
+function executeWorker<T>(
+  createWorker: () => Worker,
+  input: Blob | string | ArrayBuffer | Uint8Array | null,
+  task: () => Record<string, unknown>,
+  options: WorkerImportOptions | WorkerRepairOptions,
+  readInput: boolean,
+): Promise<T> {
   return new Promise((resolve, reject) => {
     let worker: Worker | undefined,
       timer: ReturnType<typeof setTimeout> | undefined,
       finished = false;
-    const finish = (error?: unknown, value?: WorkerImportResult) => {
+    const finish = (error?: unknown, value?: T) => {
       if (finished) return;
       finished = true;
       clearTimeout(timer);
@@ -134,7 +207,7 @@ export function runImportWorker(
         );
       // Snapshot configuration before reading a Blob, so caller mutations cannot change an in-flight task.
       const saved = structuredClone({
-        template,
+        ...task(),
         runtime,
         report: report ?? false,
       });
@@ -157,10 +230,11 @@ export function runImportWorker(
           ),
         timeout,
       );
-      progress({ phase: "read", processed: 0, total: 1 });
+      if (readInput) progress({ phase: "read", processed: 0, total: 1 });
       if (finished) return;
-      const bytes =
-        typeof Blob !== "undefined" && input instanceof Blob
+      const bytes = !readInput
+        ? Promise.resolve(null)
+        : typeof Blob !== "undefined" && input instanceof Blob
           ? input.arrayBuffer()
           : typeof input === "string"
             ? Promise.resolve(input)
@@ -177,7 +251,7 @@ export function runImportWorker(
       bytes.then(
         (value) => {
           if (finished) return;
-          progress({ phase: "read", processed: 1, total: 1 });
+          if (readInput) progress({ phase: "read", processed: 1, total: 1 });
           if (finished) return;
           try {
             worker!.postMessage(
@@ -187,7 +261,7 @@ export function runImportWorker(
                 input: value,
                 ...saved,
               },
-              typeof value === "string" ? [] : [value],
+              value instanceof ArrayBuffer ? [value] : [],
             );
           } catch (error) {
             finish(
@@ -254,18 +328,43 @@ export function installImportWorker(
       return;
     started = true;
     try {
-      const { importWithTemplate } = await import("./import.js");
-      send("progress", {
-        progress: { phase: "parse", processed: 0, total: 1 },
-      });
-      const result = await importWithTemplate(task.input, task.template, {
+      if (task.kind === "report") {
+        send("progress", {
+          progress: { phase: "report", processed: 0, total: 1 },
+        });
+        const { exportImportReport } = await import("./import-report.js");
+        const report = await exportImportReport(task.previous);
+        send("progress", {
+          progress: { phase: "complete", processed: 1, total: 1 },
+        });
+        send("result", { value: report }, [report.buffer as ArrayBuffer]);
+        return;
+      }
+      const { importWithTemplate, repairImport } = await import("./import.js");
+      const runtime = {
         ...task.runtime,
         ...rules,
-        onProgress: (progress) => {
-          // Complete is emitted only after the optional report has finished.
+        onProgress: (progress: ImportProgress) => {
           if (progress.phase !== "complete") send("progress", { progress });
         },
-      });
+      };
+      let result: ImportResult;
+      if (task.kind === "repair") {
+        const { onProgress, ...repairOptions } = runtime;
+        result = await repairImport(
+          task.previous,
+          task.edits,
+          { ...task.schema, ...rules },
+          { ...repairOptions, onProgress },
+        );
+      } else {
+        if (task.kind !== undefined && task.kind !== "import")
+          throw new SheetDeltaError("INVALID_OPTIONS", "Unknown worker task.");
+        send("progress", {
+          progress: { phase: "parse", processed: 0, total: 1 },
+        });
+        result = await importWithTemplate(task.input, task.template, runtime);
+      }
       let report: Uint8Array | undefined;
       if (task.report) {
         send("progress", {

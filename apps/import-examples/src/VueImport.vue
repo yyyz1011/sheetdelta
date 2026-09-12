@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount } from "vue";
+import { ref, shallowRef, onBeforeUnmount } from "vue";
 import type { WorkerImportResult } from "sheetdelta-core/worker";
-import { importSupplier, downloadReport, repairSupplier } from "./shared";
+import {
+  importSupplier,
+  downloadReport,
+  repairSupplier,
+  generateSupplierReport,
+} from "./shared";
 const file = ref<File>(),
   format = ref<"csv" | "excel">("csv"),
   sheet = ref("Data"),
   phase = ref("Choose a file"),
   busy = ref(false),
-  result = ref<WorkerImportResult>();
+  result = shallowRef<WorkerImportResult>();
 const editRow = ref(1),
   editColumn = ref("qty"),
   editValue = ref("");
@@ -38,6 +43,46 @@ async function repair() {
     if (controller === task) {
       busy.value = false;
       controller = null;
+    }
+  }
+}
+const replacementInput = ref<HTMLInputElement>();
+function selectIssue(row: number, column: string) {
+  if (!result.value) return;
+  editRow.value = row;
+  editColumn.value = column;
+  editValue.value = String(
+    result.value.result.original.rows[row - 1][column] ?? "",
+  );
+  replacementInput.value?.focus();
+  replacementInput.value?.scrollIntoView({ block: "center" });
+}
+async function download() {
+  if (!result.value || busy.value) return;
+  const previous = result.value;
+  if (previous.report) {
+    downloadReport(previous.report);
+    return;
+  }
+  const task = new AbortController();
+  controller = task;
+  busy.value = true;
+  try {
+    const report = await generateSupplierReport(previous, task.signal, (p) => {
+      if (controller === task) phase.value = p;
+    });
+    if (controller === task) {
+      result.value = { ...previous, report };
+      downloadReport(report);
+      phase.value = `${previous.result.summary.accepted} accepted / ${previous.result.summary.total} rows`;
+    }
+  } catch (error) {
+    if (controller === task)
+      phase.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    if (controller === task) {
+      controller = null;
+      busy.value = false;
     }
   }
 }
@@ -137,20 +182,27 @@ async function start() {
           </option>
         </select></label
       >
-      <label>Replacement value<input v-model="editValue" /></label>
+      <label
+        >Replacement value<input ref="replacementInput" v-model="editValue"
+      /></label>
       <button :disabled="busy" @click="repair">Apply and revalidate</button>
     </fieldset>
     <ul>
       <li v-for="(issue, i) in result.result.issues.slice(0, 20)" :key="i">
         Row {{ issue.source?.sourceRow ?? "—" }} · {{ issue.column }}:
         {{ issue.message }}
+        <button
+          v-if="issue.row && issue.source?.sourceColumn"
+          class="secondary issue-edit"
+          :disabled="busy"
+          @click="selectIssue(issue.row, issue.source.sourceColumn)"
+        >
+          Edit row {{ issue.source.sourceRow ?? issue.row }} ·
+          {{ issue.column }}
+        </button>
       </li>
     </ul>
-    <button
-      v-if="result.report"
-      class="secondary"
-      @click="downloadReport(result.report)"
-    >
+    <button class="secondary" @click="download" :disabled="busy">
       Download repair workbook
     </button></template
   >

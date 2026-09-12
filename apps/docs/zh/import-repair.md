@@ -29,7 +29,7 @@ console.log(result.rows); // [{ sku: '001', qty: 2 }]
 
 [打开工作台](https://sheetdelta.nimokit.com/examples/)，导入样例后，在 **Repair a source cell** 中依次修改：数据行 `2`、列 `qty`、值 `3`；数据行 `3`、列 `active`、值 `Yes`。无需重新上传，三行即可全部通过。
 
-首次文件导入使用 Worker。当前纠错示例在调用线程分批处理并按需生成报告，同步校验及报告生成仍可能占用该线程；它不是虚拟化表格编辑器，也不是限定内存的导入引擎。
+首次导入、纠错和报告生成现在均使用独立 Worker。点击问题旁的修改按钮，可定位来源单元格并聚焦替换值。报告仅在下载时生成，未修改结果时复用缓存，纠错成功后旧缓存失效。直接调用 `repairImport` 仍在调用线程执行，需要移入线程时使用 [runRepairWorker](./api/run-repair-worker)。本示例不是虚拟化表格编辑器，也不是限定内存的导入引擎。
 
 ## 性能测量
 

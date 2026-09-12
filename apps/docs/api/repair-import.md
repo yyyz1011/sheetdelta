@@ -55,6 +55,8 @@ console.log(result.rows[0].qty); // 2
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../import-repair)
+- [runRepairWorker](./run-repair-worker)
+- [runReportWorker](./run-report-worker)
 - [runImportWorker](./run-import-worker)
 - [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)

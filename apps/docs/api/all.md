@@ -6,7 +6,7 @@ description: Find every SheetDelta API by task, with parameters and runnable exa
 
 # API reference
 
-**47 APIs, organized by task.** Open a function for its import, parameters, return value and runnable example. Search by function name with the search button in the header.
+**49 APIs, organized by task.** Open a function for its import, parameters, return value and runnable example. Search by function name with the search button in the header.
 
 [Start with the import workflow](../import-workflow) · [Choose an import entry](../imports) · [Browse all types](./types)
 
@@ -14,6 +14,8 @@ description: Find every SheetDelta API by task, with parameters and runnable exa
 
 | API | Use it to |
 | --- | --- |
+| <span id="runrepairworker"></span>[runRepairWorker](./run-repair-worker) | Repair source cells and revalidate in a dedicated worker; reports are optional and disabled by default. Register business callbacks inside the worker. |
+| <span id="runreportworker"></span>[runReportWorker](./run-report-worker) | Generate XLSX report bytes in a dedicated worker when requested, without revalidating the data. |
 | <span id="repairimport"></span>[repairImport](./repair-import) | Edit original source cells without reading the file again, then rerun all cleaning and validation. Earlier results are not mutated. |
 | <span id="runimportworker"></span>[runImportWorker](./run-import-worker) | Run a dedicated browser Worker with cancellation, deadline and optional repair workbook. See the guide for the module worker setup. |
 | <span id="installimportworker"></span>[installImportWorker](./install-import-worker) | Install the import message handler in a dedicated module worker; register business callbacks there. Returns listener cleanup. |

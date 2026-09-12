@@ -52,6 +52,8 @@ console.log(bytes instanceof Uint8Array); // true
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../import-workflow)
+- [runRepairWorker](./run-repair-worker)
+- [runReportWorker](./run-report-worker)
 - [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
 - [installImportWorker](./install-import-worker)

@@ -49,6 +49,8 @@ console.log(template.revision); // 1
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../reusable-imports)
+- [runRepairWorker](./run-repair-worker)
+- [runReportWorker](./run-report-worker)
 - [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
 - [installImportWorker](./install-import-worker)

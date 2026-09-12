@@ -143,3 +143,5 @@ footer {
 
 fieldset { min-width: 0; border: 1px solid var(--line); border-radius: 4px; padding: 16px; margin: 20px 0; }
 legend { font-weight: 600; }
+
+.issue-edit { display: block; margin-top: 8px; }

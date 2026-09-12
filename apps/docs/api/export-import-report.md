@@ -52,6 +52,8 @@ console.log(bytes instanceof Uint8Array); // true
 ## Related APIs and guides {#related}
 
 - [Usage, defaults and limits](../import-workflow)
+- [runRepairWorker](./run-repair-worker)
+- [runReportWorker](./run-report-worker)
 - [repairImport](./repair-import)
 - [runImportWorker](./run-import-worker)
 - [installImportWorker](./install-import-worker)

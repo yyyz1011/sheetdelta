@@ -55,6 +55,8 @@ console.log(result.rows[0].qty); // 2
 ## 相关 API 与指南 {#related}
 
 - [用法、默认值与限制](../import-repair)
+- [runRepairWorker](./run-repair-worker)
+- [runReportWorker](./run-report-worker)
 - [runImportWorker](./run-import-worker)
 - [installImportWorker](./install-import-worker)
 - [serializeImportTemplate](./serialize-import-template)

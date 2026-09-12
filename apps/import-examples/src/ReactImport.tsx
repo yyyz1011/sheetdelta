@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { WorkerImportResult } from "sheetdelta-core/worker";
-import { importSupplier, downloadReport, repairSupplier } from "./shared";
+import {
+  importSupplier,
+  downloadReport,
+  repairSupplier,
+  generateSupplierReport,
+} from "./shared";
 export function ReactImport() {
   const [file, setFile] = useState<File>(),
     [format, setFormat] = useState<"csv" | "excel">("csv"),
@@ -40,6 +45,37 @@ export function ReactImport() {
       if (controller.current === task) {
         setBusy(false);
         controller.current = null;
+      }
+    }
+  }
+  const replacementInput = useRef<HTMLInputElement>(null);
+  async function download() {
+    if (!result || busy) return;
+    if (result.report) {
+      downloadReport(result.report);
+      return;
+    }
+    const task = new AbortController();
+    controller.current = task;
+    setBusy(true);
+    try {
+      const report = await generateSupplierReport(result, task.signal, (p) => {
+        if (controller.current === task) setPhase(p);
+      });
+      if (controller.current === task) {
+        setResult({ ...result, report });
+        downloadReport(report);
+        setPhase(
+          `${result.result.summary.accepted} accepted / ${result.result.summary.total} rows`,
+        );
+      }
+    } catch (error) {
+      if (controller.current === task)
+        setPhase(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (controller.current === task) {
+        controller.current = null;
+        setBusy(false);
       }
     }
   }
@@ -175,6 +211,7 @@ export function ReactImport() {
             <label>
               Replacement value
               <input
+                ref={replacementInput}
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
               />
@@ -188,17 +225,36 @@ export function ReactImport() {
               <li key={i}>
                 Row {issue.source?.sourceRow ?? "—"} · {issue.column}:{" "}
                 {issue.message}
+                {issue.row && issue.source?.sourceColumn && (
+                  <button
+                    className="secondary issue-edit"
+                    disabled={busy}
+                    onClick={() => {
+                      setEditRow(issue.row!);
+                      setEditColumn(issue.source!.sourceColumn!);
+                      setEditValue(
+                        String(
+                          result.result.original.rows[issue.row! - 1][
+                            issue.source!.sourceColumn!
+                          ] ?? "",
+                        ),
+                      );
+                      replacementInput.current?.focus();
+                      replacementInput.current?.scrollIntoView({
+                        block: "center",
+                      });
+                    }}
+                  >
+                    Edit row {issue.source.sourceRow ?? issue.row} ·{" "}
+                    {issue.column}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
-          {result.report && (
-            <button
-              className="secondary"
-              onClick={() => downloadReport(result.report!)}
-            >
-              Download repair workbook
-            </button>
-          )}
+          <button className="secondary" disabled={busy} onClick={download}>
+            Download repair workbook
+          </button>
         </>
       )}
     </>

@@ -914,3 +914,23 @@ export interface WorkerImportResult {
 }
 ```
 
+## WorkerRepairOptions
+
+`sheetdelta-core/worker`
+
+```ts
+export interface WorkerRepairOptions extends Omit<ImportOptions, "onProgress"> {
+    onProgress?: (progress: WorkerImportProgress) => void;
+    timeoutMs?: number;
+    report?: boolean;
+}
+```
+
+## WorkerTaskOptions
+
+`sheetdelta-core/worker`
+
+```ts
+export type WorkerTaskOptions = Pick<WorkerImportOptions, "signal" | "onProgress" | "timeoutMs">;
+```
+

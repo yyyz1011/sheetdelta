@@ -4,6 +4,16 @@ const compare = `const before = [{id:'001', qty:1}];\nconst after = [{id:'001', 
 const file = `import { writeExcel } from 'sheetdelta-core/excel';\nconst bytes = await writeExcel([{name:'Data', rows:[{id:'001', qty:2}]}]);`;
 const imported = `import { importFile } from 'sheetdelta-core/import';\nconst schema = {fields:[{key:'id', requiredColumn:true}, {key:'qty', clean:{type:'number'}, rule:{min:0}}]};\nconst result = await importFile('id,qty\\n001,-2', schema, {format:'csv'});`;
 export const catalog = {
+  runRepairWorker: spec('worker','worker-imports','Repair source cells and revalidate in a dedicated worker; reports are optional and disabled by default. Register business callbacks inside the worker.','在独立 Worker 中纠错及重新校验，默认不生成报告；业务回调在线程内注册。',`const controller = new AbortController();
+controller.abort();
+let code;
+try { await runRepairWorker(() => { throw new Error('Must not start'); }, {}, [], {fields:[{key:'sku'}]}, {signal:controller.signal}); } catch(error) { code = error.code; }
+console.log(code); // ABORTED`,'assert.equal(code,"ABORTED")'),
+  runReportWorker: spec('worker','worker-imports','Generate XLSX report bytes in a dedicated worker when requested, without revalidating the data.','按需在线程中生成 XLSX 报告字节，不重复校验数据。',`const controller = new AbortController();
+controller.abort();
+let code;
+try { await runReportWorker(() => { throw new Error('Must not start'); }, {}, {signal:controller.signal}); } catch(error) { code = error.code; }
+console.log(code); // ABORTED`,'assert.equal(code,"ABORTED")'),
   repairImport: spec('import','import-repair','Edit original source cells without reading the file again, then rerun all cleaning and validation. Earlier results are not mutated.','修改原始来源单元格后重新清洗和全量校验，不再读取文件，不修改先前结果。',`import { importFile } from 'sheetdelta-core/import';
 const schema = {fields:[{key:'sku'}, {key:'qty',clean:{type:'number'},rule:{min:0}}]};
 const previous = await importFile('sku,qty\\n001,-2',schema,{format:'csv'});
